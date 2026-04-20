@@ -1,0 +1,22 @@
+[gd_scene format=3 uid="uid://t3ejc2fqyx2n"]
+
+[ext_resource type="PackedScene" uid="uid://ck53eadwbnumd" path="res://maps/test_plate.tscn" id="1_icmfn"]
+[ext_resource type="PackedScene" uid="uid://dc11efww3e8td" path="res://characters/flash_character.tscn" id="2_7m6vp"]
+
+[sub_resource type="Environment" id="Environment_s3ba5"]
+background_energy_multiplier = 2.98
+ambient_light_color = Color(1, 1, 1, 1)
+ambient_light_energy = 5.9
+reflected_light_source = 2
+tonemap_exposure = 1.29
+
+[node name="TestWorld" type="Node3D" unique_id=696058917]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1573436144]
+environment = SubResource("Environment_s3ba5")
+
+[node name="test_plate" parent="." unique_id=1987738037 instance=ExtResource("1_icmfn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.05122471, 0)
+
+[node name="FlashCharacter" parent="." unique_id=1835476010 instance=ExtResource("2_7m6vp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.040656686, 1.6308757, 0.09300327)
