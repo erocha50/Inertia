@@ -14,6 +14,12 @@ config/name="Inertia"
 config/features=PackedStringArray("4.6", "Forward Plus")
 config/icon="res://icon.svg"
 
+[autoload]
+
+HeatManager="*uid://b3wqjiqh2oy36"
+GameEvents="*uid://d1dbr0o1ct6xl"
+SaveManager="*uid://kopaoy8lmn1f"
+
 [physics]
 
 3d/physics_engine="Jolt Physics"
