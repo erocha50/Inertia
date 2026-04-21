@@ -1,6 +1,7 @@
 ## debug_hud.gd – CanvasLayer (layer = 20)
 extends CanvasLayer
 
+# ↓ Updated to match your new scene: Node3D "test_world" → "FlashCharacter"
 @export var character_path : NodePath = ^"/root/test_world/FlashCharacter"
 
 const GW:=220; const GH:=55; const GAP:=10; const ML:=10; const MT:=10
@@ -22,17 +23,24 @@ var _char:Node=null; var _ctrl:_HUD=null
 
 func _ready() -> void:
 	layer = 20
+	# Try the exported path first; if it fails, search the tree for a CharacterBody3D
 	_char = get_node_or_null(character_path)
-	if _char == null: push_warning("debug_hud: path not found"); return
-	if _char.has_signal("debug_stats"):   _char.debug_stats.connect(_on_stats)
-	if _char.has_signal("turn_strain"):   _char.turn_strain.connect(func(v:float): _strain=v)
-	if _char.has_signal("height_changed"):_char.height_changed.connect(_on_elev)
-	if _char.has_signal("state_changed"): _char.state_changed.connect(_on_state)
-	# Fix: must be separate statements — GDScript 4 for-loop only takes first inline statement
+	if _char == null:
+		push_warning("debug_hud: '%s' not found — searching scene tree for CharacterBody3D" % character_path)
+		_char = _find_character(get_tree().root)
+	if _char == null:
+		push_error("debug_hud: could not find character — HUD disabled"); return
+
+	if _char.has_signal("debug_stats"):    _char.debug_stats.connect(_on_stats)
+	if _char.has_signal("turn_strain"):    _char.turn_strain.connect(func(v:float): _strain=v)
+	if _char.has_signal("height_changed"): _char.height_changed.connect(_on_elev)
+	if _char.has_signal("state_changed"):  _char.state_changed.connect(_on_state)
+
 	for _i in HLEN:
 		_hm.append(0.0)
 		_hsp.append(0.0)
 		_hst.append(0.0)
+
 	_ctrl = _HUD.new()
 	_ctrl.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	_ctrl.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -43,6 +51,15 @@ func _ready() -> void:
 		["Momentum","Speed m/s","Stop Force"],
 		[Color(0.35,0.85,1.0),Color(0.4,1.0,0.5),Color(1.0,0.45,0.35)],
 		[_hm,_hsp,_hst])
+
+
+# Fallback: walk the entire scene tree to find a CharacterBody3D
+func _find_character(node:Node) -> Node:
+	if node is CharacterBody3D: return node
+	for child in node.get_children():
+		var found := _find_character(child)
+		if found != null: return found
+	return null
 
 
 func _physics_process(_d: float) -> void:
@@ -61,7 +78,6 @@ func _physics_process(_d: float) -> void:
 	if "dash_cooldown" in _char and "_dash_cd" in _char:
 		var dc:float = _char.get("dash_cooldown")
 		_dash_cd = _char.get("_dash_cd") / dc if dc > 0.0 else 0.0
-	# Pull stamina_max if available
 	if "stamina_max" in _char: _stamina_max = _char.get("stamina_max")
 	_ctrl.set_trail(_trail, _tstr, _vxz)
 	_ctrl.set_elev(_elev, _edist, _eref, EYRNG)
@@ -142,29 +158,24 @@ class _HUD extends Control:
 		var ox:=0.0; var oy:=float(3*(_gh+_gap)); var pw:=float(_gw); var ph:=float(_sth)
 		draw_rect(Rect2(ox,oy,pw,ph),Color(0.04,0.05,0.10,0.90))
 		var sid:=clampi(_sid,0,SNAMES.size()-1); var sc:Color=SCOLS[sid]
-		# Badge
 		draw_rect(Rect2(ox+8,oy+10,68,24),Color(sc.r,sc.g,sc.b,0.18))
 		draw_rect(Rect2(ox+8,oy+10,68,24),Color(sc.r,sc.g,sc.b,0.70),false,1.2)
 		draw_string(fnt,Vector2(ox+42,oy+26),SNAMES[sid],HORIZONTAL_ALIGNMENT_CENTER,68,11,sc)
-		# Drift / Dash
 		if _drifting: draw_string(fnt,Vector2(ox+84,oy+24),"DRIFT",HORIZONTAL_ALIGNMENT_LEFT,-1,9,Color(1.0,0.8,0.2,0.90))
 		if _dash_t>0.0:
 			draw_rect(Rect2(ox+84,oy+10,40*_dash_t,8),Color(0.4,0.8,1.0,0.70))
 			draw_rect(Rect2(ox+84,oy+10,40,8),Color(0.4,0.8,1.0,0.30),false,0.8)
-		# Time bar
 		var bx:=ox+8; var by:=oy+42; var bw:=pw-16
 		draw_rect(Rect2(bx,by,bw,7),Color(0.12,0.12,0.18,0.80))
 		draw_rect(Rect2(bx,by,bw*clampf(_st/BARMAX,0.0,1.0),7),Color(sc.r,sc.g,sc.b,0.70))
 		draw_rect(Rect2(bx,by,bw,7),Color(sc.r,sc.g,sc.b,0.30),false,0.5)
 		draw_string(fnt,Vector2(bx,by-2),"%.2fs"%_st,HORIZONTAL_ALIGNMENT_LEFT,-1,8,Color(sc.r,sc.g,sc.b,0.75))
-		# Stamina bar
 		var sy:=by+14
 		var stam_col:=Color(0.3,1.0,0.45,0.80) if _stamina>_stamina_max*0.3 else Color(1.0,0.3,0.3,0.90)
 		draw_rect(Rect2(bx,sy,bw,5),Color(0.10,0.10,0.15,0.80))
 		draw_rect(Rect2(bx,sy,bw*clampf(_stamina/_stamina_max,0.0,1.0),5),stam_col)
 		draw_rect(Rect2(bx,sy,bw,5),Color(stam_col.r,stam_col.g,stam_col.b,0.30),false,0.5)
 		draw_string(fnt,Vector2(bx,sy-2),"STA",HORIZONTAL_ALIGNMENT_LEFT,-1,7,Color(stam_col.r,stam_col.g,stam_col.b,0.65))
-		# History chips
 		var cw:=(bw-float((SNAMES.size()-1)*3))/8.0; var cy:=oy+ph-12-8
 		for i in _shist.size():
 			var hc:Color=SCOLS[clampi(_shist[i],0,SCOLS.size()-1)]

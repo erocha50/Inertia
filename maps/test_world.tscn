@@ -10,6 +10,11 @@ ambient_light_energy = 5.9
 reflected_light_source = 2
 tonemap_exposure = 1.29
 
+[sub_resource type="CylinderMesh" id="CylinderMesh_icmfn"]
+top_radius = 3.0
+bottom_radius = 3.0
+height = 8.0
+
 [node name="TestWorld" type="Node3D" unique_id=696058917]
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1573436144]
@@ -18,5 +23,28 @@ environment = SubResource("Environment_s3ba5")
 [node name="test_plate" parent="." unique_id=1987738037 instance=ExtResource("1_icmfn")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.05122471, 0)
 
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="test_plate" unique_id=1791813709]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -23.896296, 3.0976334, -4.930504)
+mesh = SubResource("CylinderMesh_icmfn")
+
+[node name="MeshInstance3D3" type="MeshInstance3D" parent="test_plate" unique_id=1329668473]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.94136, 3.0976334, -74.342705)
+mesh = SubResource("CylinderMesh_icmfn")
+
+[node name="MeshInstance3D4" type="MeshInstance3D" parent="test_plate" unique_id=1171239790]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 66.06322, 3.0976334, -13.728409)
+mesh = SubResource("CylinderMesh_icmfn")
+
+[node name="MeshInstance3D5" type="MeshInstance3D" parent="test_plate" unique_id=1011912210]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -27.451271, 3.2919846, 45.137318)
+mesh = SubResource("CylinderMesh_icmfn")
+
+[node name="MeshInstance3D6" type="MeshInstance3D" parent="test_plate" unique_id=831691702]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -92.29945, 3.2919846, -22.365002)
+mesh = SubResource("CylinderMesh_icmfn")
+
 [node name="FlashCharacter" parent="." unique_id=1835476010 instance=ExtResource("2_7m6vp")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.040656686, 1.6308757, 0.09300327)
+top_speed = 50.0
+acceleration = 7.0
+deceleration = 12.0
