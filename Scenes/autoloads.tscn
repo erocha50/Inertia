@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://4j612gwlkpsx"]
+
+[ext_resource type="Script" uid="uid://b3wqjiqh2oy36" path="res://Scripts/HeatManager.gd" id="1_ip74i"]
+[ext_resource type="Script" uid="uid://d1dbr0o1ct6xl" path="res://Scripts/GameEvents.gd" id="2_vbsgt"]
+[ext_resource type="Script" uid="uid://kopaoy8lmn1f" path="res://Scripts/SaveManager.gd" id="3_aoyp1"]
+
+[node name="Autoloads" type="Node3D" unique_id=1300204029]
+
+[node name="HeatManager" type="Node3D" parent="." unique_id=1609937674]
+script = ExtResource("1_ip74i")
+
+[node name="GameEvents" type="Node3D" parent="." unique_id=1680376307]
+script = ExtResource("2_vbsgt")
+
+[node name="SaveManager" type="Node3D" parent="." unique_id=68636843]
+script = ExtResource("3_aoyp1")

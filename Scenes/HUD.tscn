@@ -1,0 +1,30 @@
+[gd_scene format=3 uid="uid://b84c1dymjri4k"]
+
+[ext_resource type="Script" uid="uid://c135n43n7tr8s" path="res://Scripts/HUD.gd" id="1_sd512"]
+
+[node name="HUD" type="CanvasLayer" unique_id=2053975017]
+script = ExtResource("1_sd512")
+
+[node name="HeatBarBG" type="ColorRect" parent="." unique_id=1057397068]
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="HearBar" type="ColorRect" parent="." unique_id=1476371474]
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="HeatLabel" type="Label" parent="." unique_id=1469835169]
+offset_right = 40.0
+offset_bottom = 23.0
+
+[node name="TierLabel" type="Label" parent="." unique_id=103987336]
+offset_right = 40.0
+offset_bottom = 23.0
+
+[node name="HealthBar" type="TextureProgressBar" parent="." unique_id=493576199]
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="FoodSlots" type="HBoxContainer" parent="." unique_id=2111419850]
+offset_right = 40.0
+offset_bottom = 40.0
