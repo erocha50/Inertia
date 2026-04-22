@@ -1,6 +1,0 @@
-[gd_scene format=3 uid="uid://bs6ekw5myg66r"]
-
-[ext_resource type="Script" uid="uid://b3wqjiqh2oy36" path="res://Scripts/HeatManager.gd" id="1_uecyu"]
-
-[node name="heat_manager" type="Node3D" unique_id=158065034]
-script = ExtResource("1_uecyu")
