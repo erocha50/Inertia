@@ -201,9 +201,9 @@ class _HUD extends Control:
 			var px:=mx+half+(rel.x/rng)*half; var py:=my+half+(rel.y/rng)*half
 			if px<mx or px>mx+sz or py<my or py>my+sz: continue
 			var age:=float(i)/float(_trail.size()-1)
-			var str:float=_tstr[i] if i<_tstr.size() else 0.0
+			var strain:float=_tstr[i] if i<_tstr.size() else 0.0
 			draw_circle(Vector2(px,py),lerpf(1.0,2.5,age),
-				Color(lerpf(0.85,1.0,str),lerpf(0.85,0.25,str),lerpf(0.85,0.20,str),lerpf(0.08,0.80,age)))
+				Color(lerpf(0.85,1.0,strain),lerpf(0.85,0.25,strain),lerpf(0.85,0.20,strain),lerpf(0.08,0.80,age)))
 		var spd:=_vxz.length()
 		if spd>0.5:
 			var dn:=_vxz.normalized(); var al:=clampf(spd/rng*half*0.6,6.0,half*0.45)
