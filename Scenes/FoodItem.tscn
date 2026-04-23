@@ -1,0 +1,20 @@
+[gd_scene format=3 uid="uid://dcm2wffcxim02"]
+
+[ext_resource type="Script" uid="uid://u80r12ywisd7" path="res://Scripts/FoodItem.gd" id="1_4vgar"]
+[ext_resource type="FoodItemData" path="res://Resources/bread_roll.tres" id="2_4vgar"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_ok2ds"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_w35vd"]
+
+[node name="FoodItem" type="Area3D" unique_id=433262120]
+script = ExtResource("1_4vgar")
+food_data = ExtResource("2_4vgar")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=664258100]
+mesh = SubResource("SphereMesh_ok2ds")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=333038844]
+shape = SubResource("SphereShape3D_w35vd")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=398638118]

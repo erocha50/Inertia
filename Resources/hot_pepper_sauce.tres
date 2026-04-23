@@ -1,0 +1,14 @@
+[gd_resource type="FoodItemData" script_class="FoodItemData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/FoodItemData.gd" id="1_abc12"]
+
+[resource]
+script = ExtResource("1_abc12")
+item_name = "Hot Pepper Sauce"
+heal_amount = 0.0
+momentum_ceiling_bonus = 0.0
+heat_per_hit_bonus = 3.0
+sprint_damage_bonus = 0.0
+duration = 15.0
+is_rare = false
+lore_text = "A spicy sauce that increases heat per hit bonus by 3 for 15 seconds."

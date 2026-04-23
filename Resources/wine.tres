@@ -1,0 +1,14 @@
+[gd_resource type="FoodItemData" script_class="FoodItemData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/FoodItemData.gd" id="1_abc12"]
+
+[resource]
+script = ExtResource("1_abc12")
+item_name = "Wine"
+heal_amount = 0.0
+momentum_ceiling_bonus = 0.0
+heat_per_hit_bonus = 0.0
+sprint_damage_bonus = 0.3
+duration = 25.0
+is_rare = false
+lore_text = "A fine vintage wine. Increases sprint damage bonus by 0.30 for 25 seconds and impairs turning."
