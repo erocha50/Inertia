@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://t3ejc2fqyx2n"]
 
-[ext_resource type="PackedScene" uid="uid://ck53eadwbnumd" path="res://maps/test_plate.tscn" id="1_icmfn"]
-[ext_resource type="PackedScene" uid="uid://dc11efww3e8td" path="res://characters/flash_character.tscn" id="2_7m6vp"]
+[ext_resource type="PackedScene" uid="uid://baqg8tg5p4h1t" path="res://maps/test_plate.tscn" id="1_icmfn"]
+[ext_resource type="PackedScene" path="res://characters/player_controller.tscn" id="2_icmfn"]
 
 [sub_resource type="Environment" id="Environment_s3ba5"]
 background_energy_multiplier = 2.98
@@ -14,8 +14,6 @@ tonemap_exposure = 1.29
 top_radius = 3.0
 bottom_radius = 3.0
 height = 8.0
-
-[sub_resource type="GDScript" id="GDScript_vj8dr"]
 
 [node name="TestWorld" type="Node3D" unique_id=696058917]
 
@@ -45,6 +43,5 @@ mesh = SubResource("CylinderMesh_icmfn")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -92.29945, 3.2919846, -22.365002)
 mesh = SubResource("CylinderMesh_icmfn")
 
-[node name="FlashCharacter" parent="." unique_id=1835476010 instance=ExtResource("2_7m6vp")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.040656686, 1.6308757, 0.09300327)
-script = SubResource("GDScript_vj8dr")
+[node name="CharacterBody3D" parent="." unique_id=300315409 instance=ExtResource("2_icmfn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.48233223, 0.94817924, 0.26731205)
