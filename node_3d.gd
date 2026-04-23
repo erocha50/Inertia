@@ -111,7 +111,7 @@ func _on_landed(impact:float)->void:
 
 func _on_dash()->void: _impact_trauma=maxf(_impact_trauma,impact_shake_deg*0.4)
 
-func _on_wall_hit(wall_normal:Vector3,impact_speed:float)->void:
+func _on_wall_hit(_wall_normal:Vector3,impact_speed:float)->void:
 	var t:=clampf(impact_speed/maxf(_max_spd,1.0),0.0,1.0)
 	_impact_trauma=maxf(_impact_trauma,wall_hit_trauma*t); _extra_pitch+=wall_pitch_kick*t
 
