@@ -1,27 +1,22 @@
 [gd_scene format=3 uid="uid://dc11efww3e8td"]
 
-[ext_resource type="Script" uid="uid://cghp4tpd061hw" path="res://character_body_3d.gd" id="1_encjw"]
-[ext_resource type="Script" uid="uid://ydct82i8eanp" path="res://node_3d.gd" id="2_edd2d"]
-[ext_resource type="Script" uid="uid://bjqtlsxlu6qn3" path="res://canvas_layer.gd" id="3_m3ai6"]
+[ext_resource type="Script" uid="uid://0kb2whms1gro" path="res://characters/flash_character.gd" id="1_vj8dr"]
+[ext_resource type="Script" uid="uid://cadruxvck4c6w" path="res://characters/camera_controller.gd" id="2_hecbn"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_3kp2q"]
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_encjw"]
 
 [node name="FlashCharacter" type="CharacterBody3D" unique_id=1835476010]
-script = ExtResource("1_encjw")
+script = ExtResource("1_vj8dr")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1650576569]
 shape = SubResource("CapsuleShape3D_3kp2q")
 
-[node name="Node3D" type="Node3D" parent="." unique_id=2106121857]
-script = ExtResource("2_edd2d")
-
-[node name="Camera3D" type="Camera3D" parent="Node3D" unique_id=940942789]
-
-[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1964113872]
-layer = 20
-script = ExtResource("3_m3ai6")
-
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=793918392]
 mesh = SubResource("CapsuleMesh_encjw")
+
+[node name="Camera Controller" type="Node3D" parent="." unique_id=548780295]
+script = ExtResource("2_hecbn")
+
+[node name="Camera3D" type="Camera3D" parent="Camera Controller" unique_id=143320291]
