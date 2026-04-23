@@ -9,7 +9,7 @@ script = ExtResource("1_sd512")
 offset_right = 40.0
 offset_bottom = 40.0
 
-[node name="HearBar" type="ColorRect" parent="." unique_id=1476371474]
+[node name="HeatBar" type="ColorRect" parent="." unique_id=1476371474]
 offset_right = 40.0
 offset_bottom = 40.0
 
