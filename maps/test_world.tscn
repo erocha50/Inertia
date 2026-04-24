@@ -1,7 +1,8 @@
 [gd_scene format=3 uid="uid://t3ejc2fqyx2n"]
 
 [ext_resource type="PackedScene" uid="uid://baqg8tg5p4h1t" path="res://maps/test_plate.tscn" id="1_icmfn"]
-[ext_resource type="PackedScene" path="res://characters/player_controller.tscn" id="2_icmfn"]
+[ext_resource type="PackedScene" uid="uid://b355nnhi1g7tg" path="res://characters/player_controller.tscn" id="2_icmfn"]
+[ext_resource type="Script" uid="uid://dbx0jqdm54cwo" path="res://characters/canvas_layer.gd" id="3_icmfn"]
 
 [sub_resource type="Environment" id="Environment_s3ba5"]
 background_energy_multiplier = 2.98
@@ -45,3 +46,7 @@ mesh = SubResource("CylinderMesh_icmfn")
 
 [node name="CharacterBody3D" parent="." unique_id=300315409 instance=ExtResource("2_icmfn")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.48233223, 0.94817924, 0.26731205)
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=2017854093]
+layer = 20
+script = ExtResource("3_icmfn")

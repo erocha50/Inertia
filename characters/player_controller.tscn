@@ -2,12 +2,12 @@
 
 [ext_resource type="Script" uid="uid://cxqw60558hmyd" path="res://Scripts/player_controller.gd" id="1_player"]
 [ext_resource type="Script" uid="uid://kpkwthn0lm76" path="res://Scripts/camera_shiftlock.gd" id="2_camera"]
+[ext_resource type="Script" uid="uid://dbx0jqdm54cwo" path="res://characters/canvas_layer.gd" id="3_8ni3k"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_fghij"]
 albedo_color = Color(0.4, 0.6, 0.8, 1)
 
-[sub_resource type="BoxMesh" id="BoxMesh_abcde"]
-size = Vector3(1, 2, 1)
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_j8adm"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_qwxyz"]
 
@@ -22,7 +22,10 @@ script = ExtResource("2_camera")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=636966049]
 material_override = SubResource("StandardMaterial3D_fghij")
-mesh = SubResource("BoxMesh_abcde")
+mesh = SubResource("CapsuleMesh_j8adm")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1058063896]
 shape = SubResource("CapsuleShape3D_qwxyz")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1388634978]
+script = ExtResource("3_8ni3k")
