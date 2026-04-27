@@ -39,7 +39,7 @@ This was running at **60Hz physics updates** = redrawing the entire HUD 60 times
 ```gdscript
 var start_idx := maxi(0, hist.size()-60)
 for i in range(start_idx, hist.size()-1):
-    # draw line...
+	# draw line...
 ```
 
 ---
@@ -53,7 +53,7 @@ for i in range(start_idx, hist.size()-1):
 ```gdscript
 var step_size: int = 1 if _trail.size() < 100 else 2
 for i in range(0, _trail.size(), step_size):
-    draw_circle(...)
+	draw_circle(...)
 ```
 
 ---
@@ -70,7 +70,7 @@ for i in range(0, _trail.size(), step_size):
 ```gdscript
 var elev_step: int = 1 if n < 150 else (2 if n < 300 else 3)
 for i in range(0, n, elev_step):
-    draw_line(...)
+	draw_line(...)
 ```
 
 ---
@@ -119,7 +119,7 @@ If still laggy, try:
 1. **Disable HUD completely**:
    ```gdscript
    if _ctrl:
-       _ctrl.visible = false  # Toggle with 'F1' key
+	   _ctrl.visible = false  # Toggle with 'F1' key
    ```
 
 2. **Lower trail resolution**:

@@ -1,7 +1,8 @@
 class_name FoodItem
 extends Area3D
 
-@export var food_data: FoodItemData
+@export var item_name: String = "Food"
+@export var is_rare: bool = false
 @export var bob_speed: float = 2.0
 @export var bob_height: float = 0.1
 
@@ -17,24 +18,22 @@ var time_elapsed: float = 0.0
 func _ready() -> void:
 	body_entered.connect(_on_body_entered)
 	animation_start_position = position
-	
-	if food_data:
-		_initialize_food()
+	_initialize_food()
 
 
 func _process(delta: float) -> void:
 	# Create smooth bobbing motion using sine wave
 	time_elapsed += delta
-	var bob_offset: float = sin(time_elapsed * bob_speed * PI) * bob_height
-	position = animation_start_position + Vector3(0, bob_offset, 0)
+	var bob_offset: float = sin(time_elapsed * bob_speed * TAU) * bob_height
+	position.y = animation_start_position.y + bob_offset
 
 
 func _initialize_food() -> void:
 	# Color the mesh based on item type/rarity
-	if food_data.is_rare:
-		_set_mesh_color(Color.MAGENTA)
-	else:
-		_set_mesh_color(Color.YELLOW)
+	var color: Color = Color.YELLOW
+	if is_rare:
+		color = Color.MAGENTA
+	_set_mesh_color(color)
 
 
 func _set_mesh_color(color: Color) -> void:
@@ -55,7 +54,7 @@ func _consume_food() -> void:
 		return
 	
 	# Emit the signal for the player to consume the food
-	GameEvents._emit_player_consumed_food(food_data)
+	GameEvents.player_consumed_food.emit(item_name)
 	
 	# Remove the food item from the scene
 	queue_free()

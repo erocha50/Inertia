@@ -11,4 +11,4 @@ heat_per_hit_bonus = 0.0
 sprint_damage_bonus = 0.3
 duration = 25.0
 is_rare = false
-lore_text = "A fine vintage wine. Increases sprint damage bonus by 0.30 for 25 seconds and impairs turning."
+lore_text = "A fine vintage. Increases sprint damage and causes burning sensations."
