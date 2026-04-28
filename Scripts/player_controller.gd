@@ -1,3 +1,5 @@
+class_name Player
+
 extends CharacterBody3D
 
 enum State { IDLE, RUN, AIR, SLIDE, ARC }
@@ -101,6 +103,7 @@ signal height_changed(world_y:float)
 signal landed(impact_speed:float)
 signal dash_performed()
 signal wall_hit(wall_normal:Vector3,impact_speed:float)
+signal food_consumed(food_name:String)
 
 var _state:=State.IDLE; var _state_time:float; var _max_spd:float
 var _coyote:float; var _buf:float; var _dash_cd:float; var _bounce_cd:float
@@ -122,6 +125,10 @@ var _slam_curve_timer:float=0.0
 var _slam_curve_axis:=Vector3.ZERO  # lateral axis to curve around
 var _prev_flat_vel:=Vector3.ZERO    # flat velocity from last frame for decel detection
 
+# Food inventory system
+var food_inventory: Dictionary = {}  # { food_name: count }
+var total_food_consumed: int = 0
+
 
 func _ready()->void:
 	_max_spd=speed_min; _camera=get_node(camera_path)
@@ -133,6 +140,12 @@ func _ready()->void:
 				var cap:=_col.shape as CapsuleShape3D
 				_slide_h=cap.height; _slide_oy=_col.position.y; _capsule_h=_slide_h
 			break
+	
+	# Add player to "player" group so FoodItem can detect it
+	add_to_group("player")
+	
+	# Connect to GameEvents food consumption signal
+	GameEvents.player_consumed_food.connect(_on_food_consumed)
 
 
 func _physics_process(d:float)->void:
@@ -460,3 +473,34 @@ func get_flat_speed()->float:          return _flat_spd()
 func is_sliding_state()->bool:         return _state==State.SLIDE
 func is_in_momentum_arc()->bool:       return _state==State.ARC
 func is_drifting()->bool:              return _drifting
+
+
+# Food consumption
+func _on_food_consumed(food_name: String)->void:
+	"""Called when the player consumes food via collision with FoodItem"""
+	# Add to inventory
+	if food_name not in food_inventory:
+		food_inventory[food_name] = 0
+	food_inventory[food_name] += 1
+	total_food_consumed += 1
+	
+	# Emit signal for other systems to react
+	food_consumed.emit(food_name)
+	
+	# Log for debugging
+	print("Player consumed food: %s (Total: %d)" % [food_name, total_food_consumed])
+
+
+func get_food_count(food_name: String)->int:
+	"""Get count of a specific food item"""
+	return food_inventory.get(food_name, 0)
+
+
+func get_total_food_consumed()->int:
+	"""Get total number of food items consumed"""
+	return total_food_consumed
+
+
+func get_food_inventory()->Dictionary:
+	"""Get a copy of the entire food inventory"""
+	return food_inventory.duplicate()
