@@ -6,6 +6,13 @@ var heat_value: float = 0.0
 var max_heat: float = 100.0
 var heat_floor: float = 0.0
 
+# Heat buildup/decay when moving
+@export var heat_gain_per_second: float = 30.0      # Heat gained per second while moving
+@export var heat_loss_per_second: float = 15.0      # Heat lost per second while idle
+@export var movement_speed_threshold: float = 2.0   # Min speed to count as "moving"
+
+var current_flat_speed: float = 0.0
+
 const TIER_THRESHOLDS: Dictionary = {
 	"cold":    0.0,
 	"warm":    25.0,
@@ -22,6 +29,20 @@ const TIER_DAMAGE_MULT: Dictionary = {
 
 func _ready() -> void:
 	heat_value = heat_floor
+	set_process(true)
+
+func _process(delta: float) -> void:
+	# Heat builds up while moving, decays while idle
+	if current_flat_speed >= movement_speed_threshold:
+		# Player is moving — gain heat
+		add_heat(heat_gain_per_second * delta)
+	else:
+		# Player is idle — lose heat
+		remove_heat(heat_loss_per_second * delta)
+
+func update_speed(flat_speed: float) -> void:
+	"""Called by the player to update their current movement speed"""
+	current_flat_speed = flat_speed
 
 func get_tier() -> String:
 	var ratio: float = (heat_value / max_heat) * 100.0

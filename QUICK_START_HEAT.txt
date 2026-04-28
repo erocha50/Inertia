@@ -1,0 +1,57 @@
+═══════════════════════════════════════════════════════════════
+                  HEAT SYSTEM - QUICK START
+═══════════════════════════════════════════════════════════════
+
+✅ SYSTEM IS LIVE & READY TO PLAY
+
+Heat builds up when you run, cools down when you stop.
+Keep moving to maintain momentum and damage output!
+
+───────────────────────────────────────────────────────────────
+THE FLOW
+───────────────────────────────────────────────────────────────
+
+Moving (speed ≥ 2.0 units)
+    ↓ Heat +30/sec
+    ↓
+Cold (0-24%)      → Warm (25-49%)    → Hot (50-74%)    → Burning (75-100%)
+Damage: 1.0x      → Damage: 1.2x     → Damage: 1.5x    → Damage: 2.0x
+
+Not Moving / Idle
+    ↓ Heat -15/sec
+    ↓ Heat drops back to Cold
+
+
+───────────────────────────────────────────────────────────────
+TO ADJUST DIFFICULTY
+───────────────────────────────────────────────────────────────
+
+Open the Inspector and find the HeatManager autoload.
+Edit these values:
+
+• heat_gain_per_second: 30.0     (increase = harder)
+• heat_loss_per_second: 15.0     (increase = more forgiving)
+• movement_speed_threshold: 2.0  (decrease = easier)
+
+
+───────────────────────────────────────────────────────────────
+FILES CHANGED
+───────────────────────────────────────────────────────────────
+
+res://Scripts/HeatManager.gd         (added heat gain/loss logic)
+res://Scripts/player_controller.gd   (sends speed updates)
+
+Everything else is automatic!
+
+
+───────────────────────────────────────────────────────────────
+PLAY TEST IT
+───────────────────────────────────────────────────────────────
+
+1. Hit Play (or F5)
+2. Hold movement keys → Watch heat bar fill + color change
+3. Release keys → Watch heat bar cool down
+4. Notice tier label changes (COLD → WARM → HOT → BURNING)
+5. Check the damage multiplier (x1.0 → x2.0) in heat label
+
+═══════════════════════════════════════════════════════════════
