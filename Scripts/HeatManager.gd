@@ -30,6 +30,9 @@ const TIER_DAMAGE_MULT: Dictionary = {
 func _ready() -> void:
 	heat_value = heat_floor
 	set_process(true)
+	# Emit initial signal so UI updates immediately
+	var tier: String = get_tier()
+	heat_changed.emit(heat_value, tier)
 
 func _process(delta: float) -> void:
 	# Heat builds up while moving, decays while idle

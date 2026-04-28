@@ -6,20 +6,50 @@
 script = ExtResource("1_sd512")
 
 [node name="HeatBarBG" type="ColorRect" parent="." unique_id=1057397068]
-offset_right = 40.0
-offset_bottom = 40.0
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 0.0
+anchor_bottom = 0.05
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 320.0
+offset_bottom = -20.0
+color = Color(0.2, 0.2, 0.2, 0.8)
 
 [node name="HeatBar" type="ColorRect" parent="." unique_id=1476371474]
-offset_right = 40.0
-offset_bottom = 40.0
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 0.0
+anchor_bottom = 0.05
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 320.0
+offset_bottom = -20.0
+color = Color(1.0, 0.0, 0.0, 1.0)
 
 [node name="HeatLabel" type="Label" parent="." unique_id=1469835169]
-offset_right = 40.0
-offset_bottom = 23.0
+anchor_left = 0.0
+anchor_top = 0.05
+anchor_right = 0.3
+anchor_bottom = 0.1
+offset_left = 20.0
+offset_top = 5.0
+offset_right = -20.0
+offset_bottom = -5.0
+text = "Heat: 0%"
+custom_minimum_size = Vector2(200, 30)
 
 [node name="TierLabel" type="Label" parent="." unique_id=103987336]
-offset_right = 40.0
-offset_bottom = 23.0
+anchor_left = 0.0
+anchor_top = 0.1
+anchor_right = 0.3
+anchor_bottom = 0.15
+offset_left = 20.0
+offset_top = 0.0
+offset_right = -20.0
+offset_bottom = 0.0
+text = "Cold"
+custom_minimum_size = Vector2(200, 30)
 
 [node name="HealthBar" type="TextureProgressBar" parent="." unique_id=493576199]
 offset_right = 40.0
