@@ -6,7 +6,7 @@ signal player_died(position: Vector3, heat_stored: float)
 signal player_respawned()
 signal player_collected_heat_trail()
 signal player_equipped_weapon(weapon_data: Resource)
-signal player_consumed_food(food_data: Resource)
+signal player_consumed_food(food_name: String)
 
 # World events
 signal hearth_activated(hearth_id: String)
@@ -35,8 +35,8 @@ func _emit_player_collected_heat_trail() -> void:
 func _emit_player_equipped_weapon(weapon_data: Resource) -> void:
 	player_equipped_weapon.emit(weapon_data)
 
-func _emit_player_consumed_food(food_data: Resource) -> void:
-	player_consumed_food.emit(food_data)
+func _emit_player_consumed_food(food_name: String) -> void:
+	player_consumed_food.emit(food_name)
 
 func _emit_hearth_activated(hearth_id: String) -> void:
 	hearth_activated.emit(hearth_id)

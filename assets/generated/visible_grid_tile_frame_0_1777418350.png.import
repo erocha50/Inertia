@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c1ojc3nutau3u"
-path.s3tc="res://.godot/imported/white-grid-png--21.png-c3f94106c3d4ca92fb75874113ebca4b.s3tc.ctex"
+uid="uid://blu511omnfque"
+path.s3tc="res://.godot/imported/visible_grid_tile_frame_0_1777418350.png-16dff4efbca93b15efff20ac2cff698e.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
@@ -11,8 +11,8 @@ metadata={
 
 [deps]
 
-source_file="res://white-grid-png--21.png"
-dest_files=["res://.godot/imported/white-grid-png--21.png-c3f94106c3d4ca92fb75874113ebca4b.s3tc.ctex"]
+source_file="res://assets/generated/visible_grid_tile_frame_0_1777418350.png"
+dest_files=["res://.godot/imported/visible_grid_tile_frame_0_1777418350.png-16dff4efbca93b15efff20ac2cff698e.s3tc.ctex"]
 
 [params]
 
