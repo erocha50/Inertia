@@ -192,6 +192,9 @@ func _physics_process(d:float)->void:
 	speed_changed.emit(fs,_max_spd)
 	debug_stats.emit(fs,fs,maxf((_prev_spd-fs)/maxf(d,0.0001),0.0))
 	height_changed.emit(global_position.y); _prev_spd=fs
+	
+	# Update HeatManager with current speed
+	HeatManager.update_speed(fs)
 
 
 func _trigger_slam_bounce(pre_vel:Vector3, _d:float)->void:
