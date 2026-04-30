@@ -9,3 +9,6 @@ extends Resource
 @export var duration: float = 0.0
 @export var is_rare: bool = false
 @export var lore_text: String = ""
+@export var triggers_speed_burst: bool = false
+@export var fills_heat_to_max: bool = false
+@export var impairs_turning: bool = false

@@ -1,6 +1,6 @@
-[gd_scene format=3 uid="uid://sc8wabpkdch0"]
+[gd_scene format=3 uid="uid://dcm2wffcxim02"]
 
-[ext_resource type="Script" path="res://Scripts/FoodItem.gd" id="1_4vgar"]
+[ext_resource type="Script" uid="uid://u80r12ywisd7" path="res://Scripts/FoodItem.gd" id="1_4vgar"]
 
 [sub_resource type="SphereMesh" id="SphereMesh_4vgar"]
 

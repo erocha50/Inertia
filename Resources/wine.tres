@@ -12,3 +12,6 @@ sprint_damage_bonus = 0.3
 duration = 25.0
 is_rare = false
 lore_text = "A fine vintage. Increases sprint damage and causes burning sensations."
+triggers_speed_burst = false
+fills_heat_to_max = false
+impairs_turning = true
