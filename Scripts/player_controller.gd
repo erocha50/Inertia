@@ -55,6 +55,17 @@ enum State { IDLE, RUN, AIR, SLIDE, ARC }
 @export var dash_force:float=22.0; @export var dash_cooldown:float=0.6
 @export var knockback_decay:float=18.0
 
+<<<<<<< Updated upstream
+=======
+@export_group("Dash Attack")
+@export var dash_attack_force:float=50.0
+@export var dash_attack_cooldown:float=5.0
+@export var dash_attack_fov_pop:float=15.0
+@export var dash_attack_fov_duration:float=0.3
+@export var dash_attack_momentum_scale:float=1.5  # Multiplier: attack speed scales with momentum
+@export var dash_attack_min_speed:float=15.0      # Minimum dash speed (no momentum scaling below this)
+
+>>>>>>> Stashed changes
 @export_group("Environment")
 @export var drag_coefficient:float=0.008; @export var wind:=Vector3.ZERO
 @export var gravity_scale:float=1.0
@@ -107,6 +118,14 @@ signal food_consumed(food_name:String)
 
 var _state:=State.IDLE; var _state_time:float; var _max_spd:float
 var _coyote:float; var _buf:float; var _dash_cd:float; var _bounce_cd:float
+<<<<<<< Updated upstream
+=======
+var _dash_attack_cd:float=0.0
+var _dash_attack_active:bool=false           # True while executing dash attack
+var _dash_attack_dir:=Vector3.ZERO           # Locked direction for dash attack
+var _dash_attack_end_time:float=0.0          # When dash attack ends
+var _dash_attack_duration:float=0.2          # How long the dash attack lasts (in seconds)
+>>>>>>> Stashed changes
 var _impulse:=Vector3.ZERO; var _air_vel_y:float
 var _damaged:bool; var _drifting:bool; var _prev_spd:float
 var _surf_friction:=1.0; var _surf_accel:=1.0; var _surf_drag:=1.0; var _surf_gravity:=1.0
@@ -149,7 +168,18 @@ func _ready()->void:
 
 
 func _physics_process(d:float)->void:
+<<<<<<< Updated upstream
 	_bounce_cd=maxf(_bounce_cd-d,0.0); _dash_cd=maxf(_dash_cd-d,0.0); _buf=maxf(_buf-d,0.0)
+=======
+	_bounce_cd=maxf(_bounce_cd-d,0.0); _dash_cd=maxf(_dash_cd-d,0.0); _dash_attack_cd=maxf(_dash_attack_cd-d,0.0); _buf=maxf(_buf-d,0.0)
+	
+	# Tick down dash attack timer
+	if _dash_attack_active:
+		_dash_attack_end_time=maxf(_dash_attack_end_time-d,0.0)
+		if _dash_attack_end_time<=0.0:
+			_dash_attack_active=false
+	
+>>>>>>> Stashed changes
 	if Input.is_action_just_pressed("jump"): _buf=jump_buffer_t
 	if is_on_floor(): _coyote=coyote_time
 	else:             _coyote=maxf(_coyote-d,0.0)
@@ -293,7 +323,9 @@ func _apply_gravity(d:float)->void:
 
 
 func _horiz(d:float)->float:
-	var wish:=_wish_dir(); var flat:=Vector3(velocity.x,0,velocity.z)
+	# During dash attack, ignore WASD input and maintain locked direction
+	var wish:=Vector3.ZERO if _dash_attack_active else _wish_dir()
+	var flat:=Vector3(velocity.x,0,velocity.z)
 	var spd:=flat.length(); var eff_a:=acceleration*_surf_accel/mass
 	var eff_f:=friction*_surf_friction
 	var spd_cap:=speed_max*(damage_speed_cap if _damaged else 1.0)
@@ -466,6 +498,47 @@ func try_dash()->void:
 	if _dash_cd>0.0: return
 	add_impulse(_wish_dir()*dash_force/mass); _dash_cd=dash_cooldown; dash_performed.emit()
 
+<<<<<<< Updated upstream
+=======
+func _perform_dash_attack()->void:
+	if _dash_attack_cd>0.0: return
+	
+	# Get current horizontal momentum/speed
+	var flat_vel:=Vector3(velocity.x, 0.0, velocity.z)
+	var current_speed:=flat_vel.length()
+	
+	# Calculate dash attack speed based on momentum
+	# Scales the base force with how much momentum the player has
+	var momentum_factor:=clampf(current_speed/speed_max, 0.0, 1.0)
+	var effective_force:=dash_attack_force+dash_attack_force*momentum_factor*dash_attack_momentum_scale
+	var dash_speed:=maxf(effective_force, dash_attack_min_speed)
+	
+	# Get the wish direction from WASD input (where player is trying to move)
+	var wish_dir:Vector3=_wish_dir()
+	
+	# If no input, use current velocity direction as fallback
+	if wish_dir.length_squared()<0.01 and flat_vel.length()>0.1:
+		wish_dir=flat_vel.normalized()
+	# If completely stationary, use camera forward as last resort
+	elif wish_dir.length_squared()<0.01:
+		var cam_dir:Vector3=_camera.global_transform.basis.z.normalized()
+		cam_dir.y=0.0
+		wish_dir=cam_dir.normalized()
+	
+	# Lock in the direction and apply the momentum-scaled impulse
+	_dash_attack_dir=wish_dir
+	_dash_attack_active=true
+	_dash_attack_end_time=_dash_attack_duration
+	
+	# Set velocity directly to the dash attack direction with computed speed
+	velocity.x=wish_dir.x*dash_speed
+	velocity.z=wish_dir.z*dash_speed
+	
+	# Trigger cooldown and emit signal
+	_dash_attack_cd=dash_attack_cooldown
+	dash_attack_performed.emit()
+
+>>>>>>> Stashed changes
 func set_damaged(v:bool)->void:        _damaged=v
 func get_state()->int:                 return _state as int
 func get_state_time()->float:          return _state_time
