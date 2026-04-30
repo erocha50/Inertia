@@ -12,3 +12,6 @@ sprint_damage_bonus = 0.0
 duration = 0.0
 is_rare = false
 lore_text = "A simple, warm bread roll. Restores health and triggers Speed Burst on consume."
+triggers_speed_burst = true
+fills_heat_to_max = false
+impairs_turning = false

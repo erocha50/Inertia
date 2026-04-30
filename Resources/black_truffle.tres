@@ -12,3 +12,6 @@ sprint_damage_bonus = 0.0
 duration = 0.0
 is_rare = true
 lore_text = "A luxurious delicacy. Fills Heat to 100 instantly on consume. RARE."
+triggers_speed_burst = false
+fills_heat_to_max = true
+impairs_turning = false
