@@ -12,3 +12,6 @@ sprint_damage_bonus = 0.0
 duration = 15.0
 is_rare = false
 lore_text = "A spicy sauce that increases heat per hit bonus by 3 for 15 seconds."
+triggers_speed_burst = false
+fills_heat_to_max = false
+impairs_turning = false
