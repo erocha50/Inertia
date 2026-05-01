@@ -1,0 +1,182 @@
+[gd_scene format=3 uid="uid://d16wnrgs8jwf4"]
+
+[ext_resource type="PackedScene" uid="uid://b355nnhi1g7tg" path="res://characters/player_controller.tscn" id="1_sbqo2"]
+
+[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_kgjl5"]
+data = PackedVector3Array(1, 0, 1, -1, 0, 1, 1, 0, -1, -1, 0, 1, -1, 0, -1, 1, 0, -1)
+
+[sub_resource type="Environment" id="Environment_uda0e"]
+background_energy_multiplier = 2.0
+ambient_light_energy = 1.75
+
+[sub_resource type="StandardMaterial3D" id="FloorMaterial"]
+albedo_color = Color(0.2, 0.2, 0.2, 1)
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_uda0e"]
+
+[sub_resource type="StandardMaterial3D" id="RampMaterial"]
+albedo_color = Color(0.3, 0.7, 0.9, 1)
+
+[sub_resource type="StandardMaterial3D" id="TurnMaterial"]
+albedo_color = Color(0.9, 0.7, 0.3, 1)
+
+[sub_resource type="StandardMaterial3D" id="ObstacleMaterial"]
+albedo_color = Color(0.9, 0.3, 0.3, 1)
+
+[node name="maintest_scene" type="StaticBody3D" unique_id=405222216]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1470940040]
+transform = Transform3D(200, 0, 0, 0, 1, 0, 0, 0, 200, 0, -5, 0)
+shape = SubResource("ConcavePolygonShape3D_kgjl5")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1899787275]
+environment = SubResource("Environment_uda0e")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=899269440]
+transform = Transform3D(200, 0, 0, 0, 1, 0, 0, 0, 200, 0, -5, 0)
+material_override = SubResource("FloorMaterial")
+mesh = SubResource("PlaneMesh_uda0e")
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=1972667605]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -31.870575, 10, 40.742943)
+
+[node name="TestCourse" type="Node3D" parent="." unique_id=2142279777]
+
+[node name="StartingPlatform" type="CSGBox3D" parent="TestCourse" unique_id=1082845507]
+use_collision = true
+size = Vector3(15, 1, 15)
+
+[node name="Ramp1" type="CSGBox3D" parent="TestCourse" unique_id=1948673427]
+transform = Transform3D(0.980658, 0, -0.195578, 0, 1, 0, 0.195578, 0, 0.980658, 15, 2, 0)
+use_collision = true
+size = Vector3(20, 1, 8)
+
+[node name="Ramp1Top" type="CSGBox3D" parent="TestCourse" unique_id=1756311363]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 5, -2)
+material_override = SubResource("RampMaterial")
+use_collision = true
+size = Vector3(8, 1, 8)
+
+[node name="SteepRamp" type="CSGBox3D" parent="TestCourse" unique_id=2069761206]
+transform = Transform3D(0.866025, 0, -0.5, 0, 1, 0, 0.5, 0, 0.866025, 42, 7, -2)
+material_override = SubResource("RampMaterial")
+use_collision = true
+size = Vector3(15, 1, 8)
+
+[node name="SteepRampTop" type="CSGBox3D" parent="TestCourse" unique_id=334317620]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 54, 12, -5)
+use_collision = true
+size = Vector3(8, 1, 8)
+
+[node name="TurnPlatform1" type="CSGBox3D" parent="TestCourse" unique_id=2114896522]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 54, 12, 10)
+material_override = SubResource("TurnMaterial")
+use_collision = true
+size = Vector3(12, 1, 12)
+
+[node name="TurnWall1" type="CSGBox3D" parent="TestCourse" unique_id=1720214420]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 60, 14, 10)
+use_collision = true
+size = Vector3(1, 3, 12)
+
+[node name="TurnWall2" type="CSGBox3D" parent="TestCourse" unique_id=400562376]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 54, 14, 16)
+use_collision = true
+size = Vector3(12, 3, 1)
+
+[node name="RightTurnPlatform" type="CSGBox3D" parent="TestCourse" unique_id=543745388]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40, 12, 20)
+material_override = SubResource("TurnMaterial")
+use_collision = true
+size = Vector3(12, 1, 12)
+
+[node name="ObstacleCourse1" type="Node3D" parent="TestCourse" unique_id=1057589361]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 12, 35)
+
+[node name="Pillar1" type="CSGBox3D" parent="TestCourse/ObstacleCourse1" unique_id=1157379358]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 2, 0)
+material_override = SubResource("ObstacleMaterial")
+use_collision = true
+size = Vector3(2, 4, 2)
+
+[node name="Pillar2" type="CSGBox3D" parent="TestCourse/ObstacleCourse1" unique_id=546435327]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 2, 2)
+material_override = SubResource("ObstacleMaterial")
+use_collision = true
+size = Vector3(2, 4, 2)
+
+[node name="Pillar3" type="CSGBox3D" parent="TestCourse/ObstacleCourse1" unique_id=1140502606]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0)
+material_override = SubResource("ObstacleMaterial")
+use_collision = true
+size = Vector3(2, 4, 2)
+
+[node name="Pillar4" type="CSGBox3D" parent="TestCourse/ObstacleCourse1" unique_id=1101744574]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 2, 2)
+material_override = SubResource("ObstacleMaterial")
+use_collision = true
+size = Vector3(2, 4, 2)
+
+[node name="Pillar5" type="CSGBox3D" parent="TestCourse/ObstacleCourse1" unique_id=1860754208]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 2, 0)
+material_override = SubResource("ObstacleMaterial")
+use_collision = true
+size = Vector3(2, 4, 2)
+
+[node name="ObstaclePlatform" type="CSGBox3D" parent="TestCourse/ObstacleCourse1" unique_id=108040520]
+use_collision = true
+size = Vector3(25, 1, 8)
+
+[node name="DownRamp" type="CSGBox3D" parent="TestCourse" unique_id=1582215728]
+transform = Transform3D(0.939693, 0, 0.342021, 0, 1, 0, -0.342021, 0, 0.939693, 30, 10, 50)
+material_override = SubResource("RampMaterial")
+use_collision = true
+size = Vector3(20, 1, 10)
+
+[node name="LowPlatform" type="CSGBox3D" parent="TestCourse" unique_id=1654155798]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 4, 55)
+use_collision = true
+size = Vector3(12, 1, 12)
+
+[node name="GapJump" type="Node3D" parent="TestCourse" unique_id=1456970533]
+
+[node name="JumpPlatform1" type="CSGBox3D" parent="TestCourse/GapJump" unique_id=1309330740]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -15, 5, 60)
+use_collision = true
+size = Vector3(8, 1, 8)
+
+[node name="JumpPlatform2" type="CSGBox3D" parent="TestCourse/GapJump" unique_id=1727788743]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5, 68)
+use_collision = true
+size = Vector3(8, 1, 8)
+
+[node name="JumpPlatform3" type="CSGBox3D" parent="TestCourse/GapJump" unique_id=932767994]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 5, 60)
+use_collision = true
+size = Vector3(8, 1, 8)
+
+[node name="NarrowCorridor" type="Node3D" parent="TestCourse" unique_id=420100616]
+
+[node name="LeftWall" type="CSGBox3D" parent="TestCourse/NarrowCorridor" unique_id=1454266741]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -25, 3, 75)
+use_collision = true
+size = Vector3(1, 6, 25)
+
+[node name="RightWall" type="CSGBox3D" parent="TestCourse/NarrowCorridor" unique_id=1995007660]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -15, 3, 75)
+use_collision = true
+size = Vector3(1, 6, 25)
+
+[node name="CorridorFloor" type="CSGBox3D" parent="TestCourse/NarrowCorridor" unique_id=449439318]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 0, 75)
+use_collision = true
+size = Vector3(10, 1, 25)
+
+[node name="FinishPlatform" type="CSGBox3D" parent="TestCourse" unique_id=1441133525]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, 100)
+material_override = SubResource("TurnMaterial")
+use_collision = true
+size = Vector3(20, 1, 20)
+
+[node name="CharacterBody3D" parent="." unique_id=1229242080 instance=ExtResource("1_sbqo2")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -23.005787, -4, 8.367336)
