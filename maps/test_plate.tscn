@@ -2,6 +2,16 @@
 
 [ext_resource type="Texture2D" path="res://assets/generated/grid_floor_frame_0_1777509393.png" id="1_p6hlo"]
 
+[sub_resource type="StandardMaterial3D" id="RampMaterial"]
+albedo_color = Color(0.3, 0.7, 0.9, 1.0)
+metallic = 0.3
+roughness = 0.4
+
+[sub_resource type="StandardMaterial3D" id="ObstacleMaterial"]
+albedo_color = Color(0.9, 0.3, 0.3, 1.0)
+metallic = 0.2
+roughness = 0.5
+
 [sub_resource type="BoxMesh" id="BoxMesh_h7isd"]
 size = Vector3(1000, 1000, 1)
 
