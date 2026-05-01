@@ -1,0 +1,223 @@
+╔════════════════════════════════════════════════════════════════════════════════╗
+║                   DASH ATTACK SYSTEM - COMPLETE FLOW DIAGRAM                    ║
+╚════════════════════════════════════════════════════════════════════════════════╝
+
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                              EVERY PHYSICS FRAME                                │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+  _physics_process(delta)
+        │
+        ├─→ [1] Check input
+        │        │
+        │        └─→ Input.is_action_just_pressed("dash_attack")
+        │             │ (left mouse button)
+        │             │
+        │             └─→ IF pressed: _perform_dash_attack()
+        │
+        ├─→ [2] Tick cooldown
+        │        │
+        │        └─→ _dash_attack_cd = maxf(_dash_attack_cd - delta, 0.0)
+        │             │ Decrements every frame
+        │
+        ├─→ [3] Manage attack duration
+        │        │
+        │        ├─→ IF _dash_attack_active:
+        │        │    │
+        │        │    └─→ _dash_attack_end_time -= delta
+        │        │         IF _dash_attack_end_time <= 0:
+        │        │            _dash_attack_active = false
+        │        │
+        │        └─→ ELSE: (attack is inactive)
+        │
+        └─→ [4] Lock input during attack
+                 │
+                 └─→ In _horiz() function:
+                      wish = Vector3.ZERO IF _dash_attack_active
+                      wish = _wish_dir() OTHERWISE
+
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                        WHEN DASH ATTACK IS TRIGGERED                             │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+  Input: Player presses left mouse button
+        │
+        ├─→ _perform_dash_attack()
+        │        │
+        │        ├─→ [Check] if _dash_attack_cd > 0.0
+        │        │    │ RETURN early if on cooldown
+        │        │    │
+        │        │    └─→ Otherwise, proceed
+        │        │
+        │        ├─→ [Calculate] Momentum Factor
+        │        │    │
+        │        │    ├─→ flat_vel = Vector3(velocity.x, 0, velocity.z)
+        │        │    ├─→ current_speed = flat_vel.length()
+        │        │    └─→ momentum_factor = clamp(current_speed / speed_max)
+        │        │         Range: 0.0 (stationary) to 1.0 (max speed)
+        │        │
+        │        ├─→ [Compute] Effective Force
+        │        │    │
+        │        │    └─→ effective_force = base_force +
+        │        │                          (base_force × momentum ×
+        │        │                           momentum_scale_multiplier)
+        │        │         Example: 50 + (50 × 0.75 × 1.5) = 106.25
+        │        │
+        │        ├─→ [Determine] Attack Direction
+        │        │    │
+        │        │    ├─→ Priority 1: Get WASD input direction
+        │        │    │                wish_dir = _wish_dir()
+        │        │    │
+        │        │    ├─→ IF wish_dir is zero (no WASD input):
+        │        │    │    │
+        │        │    │    ├─→ Priority 2: Use current velocity direction
+        │        │    │    │    wish_dir = flat_vel.normalized()
+        │        │    │    │
+        │        │    │    └─→ IF still zero (not moving):
+        │        │    │         │
+        │        │    │         └─→ Priority 3: Use camera forward
+        │        │    │              cam_dir = _camera.global_transform.basis.z
+        │        │    │              wish_dir = cam_dir.normalized()
+        │        │    │
+        │        │    └─→ Final wish_dir is locked
+        │        │
+        │        ├─→ [Lock] Attack Direction
+        │        │    │
+        │        │    └─→ _dash_attack_dir = wish_dir
+        │        │         (stored for reference, can be used for hits)
+        │        │
+        │        ├─→ [Set] Player Velocity
+        │        │    │
+        │        │    ├─→ velocity.x = wish_dir.x × effective_force
+        │        │    └─→ velocity.z = wish_dir.z × effective_force
+        │        │         (vertical velocity is preserved)
+        │        │
+        │        ├─→ [Activate] Attack State
+        │        │    │
+        │        │    ├─→ _dash_attack_active = true
+        │        │    └─→ _dash_attack_end_time = 0.2 (seconds)
+        │        │         (attack lasts for this duration)
+        │        │
+        │        ├─→ [Trigger] Camera Effect
+        │        │    │
+        │        │    └─→ _apply_dash_attack_camera_pop()
+        │        │         │
+        │        │         └─→ (Function calls camera system)
+        │        │
+        │        ├─→ [Set] Cooldown
+        │        │    │
+        │        │    └─→ _dash_attack_cd = 5.0 (seconds)
+        │        │         (can't attack again until cooldown expires)
+        │        │
+        │        └─→ [Emit] Signal
+                     │
+                     ├─→ dash_attack_performed.emit()
+                     │
+                     └─→ Camera catches this signal:
+                          camera._on_dash_attack()
+                              │
+                              └─→ Applies camera shake effect
+                                  _impact_trauma += impact_shake_deg × 1.2
+
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                           ATTACK DURATION (0.2 seconds)                         │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+  Frame 1:  _dash_attack_active = true, _dash_attack_end_time = 0.2
+            Player velocity is locked to attack direction
+            WASD input is ignored (wish = Vector3.ZERO)
+            │
+  Frame N:  Time passes, delta decrements _dash_attack_end_time
+            │
+  Frame M:  _dash_attack_end_time reaches 0.0
+            │
+            └─→ _dash_attack_active = false
+                _dash_attack_end_time = 0.0
+                Normal controls resume
+                (But cooldown is still active for 5 more seconds)
+
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                          COOLDOWN EXPIRY (5.0 seconds)                          │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+  Attack ends (_dash_attack_active = false, but cooldown active)
+            │
+            ├─→ _dash_attack_cd = 5.0 (ticking down)
+            │
+            ├─→ Player can move normally but CAN'T attack
+            │
+            ├─→ After 5 seconds:
+            │    _dash_attack_cd reaches 0.0
+            │
+            └─→ Player can attack again!
+                 Next left mouse button press will work
+
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                         EXPORTED PARAMETERS (Tunable)                           │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+  dash_attack_force           = 50.0      [Base attack force]
+  dash_attack_cooldown        = 5.0       [Cooldown duration (seconds)]
+  dash_attack_fov_pop         = 15.0      [FOV increase for camera effect]
+  dash_attack_fov_duration    = 0.3       [Duration of camera effect (seconds)]
+  dash_attack_momentum_scale  = 1.5       [Multiplier for momentum-based speed]
+  dash_attack_min_speed       = 15.0      [Minimum attack speed (fallback)]
+
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                            INTEGRATION DIAGRAM                                   │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+     INPUT SYSTEM
+         │
+         ├─→ project.godot: "dash_attack" = left mouse button
+         │
+         └─→ _physics_process()
+                 │
+                 └─→ Input.is_action_just_pressed("dash_attack")
+                     │
+                     └─→ _perform_dash_attack()
+                         │
+                         ├─→ PHYSICS SYSTEM
+                         │   │ Sets velocity directly
+                         │   │ Bypasses normal movement for 0.2s
+                         │   └─→ Gravity still applies (Y component)
+                         │
+                         ├─→ CAMERA SYSTEM
+                         │   │ Receives dash_attack_performed signal
+                         │   │ Applies camera shake via impact_trauma
+                         │   └─→ FOV effect already handled by speed system
+                         │
+                         └─→ STATE MACHINE
+                             │ Input lock via _horiz() function
+                             │ wish = Vector3.ZERO during attack
+                             └─→ No state change required
+
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                            SIGNAL PROPAGATION                                    │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+  Player._perform_dash_attack()
+        │
+        └─→ dash_attack_performed.emit()
+             │
+             ├─→ Camera listens: _on_dash_attack()
+             │   │
+             │   └─→ Applies camera shake
+             │
+             ├─→ Animation system can listen (future)
+             │   │
+             │   └─→ Play attack animation
+             │
+             ├─→ Audio system can listen (future)
+             │   │
+             │   └─→ Play attack sound
+             │
+             └─→ Other systems can listen (future)
+                 │
+                 └─→ Apply heat cost, trigger VFX, etc.
+
+╔════════════════════════════════════════════════════════════════════════════════╗
+║                              READY TO USE!                                     ║
+║                                                                                ║
+║  Simply press Left Mouse Button to dash attack with momentum scaling!          ║
+╚════════════════════════════════════════════════════════════════════════════════╝
