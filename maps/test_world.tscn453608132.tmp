@@ -1,0 +1,35 @@
+[gd_scene format=3 uid="uid://t3ejc2fqyx2n"]
+
+[ext_resource type="PackedScene" uid="uid://baqg8tg5p4h1t" path="res://maps/test_plate.tscn" id="1_icmfn"]
+[ext_resource type="PackedScene" uid="uid://b355nnhi1g7tg" path="res://characters/player_controller.tscn" id="2_icmfn"]
+[ext_resource type="Script" uid="uid://dbx0jqdm54cwo" path="res://characters/canvas_layer.gd" id="3_icmfn"]
+[ext_resource type="PackedScene" uid="uid://b84c1dymjri4k" path="res://Scenes/HUD.tscn" id="4_icmfn"]
+[ext_resource type="Script" uid="uid://c135n43n7tr8s" path="res://Scripts/HUD.gd" id="5_b4682"]
+[ext_resource type="Script" uid="uid://cdw5y88n5h2ep" path="res://Scripts/obstacle_course.gd" id="6_obstacle"]
+
+[sub_resource type="Environment" id="Environment_s3ba5"]
+background_energy_multiplier = 2.98
+ambient_light_color = Color(1, 1, 1, 1)
+ambient_light_energy = 5.9
+reflected_light_source = 2
+tonemap_exposure = 1.29
+
+[node name="TestWorld" type="Node3D" unique_id=696058917]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1573436144]
+environment = SubResource("Environment_s3ba5")
+
+[node name="test_plate" parent="." unique_id=1987738037 instance=ExtResource("1_icmfn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.031437874, -0.05122447, 0.017174244)
+
+
+
+[node name="CharacterBody3D" parent="." unique_id=300315409 instance=ExtResource("2_icmfn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.48233223, 0.94817924, 0.26731205)
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=2017854093]
+layer = 20
+script = ExtResource("3_icmfn")
+
+[node name="HUD" type="CanvasLayer" parent="." unique_id=781692691 instance=ExtResource("4_icmfn")]
+script = ExtResource("5_b4682")
