@@ -92,7 +92,7 @@ func _ready() -> void:
 	_arm_target=arm_length; _arm_current=arm_length; _shoulder_cur=shoulder_base
 	_apply_orbital_transform(); _build_speed_lines()
 	for sig in [["speed_changed",_on_speed_changed],["turn_strain",_on_turn_strain],
-				["landed",_on_landed],["dash_performed",_on_dash],["wall_hit",_on_wall_hit]]:
+				["landed",_on_landed],["dash_performed",_on_dash],["dash_attack_performed",_on_dash_attack],["wall_hit",_on_wall_hit]]:
 		if _character.has_signal(sig[0]): _character.connect(sig[0],sig[1])
 
 
@@ -110,6 +110,10 @@ func _on_landed(impact:float)->void:
 	_extra_pitch+=land_pitch_kick
 
 func _on_dash()->void: _impact_trauma=maxf(_impact_trauma,impact_shake_deg*0.4)
+
+func _on_dash_attack()->void:
+	"""Handle dash attack performed signal - triggers camera shake and FOV effect"""
+	_impact_trauma=maxf(_impact_trauma,impact_shake_deg*1.2)
 
 func _on_wall_hit(_wall_normal:Vector3,impact_speed:float)->void:
 	var t:=clampf(impact_speed/maxf(_max_spd,1.0),0.0,1.0)

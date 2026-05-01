@@ -55,8 +55,6 @@ enum State { IDLE, RUN, AIR, SLIDE, ARC }
 @export var dash_force:float=22.0; @export var dash_cooldown:float=0.6
 @export var knockback_decay:float=18.0
 
-<<<<<<< Updated upstream
-=======
 @export_group("Dash Attack")
 @export var dash_attack_force:float=50.0
 @export var dash_attack_cooldown:float=5.0
@@ -65,7 +63,11 @@ enum State { IDLE, RUN, AIR, SLIDE, ARC }
 @export var dash_attack_momentum_scale:float=1.5  # Multiplier: attack speed scales with momentum
 @export var dash_attack_min_speed:float=15.0      # Minimum dash speed (no momentum scaling below this)
 
->>>>>>> Stashed changes
+@export_group("Roll")
+@export var roll_duration:float=0.8
+@export var roll_cooldown:float=3.0
+@export var roll_speed:float=35.0
+@export var roll_momentum_tilt:float=0.6  # How much to blend toward input direction (0=pure momentum, 1=pure input)
 @export_group("Environment")
 @export var drag_coefficient:float=0.008; @export var wind:=Vector3.ZERO
 @export var gravity_scale:float=1.0
@@ -113,19 +115,23 @@ signal state_changed(new_state:int)
 signal height_changed(world_y:float)
 signal landed(impact_speed:float)
 signal dash_performed()
+signal dash_attack_performed()
+signal roll_performed()
 signal wall_hit(wall_normal:Vector3,impact_speed:float)
 signal food_consumed(food_name:String)
 
 var _state:=State.IDLE; var _state_time:float; var _max_spd:float
 var _coyote:float; var _buf:float; var _dash_cd:float; var _bounce_cd:float
-<<<<<<< Updated upstream
-=======
 var _dash_attack_cd:float=0.0
 var _dash_attack_active:bool=false           # True while executing dash attack
 var _dash_attack_dir:=Vector3.ZERO           # Locked direction for dash attack
 var _dash_attack_end_time:float=0.0          # When dash attack ends
 var _dash_attack_duration:float=0.2          # How long the dash attack lasts (in seconds)
->>>>>>> Stashed changes
+
+var _roll_cd:float=0.0                       # Roll cooldown timer
+var _roll_active:bool=false                  # True while rolling
+var _roll_end_time:float=0.0                 # When roll ends
+var _roll_dir:=Vector3.ZERO                  # Direction of the roll
 var _impulse:=Vector3.ZERO; var _air_vel_y:float
 var _damaged:bool; var _drifting:bool; var _prev_spd:float
 var _surf_friction:=1.0; var _surf_accel:=1.0; var _surf_drag:=1.0; var _surf_gravity:=1.0
@@ -168,10 +174,10 @@ func _ready()->void:
 
 
 func _physics_process(d:float)->void:
-<<<<<<< Updated upstream
-	_bounce_cd=maxf(_bounce_cd-d,0.0); _dash_cd=maxf(_dash_cd-d,0.0); _buf=maxf(_buf-d,0.0)
-=======
-	_bounce_cd=maxf(_bounce_cd-d,0.0); _dash_cd=maxf(_dash_cd-d,0.0); _dash_attack_cd=maxf(_dash_attack_cd-d,0.0); _buf=maxf(_buf-d,0.0)
+	_bounce_cd=maxf(_bounce_cd-d,0.0); _dash_cd=maxf(_dash_cd-d,0.0); _dash_attack_cd=maxf(_dash_attack_cd-d,0.0); _roll_cd=maxf(_roll_cd-d,0.0); _buf=maxf(_buf-d,0.0)
+	
+	# Handle dash attack input
+	if Input.is_action_just_pressed("dash_attack"): _perform_dash_attack()
 	
 	# Tick down dash attack timer
 	if _dash_attack_active:
@@ -179,7 +185,11 @@ func _physics_process(d:float)->void:
 		if _dash_attack_end_time<=0.0:
 			_dash_attack_active=false
 	
->>>>>>> Stashed changes
+	# Tick down roll timer
+	if _roll_active:
+		_roll_end_time=maxf(_roll_end_time-d,0.0)
+		if _roll_end_time<=0.0:
+			_roll_active=false
 	if Input.is_action_just_pressed("jump"): _buf=jump_buffer_t
 	if is_on_floor(): _coyote=coyote_time
 	else:             _coyote=maxf(_coyote-d,0.0)
@@ -276,6 +286,7 @@ func _run_sm(d:float)->void:
 
 func _idle(d:float)->State:
 	_horiz(d)
+	if Input.is_action_just_pressed("roll"):  _perform_roll()
 	if not is_on_floor():                return State.AIR
 	if _jump():                          return State.AIR
 	if _slide_ok():                      return State.SLIDE
@@ -284,6 +295,7 @@ func _idle(d:float)->State:
 
 func _run(d:float)->State:
 	_horiz(d)
+	if Input.is_action_just_pressed("roll"):  _perform_roll()
 	if not is_on_floor():                        return State.AIR
 	if _jump():                                  return State.AIR
 	if _slide_ok():                              return State.SLIDE
@@ -295,6 +307,7 @@ func _run(d:float)->State:
 func _air(d:float)->State:
 	_horiz(d)
 	if Input.is_action_just_released("jump") and velocity.y>0.0: velocity.y*=0.45
+	if Input.is_action_just_pressed("roll") and is_on_floor():  _perform_roll()
 	if is_on_floor(): return State.RUN if _flat_spd()>0.5 else State.IDLE
 	return State.AIR
 
@@ -323,8 +336,11 @@ func _apply_gravity(d:float)->void:
 
 
 func _horiz(d:float)->float:
-	# During dash attack, ignore WASD input and maintain locked direction
-	var wish:=Vector3.ZERO if _dash_attack_active else _wish_dir()
+	# During dash attack or roll, blend toward their direction but allow normal movement to modulate
+	var wish:=_wish_dir()
+	if _dash_attack_active or _roll_active:
+		# Blend input toward locked direction for smoother momentum-guided movement
+		wish=wish.lerp(_dash_attack_dir if _dash_attack_active else _roll_dir, 0.7)
 	var flat:=Vector3(velocity.x,0,velocity.z)
 	var spd:=flat.length(); var eff_a:=acceleration*_surf_accel/mass
 	var eff_f:=friction*_surf_friction
@@ -498,8 +514,6 @@ func try_dash()->void:
 	if _dash_cd>0.0: return
 	add_impulse(_wish_dir()*dash_force/mass); _dash_cd=dash_cooldown; dash_performed.emit()
 
-<<<<<<< Updated upstream
-=======
 func _perform_dash_attack()->void:
 	if _dash_attack_cd>0.0: return
 	
@@ -507,11 +521,10 @@ func _perform_dash_attack()->void:
 	var flat_vel:=Vector3(velocity.x, 0.0, velocity.z)
 	var current_speed:=flat_vel.length()
 	
-	# Calculate dash attack speed based on momentum
+	# Calculate dash attack impulse based on momentum
 	# Scales the base force with how much momentum the player has
 	var momentum_factor:=clampf(current_speed/speed_max, 0.0, 1.0)
 	var effective_force:=dash_attack_force+dash_attack_force*momentum_factor*dash_attack_momentum_scale
-	var dash_speed:=maxf(effective_force, dash_attack_min_speed)
 	
 	# Get the wish direction from WASD input (where player is trying to move)
 	var wish_dir:Vector3=_wish_dir()
@@ -525,20 +538,68 @@ func _perform_dash_attack()->void:
 		cam_dir.y=0.0
 		wish_dir=cam_dir.normalized()
 	
-	# Lock in the direction and apply the momentum-scaled impulse
+	# Lock in the direction for momentum-guided movement
 	_dash_attack_dir=wish_dir
 	_dash_attack_active=true
 	_dash_attack_end_time=_dash_attack_duration
 	
-	# Set velocity directly to the dash attack direction with computed speed
-	velocity.x=wish_dir.x*dash_speed
-	velocity.z=wish_dir.z*dash_speed
+	# Apply impulse in the attack direction instead of snapping velocity
+	# This creates smooth momentum-guided acceleration instead of instant speed change
+	add_impulse(wish_dir*effective_force/mass)
+	
+	# Apply FOV pop effect to camera
+	if _camera:
+		_apply_dash_attack_camera_pop()
 	
 	# Trigger cooldown and emit signal
 	_dash_attack_cd=dash_attack_cooldown
 	dash_attack_performed.emit()
 
->>>>>>> Stashed changes
+func _perform_roll()->void:
+	if _roll_cd>0.0: return
+	
+	# Get the wish direction from WASD input - ALWAYS prioritize explicit WASD input
+	var wish_dir:Vector3=_wish_dir()
+	
+	# Get current horizontal momentum/velocity
+	var flat_vel:=Vector3(velocity.x, 0.0, velocity.z)
+	var momentum_dir:=flat_vel.normalized() if flat_vel.length()>0.1 else Vector3.ZERO
+	
+	# Determine roll direction based on input priority
+	var roll_dir:Vector3
+	
+	# Priority 1: If WASD is pressed, roll in that direction (WASD-dependent)
+	if wish_dir.length_squared()>0.01:
+		roll_dir=wish_dir.normalized()
+	# Priority 2: If moving but no WASD input, use momentum
+	elif momentum_dir.length_squared()>0.01:
+		roll_dir=momentum_dir
+	# Priority 3: If stationary and no input, use camera forward
+	else:
+		var cam_dir:Vector3=_camera.global_transform.basis.z.normalized()
+		cam_dir.y=0.0
+		roll_dir=cam_dir.normalized() if cam_dir.length_squared()>0.01 else Vector3(0, 0, -1)
+	
+	# Ensure roll_dir is valid
+	roll_dir=roll_dir.normalized() if roll_dir.length_squared()>0.01 else Vector3(0, 0, -1)
+	
+	# Lock in the roll direction for momentum guidance during roll
+	_roll_dir=roll_dir
+	_roll_active=true
+	_roll_end_time=roll_duration
+	
+	# Apply impulse in the roll direction with momentum blending
+	# Blend between pure roll speed and momentum-guided speed based on roll_momentum_tilt
+	var target_dir:Vector3=roll_dir.lerp(momentum_dir if momentum_dir.length()>0.01 else roll_dir, roll_momentum_tilt)
+	target_dir=target_dir.normalized()
+	
+	# Apply initial roll impulse - creates smooth acceleration rather than snapping
+	add_impulse(target_dir*roll_speed/mass)
+	
+	# Trigger cooldown and emit signal
+	_roll_cd=roll_cooldown
+	roll_performed.emit()
+
 func set_damaged(v:bool)->void:        _damaged=v
 func get_state()->int:                 return _state as int
 func get_state_time()->float:          return _state_time
@@ -546,6 +607,11 @@ func get_flat_speed()->float:          return _flat_spd()
 func is_sliding_state()->bool:         return _state==State.SLIDE
 func is_in_momentum_arc()->bool:       return _state==State.ARC
 func is_drifting()->bool:              return _drifting
+
+
+func _apply_dash_attack_camera_pop()->void:
+	"""Apply FOV pop effect for dash attack - handled by camera's dash_attack_performed signal"""
+	pass  # The signal will be caught by the camera controller
 
 
 # Food consumption
