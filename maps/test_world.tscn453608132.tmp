@@ -22,8 +22,7 @@ environment = SubResource("Environment_s3ba5")
 [node name="test_plate" parent="." unique_id=1987738037 instance=ExtResource("1_icmfn")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.031437874, -0.05122447, 0.017174244)
 
-[node name="ObstacleCourse" type="Node3D" parent="test_plate" unique_id=123456789]
-script = ExtResource("6_obstacle")
+
 
 [node name="CharacterBody3D" parent="." unique_id=300315409 instance=ExtResource("2_icmfn")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.48233223, 0.94817924, 0.26731205)
