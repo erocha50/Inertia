@@ -13,7 +13,6 @@ config_version=5
 config/name="Inertia"
 run/main_scene="uid://t3ejc2fqyx2n"
 config/features=PackedStringArray("4.6", "Forward Plus")
-config/icon="res://icon.svg"
 
 [autoload]
 

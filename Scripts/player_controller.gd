@@ -300,7 +300,9 @@ func _run(d:float)->State:
 	if _jump():                                  return State.AIR
 	if _slide_ok():                              return State.SLIDE
 	var ang:=_ang_to_wish()
-	if ang>arc_threshold and ang<reversal_threshold and _flat_spd()>speed_min: return State.ARC
+	# Don't enter arc state mid-dash/roll — it bypasses smooth handling
+	if ang>arc_threshold and ang<reversal_threshold and _flat_spd()>speed_min \
+			and not _dash_attack_active and not _roll_active: return State.ARC
 	if _flat_spd()<0.5:                          return State.IDLE
 	return State.RUN
 
@@ -336,11 +338,15 @@ func _apply_gravity(d:float)->void:
 
 
 func _horiz(d:float)->float:
-	# During dash attack or roll, blend toward their direction but allow normal movement to modulate
+	var _action_active:=_dash_attack_active or _roll_active
+	# During dash/roll: only blend wish toward locked direction if the player
+	# is actually pressing a key — never force a direction from a stale zero wish.
 	var wish:=_wish_dir()
-	if _dash_attack_active or _roll_active:
-		# Blend input toward locked direction for smoother momentum-guided movement
-		wish=wish.lerp(_dash_attack_dir if _dash_attack_active else _roll_dir, 0.7)
+	if _action_active and wish.length_squared()>0.01:
+		wish=wish.lerp(_dash_attack_dir if _dash_attack_active else _roll_dir, 0.7).normalized()
+	elif _action_active:
+		# No input during dash/roll — use locked direction to carry momentum forward
+		wish=(_dash_attack_dir if _dash_attack_active else _roll_dir)
 	var flat:=Vector3(velocity.x,0,velocity.z)
 	var spd:=flat.length(); var eff_a:=acceleration*_surf_accel/mass
 	var eff_f:=friction*_surf_friction
@@ -353,43 +359,44 @@ func _horiz(d:float)->float:
 	if wish.length_squared()<0.01:
 		flat=flat.move_toward(Vector3.ZERO,(eff_f if is_on_floor() else air_control)*lerpf(1.0,momentum_bleed,resist)*d)
 		velocity.x=flat.x; velocity.z=flat.z; turn_strain.emit(0.0); _drifting=false
-		_brake_timer=0.0; return 0.0
+		# Only wipe brake timer when not in a dash/roll so the bleed plays out naturally
+		if not _action_active: _brake_timer=0.0
+		return 0.0
 
-	if spd<2.0:
+	# Skip the low-speed shortcut during dash/roll — never bypass smooth steering mid-action
+	if spd<2.0 and not _action_active:
 		flat=flat.move_toward(wish*spd_cap,eff_a*d)
 		velocity.x=flat.x; velocity.z=flat.z; turn_strain.emit(0.0)
 		_brake_timer=0.0; return 0.0
 
-	var ang:=rad_to_deg(flat.normalized().angle_to(wish))
+	var ang:=rad_to_deg(flat.normalized().angle_to(wish)) if spd>=0.1 else 0.0
 	var spd_t:=clampf(spd/speed_max,0.0,1.0)
 	var ctrl:=lerpf(1.0,0.55,spd_t*spd_t)*(damage_control if _damaged else 1.0)
 	var eff_steer:=eff_a*ctrl*lerpf(1.0,1.0-resist,mom_t)
 
-	# --- Direction-change brake phase (A→D / W→D style flips) ---
-	# Enter brake if angle is a hard flip but not quite a full reversal
-	if ang>=dir_flip_threshold and ang<reversal_threshold and is_on_floor() \
-			and spd>=dir_brake_min_speed and _brake_timer<=0.0:
+	# --- Direction-change brake phase ---
+	# Covers both hard lateral flips (A→D) AND backward (S) input.
+	# Any wish angle >= dir_flip_threshold enters the same two-phase treatment:
+	#   Phase 1 – pure brake: bleed speed, hold current direction, no redirect yet.
+	#   Phase 2 – redirect: once slow enough (or timer expired), accelerate into wish.
+	# DISABLED during dash — dash owns its momentum direction.
+	# Still active during roll so backwards input brakes as normal.
+	if ang>=dir_flip_threshold and is_on_floor() \
+			and spd>=dir_brake_min_speed and _brake_timer<=0.0 \
+			and not _dash_attack_active:
 		_brake_timer=dir_brake_time
 		_brake_target_dir=wish
 
-	if _brake_timer>0.0:
+	if _brake_timer>0.0 and not _dash_attack_active:
 		_brake_timer=maxf(_brake_timer-d,0.0)
-		# Bleed speed strongly during brake window
+		# Bleed speed — no steering and no redirect into backwards direction.
+		# When the brake finishes the player simply comes to a stop.
 		flat*=pow(1.0-dir_brake_bleed,d*60.0)
-		# Once nearly stopped, point in new direction and let normal accel take over
-		if flat.length()<1.5 or _brake_timer<=0.0:
+		if flat.length()<0.5:
+			flat=Vector3.ZERO
 			_brake_timer=0.0
-			flat=flat.move_toward(wish*spd_cap,eff_a*2.0*d)
 		velocity.x=flat.x; velocity.z=flat.z
 		turn_strain.emit(clampf(ang/180.0,0.0,1.0)*0.6); return 0.0
-
-	# Natural reversal (beyond reversal_threshold): bleed + redirect
-	if ang>=reversal_threshold and is_on_floor():
-		var rev_t:=clampf((ang-reversal_threshold)/(180.0-reversal_threshold),0.0,1.0)
-		flat*=lerpf(1.0,1.0-reversal_bleed,rev_t*spd_t)*pow(1.0-reversal_bleed*0.4,d*60.0*rev_t)
-		flat=flat.move_toward(wish*spd_cap,eff_a*ctrl*(1.0+rev_t)*d)
-		velocity.x=flat.x; velocity.z=flat.z
-		turn_strain.emit(clampf(rev_t*0.5,0.0,1.0)); return 0.0
 
 	if ang>15.0 and ang<arc_threshold:
 		flat=flat.normalized().slerp(wish,corner_assist_str*d*ctrl*lerpf(1.0,1.0-resist,mom_t))*spd
@@ -588,14 +595,21 @@ func _perform_roll()->void:
 	_roll_active=true
 	_roll_end_time=roll_duration
 	
-	# Apply impulse in the roll direction with momentum blending
-	# Blend between pure roll speed and momentum-guided speed based on roll_momentum_tilt
+	# Blend the target direction between WASD wish and current momentum
 	var target_dir:Vector3=roll_dir.lerp(momentum_dir if momentum_dir.length()>0.01 else roll_dir, roll_momentum_tilt)
 	target_dir=target_dir.normalized()
-	
-	# Apply initial roll impulse - creates smooth acceleration rather than snapping
-	add_impulse(target_dir*roll_speed/mass)
-	
+
+	# ── Smooth velocity redirect ─────────────────────────────────────────────
+	# Apply the roll as an impulse (absorbed by knockback_decay over frames)
+	# rather than hard-writing velocity.x/z.  This means existing momentum
+	# blends out naturally instead of snapping to the new direction instantly.
+	var entry_spd:=maxf(flat_vel.length(), roll_speed)
+	entry_spd=minf(entry_spd, roll_speed * 1.6)
+	var target_vel:=target_dir * entry_spd
+	var redirect:=target_vel - Vector3(velocity.x, 0.0, velocity.z)
+	_impulse+=redirect * mass
+	# ─────────────────────────────────────────────────────────────────────────
+
 	# Trigger cooldown and emit signal
 	_roll_cd=roll_cooldown
 	roll_performed.emit()
@@ -606,7 +620,7 @@ func get_state_time()->float:          return _state_time
 func get_flat_speed()->float:          return _flat_spd()
 func is_sliding_state()->bool:         return _state==State.SLIDE
 func is_in_momentum_arc()->bool:       return _state==State.ARC
-func is_drifting()->bool:              return _drifting
+func is_drifting()->bool:             return _drifting
 
 
 func _apply_dash_attack_camera_pop()->void:
