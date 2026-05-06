@@ -92,15 +92,12 @@ enum State { IDLE, RUN, AIR, SLIDE, ARC }
 @export var reversal_bleed:float=0.55
 @export var reversal_threshold:float=145.0
 
-# How long (seconds) the brake phase lasts on a sharp direction flip
+# How much counter-input resists forward momentum (0=none, 1=instant stop)
+# This replaces the old snap-brake system — momentum carries through,
+# S key pushes back gradually rather than triggering a full stop.
 @export_group("Direction Change")
-@export var dir_brake_time:float=0.18
-# Speed must be above this to trigger a brake phase
-@export var dir_brake_min_speed:float=5.0
-# Angle (degrees) that counts as a direction flip (A→D style, less than reversal)
-@export var dir_flip_threshold:float=100.0
-# How hard speed is bled during the brake phase (0=none, 1=instant stop)
-@export var dir_brake_bleed:float=0.92
+@export var counter_input_resist:float=0.18   # Friction scalar applied when input opposes velocity
+@export var counter_input_threshold:float=120.0  # Angle (deg) before counter-friction kicks in (>90 = only backwards-ish)
 
 # Wall slam detection and curved bounce
 @export_group("Wall Slam")
@@ -379,12 +376,10 @@ func _horiz(d:float)->float:
 		return 0.0
 	# ────────────────────────────────────────────────────────────────────────
 
-	# During dash attack: blend wish toward locked direction
+	# Never force wish direction during a dash — the impulse carries itself.
+	# Letting the player steer freely (including backwards) makes post-dash
+	# movement feel natural instead of fighting an invisible locked direction.
 	var wish:=_wish_dir()
-	if _dash_attack_active and wish.length_squared()>0.01:
-		wish=wish.lerp(_dash_attack_dir, 0.7).normalized()
-	elif _dash_attack_active:
-		wish=_dash_attack_dir
 	var flat:=Vector3(velocity.x,0,velocity.z)
 	var spd:=flat.length(); var eff_a:=acceleration*_surf_accel/mass
 	var eff_f:=friction*_surf_friction
@@ -428,23 +423,19 @@ func _horiz(d:float)->float:
 	var ctrl:=lerpf(1.0,0.55,spd_t*spd_t)*(damage_control if _damaged else 1.0)
 	var eff_steer:=eff_a*ctrl*lerpf(1.0,1.0-resist,mom_t)
 
-	# --- Direction-change brake phase ---
-	# Covers both hard lateral flips (A→D) AND backward (S) input.
-	# DISABLED during dash — dash owns its momentum direction.
-	if ang>=dir_flip_threshold and is_on_floor() \
-			and spd>=dir_brake_min_speed and _brake_timer<=0.0 \
-			and not _dash_attack_active:
-		_brake_timer=dir_brake_time
-		_brake_target_dir=wish
-
-	if _brake_timer>0.0 and not _dash_attack_active:
-		_brake_timer=maxf(_brake_timer-d,0.0)
-		flat*=pow(1.0-dir_brake_bleed,d*60.0)
-		if flat.length()<0.5:
-			flat=Vector3.ZERO
-			_brake_timer=0.0
+	# --- Counter-input resistance ---
+	# Opposing input adds scaled friction against momentum — no snap stop.
+	# Post-dash, the same system applies but with a heavier friction scalar
+	# so backwards movement bleeds the dash speed slowly and feels weighty,
+	# not jerky. Air is handled by the strafe block; this is ground-only.
+	if ang>=counter_input_threshold and is_on_floor():
+		var oppose_t:=clampf((ang-counter_input_threshold)/(180.0-counter_input_threshold),0.0,1.0)
+		# Dash gives extra post-dash drag so backwards feels slow and deliberate
+		var dash_drag:=2.2 if _dash_attack_active else 1.0
+		var resist_friction:=eff_f*counter_input_resist*oppose_t*spd*dash_drag
+		flat=flat.move_toward(Vector3.ZERO,resist_friction*d)
 		velocity.x=flat.x; velocity.z=flat.z
-		turn_strain.emit(clampf(ang/180.0,0.0,1.0)*0.6); return 0.0
+		turn_strain.emit(oppose_t*0.4); return 0.0
 
 	if ang>15.0 and ang<arc_threshold:
 		flat=flat.normalized().slerp(wish,corner_assist_str*d*ctrl*lerpf(1.0,1.0-resist,mom_t))*spd
