@@ -1,0 +1,43 @@
+[gd_scene format=3 uid="uid://cnor3184re68b"]
+
+[ext_resource type="Script" path="res://Scripts/main_menu.gd" id="1_28flt"]
+
+[sub_resource type="Environment" id="Environment_48xlc"]
+
+[node name="MainMenu" type="Node3D" unique_id=1802397862]
+script = ExtResource("1_28flt")
+
+[node name="World3D" type="Node3D" parent="." unique_id=1775651972]
+
+[node name="Environment" type="WorldEnvironment" parent="World3D" unique_id=1337212272]
+environment = SubResource("Environment_48xlc")
+
+[node name="PropsGroup" type="Node3D" parent="World3D" unique_id=1636731589]
+
+[node name="Sun" type="DirectionalLight3D" parent="World3D" unique_id=691868764]
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=2061862089]
+
+[node name="UILayer" type="CanvasLayer" parent="." unique_id=979109092]
+
+[node name="MenuContainer" type="VBoxContainer" parent="UILayer" unique_id=912359170]
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="TitleLabel" type="Label" parent="UILayer" unique_id=885503317]
+offset_right = 40.0
+offset_bottom = 23.0
+
+[node name="StartButton" type="Button" parent="UILayer" unique_id=786478693]
+offset_right = 8.0
+offset_bottom = 8.0
+
+[node name="OptionsButton" type="Button" parent="UILayer" unique_id=896125478]
+offset_right = 8.0
+offset_bottom = 8.0
+
+[node name="QuitButton" type="Button" parent="UILayer" unique_id=190930372]
+offset_right = 8.0
+offset_bottom = 8.0
+
+[node name="AudioBus" type="AudioStreamPlayer" parent="." unique_id=915896894]
