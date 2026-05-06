@@ -32,10 +32,18 @@ enum State { IDLE, RUN, AIR, SLIDE, ARC }
 @export var drift_min_speed:float=8.0
 
 @export_group("Vertical")
-@export var jump_velocity:float=10.0;  @export var gravity_rise:float=28.0
-@export var gravity_fall:float=40.0;   @export var max_fall_speed:float=55.0
-@export var fall_damage_spd:float=22.0; @export var coyote_time:float=0.10
-@export var jump_buffer_t:float=0.12
+@export var jump_velocity:float=15.0;  @export var gravity_rise:float=20.0
+@export var gravity_fall:float=42.0;   @export var max_fall_speed:float=55.0
+@export var fall_damage_spd:float=22.0; @export var coyote_time:float=0.12
+@export var jump_buffer_t:float=0.14
+
+@export_group("Air Movement")
+@export var air_dash_force_scale:float=0.55    # Dash force multiplier while airborne (lesser than ground)
+@export var air_roll_allowed:bool=true         # Can roll while in air
+@export var air_strafe_accel:float=40.0        # Acceleration added along wish-dir when airborne (Source-style)
+@export var air_strafe_wishcap:float=50.0      # Max speed along wish-dir that strafing can build toward
+@export var air_strafe_speed_cap:float=1.3     # Total speed ceiling as fraction of speed_max during air strafe
+@export var air_momentum_preserve:float=0.995  # Per-frame multiplier keeping horizontal speed on liftoff (1=full preserve)
 
 @export_group("Tilt")
 @export var tilt_max:float=18.0; @export var tilt_ref_speed:float=40.0; @export var tilt_smooth:float=10.0
@@ -64,10 +72,12 @@ enum State { IDLE, RUN, AIR, SLIDE, ARC }
 @export var dash_attack_min_speed:float=15.0      # Minimum dash speed (no momentum scaling below this)
 
 @export_group("Roll")
-@export var roll_duration:float=0.8
-@export var roll_cooldown:float=3.0
-@export var roll_speed:float=35.0
-@export var roll_momentum_tilt:float=0.6  # How much to blend toward input direction (0=pure momentum, 1=pure input)
+@export var roll_duration:float=0.45           # Total dodge animation time (seconds)
+@export var roll_cooldown:float=1.2            # Cooldown before next dodge
+@export var roll_distance:float=12.0           # Base linear travel distance (units)
+@export var roll_speed_bonus_scale:float=0.06  # Extra distance per unit of entry speed (kept small, Dark Souls feel)
+@export var roll_speed_bonus_max:float=2.5     # Hard cap on the speed-bonus distance added
+@export var roll_decel_curve:float=3.5         # Power curve for deceleration within the roll (higher = sharper stop at end)
 @export_group("Environment")
 @export var drag_coefficient:float=0.008; @export var wind:=Vector3.ZERO
 @export var gravity_scale:float=1.0
@@ -300,15 +310,23 @@ func _run(d:float)->State:
 	if _jump():                                  return State.AIR
 	if _slide_ok():                              return State.SLIDE
 	var ang:=_ang_to_wish()
-	if ang>arc_threshold and ang<reversal_threshold and _flat_spd()>speed_min: return State.ARC
+	# Don't enter arc state mid-dash/roll — it bypasses smooth handling
+	if ang>arc_threshold and ang<reversal_threshold and _flat_spd()>speed_min \
+			and not _dash_attack_active and not _roll_active: return State.ARC
 	if _flat_spd()<0.5:                          return State.IDLE
 	return State.RUN
 
 func _air(d:float)->State:
 	_horiz(d)
-	if Input.is_action_just_released("jump") and velocity.y>0.0: velocity.y*=0.45
-	if Input.is_action_just_pressed("roll") and is_on_floor():  _perform_roll()
-	if is_on_floor(): return State.RUN if _flat_spd()>0.5 else State.IDLE
+	# Variable jump height — release early to cut the arc
+	if Input.is_action_just_released("jump") and velocity.y>0.0: velocity.y*=0.40
+	# Roll and dash usable in air
+	if Input.is_action_just_pressed("roll") and air_roll_allowed: _perform_roll()
+	if is_on_floor():
+		# Jump buffer means the player pressed jump just before landing —
+		# honour it immediately so it feels responsive, no speed bonus.
+		if _buf>0.0: _jump()
+		return State.RUN if _flat_spd()>0.5 else State.IDLE
 	return State.AIR
 
 func _slide_st(d:float)->State:
@@ -336,11 +354,37 @@ func _apply_gravity(d:float)->void:
 
 
 func _horiz(d:float)->float:
-	# During dash attack or roll, blend toward their direction but allow normal movement to modulate
+	var _action_active:=_dash_attack_active or _roll_active
+
+	# ── Roll override: power-curve deceleration, no steering ────────────────
+	# While a roll is active the player has no control. We drive velocity
+	# directly along _roll_dir, decelerating with the same curve used to
+	# compute start_spd in _perform_roll so total distance stays predictable.
+	if _roll_active:
+		var flat:=Vector3(velocity.x,0,velocity.z)
+		var spd:=flat.length()
+		if spd>0.05:
+			# t goes from 1→0 over roll_duration; speed follows (1 - t^curve).
+			# Here we just apply proportional per-frame drag that mirrors the curve.
+			var roll_remaining:=_roll_end_time
+			var roll_elapsed:=roll_duration-roll_remaining
+			var t_norm:=clampf(roll_elapsed/roll_duration,0.0,1.0)
+			# Decel factor: ramp from low at start to high at end
+			var decel_rate:=pow(t_norm,1.0/roll_decel_curve)*spd/maxf(roll_duration*(1.0-t_norm),d)
+			var new_spd:=maxf(spd-decel_rate*d,0.0)
+			velocity.x=_roll_dir.x*new_spd; velocity.z=_roll_dir.z*new_spd
+		else:
+			velocity.x=0.0; velocity.z=0.0
+		turn_strain.emit(0.0); _drifting=false
+		return 0.0
+	# ────────────────────────────────────────────────────────────────────────
+
+	# During dash attack: blend wish toward locked direction
 	var wish:=_wish_dir()
-	if _dash_attack_active or _roll_active:
-		# Blend input toward locked direction for smoother momentum-guided movement
-		wish=wish.lerp(_dash_attack_dir if _dash_attack_active else _roll_dir, 0.7)
+	if _dash_attack_active and wish.length_squared()>0.01:
+		wish=wish.lerp(_dash_attack_dir, 0.7).normalized()
+	elif _dash_attack_active:
+		wish=_dash_attack_dir
 	var flat:=Vector3(velocity.x,0,velocity.z)
 	var spd:=flat.length(); var eff_a:=acceleration*_surf_accel/mass
 	var eff_f:=friction*_surf_friction
@@ -353,43 +397,54 @@ func _horiz(d:float)->float:
 	if wish.length_squared()<0.01:
 		flat=flat.move_toward(Vector3.ZERO,(eff_f if is_on_floor() else air_control)*lerpf(1.0,momentum_bleed,resist)*d)
 		velocity.x=flat.x; velocity.z=flat.z; turn_strain.emit(0.0); _drifting=false
-		_brake_timer=0.0; return 0.0
+		if not _action_active: _brake_timer=0.0
+		return 0.0
 
-	if spd<2.0:
+	# ── Source-engine air strafe ───────────────────────────────────────────
+	# Airborne movement: only accelerate along the wish direction up to
+	# air_strafe_wishcap — never subtract from perpendicular momentum.
+	# This gives the CS:GO feel: strafing curves your arc, not kills it.
+	# We then fall through to let the state machine continue normally
+	# (no early return) so rolling/dash-attack still gets handled below.
+	if not is_on_floor() and not _roll_active and not _dash_attack_active:
+		var wish_proj:=flat.dot(wish)
+		var add_spd:=minf(air_strafe_wishcap-wish_proj, air_strafe_accel*d)
+		if add_spd>0.0:
+			var new_flat:=flat+wish*add_spd
+			var cap:=speed_max*air_strafe_speed_cap
+			if new_flat.length()>cap: new_flat=new_flat.normalized()*cap
+			velocity.x=new_flat.x; velocity.z=new_flat.z
+		turn_strain.emit(0.0); return 0.0
+	# ────────────────────────────────────────────────────────────────────────
+
+	# Skip the low-speed shortcut during dash — never bypass smooth steering mid-action
+	if spd<2.0 and not _dash_attack_active:
 		flat=flat.move_toward(wish*spd_cap,eff_a*d)
 		velocity.x=flat.x; velocity.z=flat.z; turn_strain.emit(0.0)
 		_brake_timer=0.0; return 0.0
 
-	var ang:=rad_to_deg(flat.normalized().angle_to(wish))
+	var ang:=rad_to_deg(flat.normalized().angle_to(wish)) if spd>=0.1 else 0.0
 	var spd_t:=clampf(spd/speed_max,0.0,1.0)
 	var ctrl:=lerpf(1.0,0.55,spd_t*spd_t)*(damage_control if _damaged else 1.0)
 	var eff_steer:=eff_a*ctrl*lerpf(1.0,1.0-resist,mom_t)
 
-	# --- Direction-change brake phase (A→D / W→D style flips) ---
-	# Enter brake if angle is a hard flip but not quite a full reversal
-	if ang>=dir_flip_threshold and ang<reversal_threshold and is_on_floor() \
-			and spd>=dir_brake_min_speed and _brake_timer<=0.0:
+	# --- Direction-change brake phase ---
+	# Covers both hard lateral flips (A→D) AND backward (S) input.
+	# DISABLED during dash — dash owns its momentum direction.
+	if ang>=dir_flip_threshold and is_on_floor() \
+			and spd>=dir_brake_min_speed and _brake_timer<=0.0 \
+			and not _dash_attack_active:
 		_brake_timer=dir_brake_time
 		_brake_target_dir=wish
 
-	if _brake_timer>0.0:
+	if _brake_timer>0.0 and not _dash_attack_active:
 		_brake_timer=maxf(_brake_timer-d,0.0)
-		# Bleed speed strongly during brake window
 		flat*=pow(1.0-dir_brake_bleed,d*60.0)
-		# Once nearly stopped, point in new direction and let normal accel take over
-		if flat.length()<1.5 or _brake_timer<=0.0:
+		if flat.length()<0.5:
+			flat=Vector3.ZERO
 			_brake_timer=0.0
-			flat=flat.move_toward(wish*spd_cap,eff_a*2.0*d)
 		velocity.x=flat.x; velocity.z=flat.z
 		turn_strain.emit(clampf(ang/180.0,0.0,1.0)*0.6); return 0.0
-
-	# Natural reversal (beyond reversal_threshold): bleed + redirect
-	if ang>=reversal_threshold and is_on_floor():
-		var rev_t:=clampf((ang-reversal_threshold)/(180.0-reversal_threshold),0.0,1.0)
-		flat*=lerpf(1.0,1.0-reversal_bleed,rev_t*spd_t)*pow(1.0-reversal_bleed*0.4,d*60.0*rev_t)
-		flat=flat.move_toward(wish*spd_cap,eff_a*ctrl*(1.0+rev_t)*d)
-		velocity.x=flat.x; velocity.z=flat.z
-		turn_strain.emit(clampf(rev_t*0.5,0.0,1.0)); return 0.0
 
 	if ang>15.0 and ang<arc_threshold:
 		flat=flat.normalized().slerp(wish,corner_assist_str*d*ctrl*lerpf(1.0,1.0-resist,mom_t))*spd
@@ -470,6 +525,12 @@ func _transition_to(nx:State)->void:
 
 func _jump()->bool:
 	if _buf>0.0 and _coyote>0.0:
+		# Fully preserve horizontal momentum at liftoff — no friction spike on jump frame.
+		# Scale up horizontal slightly when already fast so jumps feel like they carry speed.
+		var flat:=Vector3(velocity.x,0,velocity.z)
+		var spd_t:=clampf(flat.length()/speed_max,0.0,1.0)
+		var preserve:=lerpf(1.0,air_momentum_preserve,spd_t)
+		velocity.x=flat.x*preserve; velocity.z=flat.z*preserve
 		velocity.y=jump_velocity; _coyote=0.0; _buf=0.0; return true
 	return false
 
@@ -512,7 +573,14 @@ func add_impulse(force:Vector3)->void: _impulse+=force
 
 func try_dash()->void:
 	if _dash_cd>0.0: return
-	add_impulse(_wish_dir()*dash_force/mass); _dash_cd=dash_cooldown; dash_performed.emit()
+	# Direction: WASD wish first, then camera-forward as default (no dead-zone confusion)
+	var dir:=_wish_dir()
+	if dir.length_squared()<0.01 and _camera!=null:
+		var fwd:=_camera.global_transform.basis.z*Vector3(1,0,1)
+		if fwd.length_squared()>0.01: dir=-fwd.normalized()
+	# Reduced force while airborne so it's useful but not an air-launch
+	var force_scale:=air_dash_force_scale if not is_on_floor() else 1.0
+	add_impulse(dir*dash_force*force_scale/mass); _dash_cd=dash_cooldown; dash_performed.emit()
 
 func _perform_dash_attack()->void:
 	if _dash_attack_cd>0.0: return
@@ -557,46 +625,52 @@ func _perform_dash_attack()->void:
 
 func _perform_roll()->void:
 	if _roll_cd>0.0: return
-	
-	# Get the wish direction from WASD input - ALWAYS prioritize explicit WASD input
+
+	# ── Direction resolution ─────────────────────────────────────────────────
+	# Priority 1: explicit WASD input
 	var wish_dir:Vector3=_wish_dir()
-	
-	# Get current horizontal momentum/velocity
+	# Priority 2: current momentum direction  Priority 3: camera forward
 	var flat_vel:=Vector3(velocity.x, 0.0, velocity.z)
-	var momentum_dir:=flat_vel.normalized() if flat_vel.length()>0.1 else Vector3.ZERO
-	
-	# Determine roll direction based on input priority
 	var roll_dir:Vector3
-	
-	# Priority 1: If WASD is pressed, roll in that direction (WASD-dependent)
 	if wish_dir.length_squared()>0.01:
 		roll_dir=wish_dir.normalized()
-	# Priority 2: If moving but no WASD input, use momentum
-	elif momentum_dir.length_squared()>0.01:
-		roll_dir=momentum_dir
-	# Priority 3: If stationary and no input, use camera forward
+	elif flat_vel.length()>0.1:
+		roll_dir=flat_vel.normalized()
 	else:
-		var cam_dir:Vector3=_camera.global_transform.basis.z.normalized()
-		cam_dir.y=0.0
-		roll_dir=cam_dir.normalized() if cam_dir.length_squared()>0.01 else Vector3(0, 0, -1)
-	
-	# Ensure roll_dir is valid
-	roll_dir=roll_dir.normalized() if roll_dir.length_squared()>0.01 else Vector3(0, 0, -1)
-	
-	# Lock in the roll direction for momentum guidance during roll
+		var cam_fwd:=_camera.global_transform.basis.z; cam_fwd.y=0.0
+		roll_dir=cam_fwd.normalized() if cam_fwd.length_squared()>0.01 else Vector3(0,0,-1)
+
+	# ── Dark Souls-style static linear dodge ────────────────────────────────
+	# Kill ALL existing horizontal momentum. The dodge is not a speed boost —
+	# it's a brief controlled movement that interrupts the player's flow and
+	# feels like a planted, weighty commitment.
+	velocity.x=0.0; velocity.z=0.0
+
+	# Total travel distance: fixed base + a tiny speed-scaled bonus.
+	# High entry speed adds only a small nudge of extra range so it never
+	# reads as a dash boost, just a subtle physics acknowledgment.
+	var entry_spd:=flat_vel.length()
+	var bonus:=minf(entry_spd*roll_speed_bonus_scale, roll_speed_bonus_max)
+	var total_dist:=roll_distance+bonus
+
+	# Derive a starting speed that decelerates to ~zero over roll_duration
+	# using a power-curve profile (fast start, planted stop at the end).
+	# Integral of (1 - t^n) over [0,1] = n/(n+1); we scale by its inverse
+	# so the area under the curve equals the desired total_dist.
+	var curve_integral:=roll_decel_curve/(roll_decel_curve+1.0)
+	var start_spd:=total_dist/(roll_duration*curve_integral)
+
+	# Seed the velocity with the opening speed. _horiz() will override x/z
+	# each frame while _roll_active so player input cannot steer — the
+	# deceleration is baked in through the power-curve speed drop each tick.
+	velocity.x=roll_dir.x*start_spd
+	velocity.z=roll_dir.z*start_spd
+
 	_roll_dir=roll_dir
 	_roll_active=true
 	_roll_end_time=roll_duration
-	
-	# Apply impulse in the roll direction with momentum blending
-	# Blend between pure roll speed and momentum-guided speed based on roll_momentum_tilt
-	var target_dir:Vector3=roll_dir.lerp(momentum_dir if momentum_dir.length()>0.01 else roll_dir, roll_momentum_tilt)
-	target_dir=target_dir.normalized()
-	
-	# Apply initial roll impulse - creates smooth acceleration rather than snapping
-	add_impulse(target_dir*roll_speed/mass)
-	
-	# Trigger cooldown and emit signal
+	# ─────────────────────────────────────────────────────────────────────────
+
 	_roll_cd=roll_cooldown
 	roll_performed.emit()
 
@@ -606,7 +680,7 @@ func get_state_time()->float:          return _state_time
 func get_flat_speed()->float:          return _flat_spd()
 func is_sliding_state()->bool:         return _state==State.SLIDE
 func is_in_momentum_arc()->bool:       return _state==State.ARC
-func is_drifting()->bool:              return _drifting
+func is_drifting()->bool:             return _drifting
 
 
 func _apply_dash_attack_camera_pop()->void:
