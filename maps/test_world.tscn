@@ -4,6 +4,7 @@
 [ext_resource type="PackedScene" uid="uid://b355nnhi1g7tg" path="res://characters/player_controller.tscn" id="2_icmfn"]
 [ext_resource type="Script" path="res://characters/canvas_layer.gd" id="3_icmfn"]
 [ext_resource type="PackedScene" uid="uid://b84c1dymjri4k" path="res://Scenes/HUD.tscn" id="4_icmfn"]
+[ext_resource type="PackedScene" uid="uid://c1r1urip7nb5" path="res://characters/frozen_waiter.tscn" id="5_b4682"]
 
 [sub_resource type="Environment" id="Environment_s3ba5"]
 background_energy_multiplier = 2.98
@@ -53,3 +54,6 @@ layer = 20
 script = ExtResource("3_icmfn")
 
 [node name="HUD" parent="." unique_id=781692691 instance=ExtResource("4_icmfn")]
+
+[node name="FrozenWaiter" parent="." unique_id=1007907867 instance=ExtResource("5_b4682")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.1787755, 0.9481796, 6.253491)
