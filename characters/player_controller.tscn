@@ -11,8 +11,9 @@ albedo_color = Color(0.4, 0.6, 0.8, 1)
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_qwxyz"]
 
-[node name="CharacterBody3D" type="CharacterBody3D" unique_id=1229242080]
+[node name="CharacterBody3D" type="CharacterBody3D" unique_id=1229242080 groups=["player"]]
 script = ExtResource("1_player")
+damage_speed_cap = 0.5
 
 [node name="CameraController" type="Node3D" parent="." unique_id=1765414761]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0)

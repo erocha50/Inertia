@@ -58,6 +58,11 @@ extends Node3D
 @export_group("Wall Hit")
 @export var wall_hit_trauma:float=5.0; @export var wall_pitch_kick:float=3.5
 
+@export_group("Knockback Feel")
+@export var knockback_arm_push:float=0.8    # Extra arm pullback during knockback (units)
+@export var knockback_pitch_kick:float=3.5  # Downward pitch nudge on hit (degrees)
+@export var knockback_decay_speed:float=4.5 # How fast the knockback offset fades out
+
 @export_group("Collision")
 @export var collision_enabled:bool=true; @export var collision_radius:float=0.2
 
@@ -82,6 +87,7 @@ var _lean_roll:float; var _lean_pitch:float
 var _lateral_input:float; var _extra_pitch:float
 var _character:CharacterBody3D; var _camera:Camera3D
 var _line_ctrl:_SpeedLineControl; var _space:PhysicsDirectSpaceState3D
+var _knockback_trauma:float=0.0   # Smooth knockback camera offset [0..1]
 
 
 func _ready() -> void:
@@ -92,7 +98,8 @@ func _ready() -> void:
 	_arm_target=arm_length; _arm_current=arm_length; _shoulder_cur=shoulder_base
 	_apply_orbital_transform(); _build_speed_lines()
 	for sig in [["speed_changed",_on_speed_changed],["turn_strain",_on_turn_strain],
-				["landed",_on_landed],["dash_performed",_on_dash],["dash_attack_performed",_on_dash_attack],["wall_hit",_on_wall_hit]]:
+				["landed",_on_landed],["dash_performed",_on_dash],["dash_attack_performed",_on_dash_attack],["wall_hit",_on_wall_hit],
+				["knockback_received",_on_knockback_received]]:
 		if _character.has_signal(sig[0]): _character.connect(sig[0],sig[1])
 
 
@@ -118,6 +125,12 @@ func _on_dash_attack()->void:
 func _on_wall_hit(_wall_normal:Vector3,impact_speed:float)->void:
 	var t:=clampf(impact_speed/maxf(_max_spd,1.0),0.0,1.0)
 	_impact_trauma=maxf(_impact_trauma,wall_hit_trauma*t); _extra_pitch+=wall_pitch_kick*t
+
+func _on_knockback_received(strength:float)->void:
+	# strength is 0..1 normalised by the caller; nudge arm and pitch smoothly
+	var t:=clampf(strength,0.0,1.0)
+	_knockback_trauma=maxf(_knockback_trauma,t)
+	_extra_pitch+=knockback_pitch_kick*t
 
 
 func _input(event:InputEvent)->void:
@@ -154,9 +167,12 @@ func _process(delta:float)->void:
 	_smooth_yaw=lerpf(_smooth_yaw,_cam_yaw,spring_h/(1.0+absf(_yaw_delta)*lag_yaw_factor*spd_t)*delta)
 	_smooth_pitch=lerpf(_smooth_pitch,_pitch,spring_v*delta)
 
+	_knockback_trauma=lerpf(_knockback_trauma,0.0,knockback_decay_speed*delta)
+	var knockback_arm_offset:=_knockback_trauma*knockback_arm_push
+
 	var lean_t:=clampf(absf(_lean_roll)/roll_max_deg,0.0,1.0)
 	_arm_current=lerpf(_arm_current,
-		clampf(_arm_target+arm_speed_pullback*spd_t*spd_t-lean_t*lean_t*lean_arm_pull,arm_min,arm_max+arm_speed_pullback),
+		clampf(_arm_target+arm_speed_pullback*spd_t*spd_t-lean_t*lean_t*lean_arm_pull+knockback_arm_offset,arm_min,arm_max+arm_speed_pullback),
 		arm_zoom_smooth*delta)
 
 	# Shoulder: right by default; mouse turns, lateral input and lean all drive the sweep.

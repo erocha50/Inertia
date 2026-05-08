@@ -140,6 +140,7 @@ var _roll_active:bool=false                  # True while rolling
 var _roll_end_time:float=0.0                 # When roll ends
 var _roll_dir:=Vector3.ZERO                  # Direction of the roll
 var _impulse:=Vector3.ZERO; var _air_vel_y:float
+var _knockback:=Vector3.ZERO
 var _damaged:bool; var _drifting:bool; var _prev_spd:float
 var _surf_friction:=1.0; var _surf_accel:=1.0; var _surf_drag:=1.0; var _surf_gravity:=1.0
 var _slide_h:float=1.8; var _slide_oy:float; var _capsule_h:float=1.8
@@ -180,7 +181,14 @@ func _ready()->void:
 	GameEvents.player_consumed_food.connect(_on_food_consumed)
 
 
+func take_knockback(impulse: Vector3) -> void:
+	_knockback = impulse
+
 func _physics_process(d:float)->void:
+	# Apply knockback as a direct velocity override — bypasses _impulse*delta scaling
+	if _knockback.length_squared() > 0.01:
+		velocity = _knockback
+		_knockback = Vector3.ZERO
 	_bounce_cd=maxf(_bounce_cd-d,0.0); _dash_cd=maxf(_dash_cd-d,0.0); _dash_attack_cd=maxf(_dash_attack_cd-d,0.0); _roll_cd=maxf(_roll_cd-d,0.0); _buf=maxf(_buf-d,0.0)
 	
 	# Handle dash attack input

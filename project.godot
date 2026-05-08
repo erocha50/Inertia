@@ -26,6 +26,10 @@ SaveManager="*uid://kopaoy8lmn1f"
 window/size/viewport_width=1920
 window/size/mode=2
 
+[global_group]
+
+player=""
+
 [input]
 
 move_forward={
