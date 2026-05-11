@@ -2,7 +2,7 @@
 
 [ext_resource type="PackedScene" uid="uid://baqg8tg5p4h1t" path="res://maps/test_plate.tscn" id="1_icmfn"]
 [ext_resource type="PackedScene" uid="uid://b355nnhi1g7tg" path="res://characters/player_controller.tscn" id="2_icmfn"]
-[ext_resource type="Script" path="res://characters/canvas_layer.gd" id="3_icmfn"]
+[ext_resource type="Script" uid="uid://dbx0jqdm54cwo" path="res://characters/canvas_layer.gd" id="3_icmfn"]
 [ext_resource type="PackedScene" uid="uid://b84c1dymjri4k" path="res://Scenes/HUD.tscn" id="4_icmfn"]
 
 [sub_resource type="Environment" id="Environment_s3ba5"]
