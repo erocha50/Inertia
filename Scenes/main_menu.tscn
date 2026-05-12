@@ -21,36 +21,36 @@ offset_bottom = 27.0
 scale = Vector2(28.960003, 16.400002)
 color = Color(0, 0, 0, 1)
 
-[node name="CenterContainer" type="Control" parent="." unique_id=578259594]
-anchors_preset = 0
-offset_left = 377.0
-offset_top = 147.0
-offset_right = 417.0
-offset_bottom = 187.0
-
-[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer" unique_id=779719804]
+[node name="TitleLabel" type="Label" parent="." unique_id=829377665]
 layout_mode = 0
-offset_left = 61.0
-offset_top = 1.0
-offset_right = 131.0
-offset_bottom = 129.0
-scale = Vector2(2.8278208, 2.3701923)
-
-[node name="TitleLabel" type="Label" parent="CenterContainer/VBoxContainer" unique_id=829377665]
-layout_mode = 2
+offset_left = 462.0
+offset_top = 108.0
+offset_right = 736.0
+offset_bottom = 195.0
+theme_override_font_sizes/font_size = 37
 text = "Inertia"
+uppercase = true
 
-[node name="PlayButton" type="Button" parent="CenterContainer/VBoxContainer" unique_id=272983455]
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=779719804]
+layout_mode = 0
+offset_left = 456.0
+offset_top = 177.0
+offset_right = 526.0
+offset_bottom = 305.0
+scale = Vector2(2.347822, 1.673776)
+
+[node name="PlayButton" type="Button" parent="VBoxContainer" unique_id=272983455]
 layout_mode = 2
 text = "Play"
 
-[node name="SettingsButton" type="Button" parent="CenterContainer/VBoxContainer" unique_id=1197430814]
+[node name="SettingsButton" type="Button" parent="VBoxContainer" unique_id=1197430814]
 layout_mode = 2
 text = "Settings"
 
-[node name="QuitButton" type="Button" parent="CenterContainer/VBoxContainer" unique_id=396902248]
+[node name="QuitButton" type="Button" parent="VBoxContainer" unique_id=396902248]
 layout_mode = 2
 text = "Quit"
 
-[connection signal="pressed" from="CenterContainer/VBoxContainer/PlayButton" to="." method="_on_play_button_pressed"]
-[connection signal="pressed" from="CenterContainer/VBoxContainer/QuitButton" to="." method="_on_quit_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/PlayButton" to="." method="_on_play_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/SettingsButton" to="." method="_on_settings_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/QuitButton" to="." method="_on_quit_button_pressed"]
