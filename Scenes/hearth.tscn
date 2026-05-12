@@ -1,0 +1,24 @@
+[gd_scene format=3 uid="uid://duaemlg4b788f"]
+
+[ext_resource type="Script" uid="uid://c2rvsajaq56si" path="res://Scripts/hearth.gd" id="1_a02ui"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_j0nfe"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_7coo5"]
+
+[node name="StaticBody3D" type="StaticBody3D" unique_id=1297852556]
+script = ExtResource("1_a02ui")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=316483717]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.091259, 0.4087453, -7.9951897)
+mesh = SubResource("BoxMesh_j0nfe")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=2002147103]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.0971546, 0.40624547, -8.041487)
+shape = SubResource("BoxShape3D_7coo5")
+
+[node name="InteractArea" type="Area3D" parent="." unique_id=2022259724]
+
+[node name="GPUParticles3D" type="GPUParticles3D" parent="." unique_id=907789897]
+
+[node name="ActivatedMesh" type="MeshInstance3D" parent="." unique_id=1469830175]
