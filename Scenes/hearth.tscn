@@ -6,6 +6,51 @@
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_7coo5"]
 
+[sub_resource type="BoxShape3D" id="BoxShape3D_a02ui"]
+
+[sub_resource type="Gradient" id="Gradient_a02ui"]
+offsets = PackedFloat32Array(0.031007752, 0.4496124, 0.9147287, 0.96899223, 0.9844961, 0.99224806, 1)
+colors = PackedColorArray(0.88414985, 0.29249027, 0, 1, 0.69673973, 2.121363e-05, 0.09219531, 1, 0, 0, 0, 1, 0.82404196, 0.32395843, 0.05976631, 1, 0.84313726, 0.37254903, 0.05490196, 1, 0.92248064, 0.92248064, 0.92248064, 1, 1, 1, 1, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_7coo5"]
+gradient = SubResource("Gradient_a02ui")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_md20t"]
+emission_shape = 3
+emission_box_extents = Vector3(1, 1, 1)
+angle_min = 419.00003
+angle_max = 720.0
+inherit_velocity_ratio = 0.989
+spread = 180.0
+flatness = 1.0
+initial_velocity_min = 1.5
+initial_velocity_max = 3.0
+angular_velocity_min = -720.0
+angular_velocity_max = -108.19001
+orbit_velocity_min = 9.49949e-08
+orbit_velocity_max = 2.0000002
+gravity = Vector3(0, 5, 0)
+radial_accel_min = -2.2351742e-06
+radial_accel_max = -2.2351742e-06
+scale_max = 3.0
+color = Color(0.9137255, 0.34901962, 0, 1)
+color_ramp = SubResource("GradientTexture1D_7coo5")
+anim_speed_min = 16.0
+anim_speed_max = 16.0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_7coo5"]
+transparency = 1
+shading_mode = 0
+albedo_color = Color(1, 0.47058824, 0, 1)
+billboard_mode = 3
+particles_anim_h_frames = 1
+particles_anim_v_frames = 1
+particles_anim_loop = false
+
+[sub_resource type="TextMesh" id="TextMesh_md20t"]
+material = SubResource("StandardMaterial3D_7coo5")
+text = "fire"
+
 [node name="StaticBody3D" type="StaticBody3D" unique_id=1297852556]
 script = ExtResource("1_a02ui")
 
@@ -19,6 +64,16 @@ shape = SubResource("BoxShape3D_7coo5")
 
 [node name="InteractArea" type="Area3D" parent="." unique_id=2022259724]
 
+[node name="CollisionShape3D" type="CollisionShape3D" parent="InteractArea" unique_id=1743191373]
+shape = SubResource("BoxShape3D_a02ui")
+
 [node name="GPUParticles3D" type="GPUParticles3D" parent="." unique_id=907789897]
+transform = Transform3D(0.99864686, 0, 0.052004796, 0, 1, 0, -0.052004796, 0, 0.99864686, 0.38112104, 0, 0)
+amount = 40
+sub_emitter = NodePath(".")
+lifetime = 1.2
+randomness = 0.3
+process_material = SubResource("ParticleProcessMaterial_md20t")
+draw_pass_1 = SubResource("TextMesh_md20t")
 
 [node name="ActivatedMesh" type="MeshInstance3D" parent="." unique_id=1469830175]
