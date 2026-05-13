@@ -1,0 +1,47 @@
+[gd_scene format=3 uid="uid://cntioyadyqsxo"]
+
+[ext_resource type="Script" uid="uid://dh5tmnfvmd8rc" path="res://characters/frozen_waiter.gd" id="1_sds1l"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_c2dk8"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_opueh"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_6m1n2"]
+size = Vector3(12.539917, 1.1713867, 21.759521)
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_5cxxb"]
+
+[node name="FrozenWaiter" type="CharacterBody3D" unique_id=1007907867]
+script = ExtResource("1_sds1l")
+patrol_speed = 10.0
+chase_speed = 20.0
+sweep_cooldown = 3.0
+sweep_duration = 0.9
+sweep_speed_threshold = 8.0
+knockback_force = 25.0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=2122793925]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0)
+shape = SubResource("CapsuleShape3D_c2dk8")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=276288203]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0)
+mesh = SubResource("CapsuleMesh_opueh")
+
+[node name="TrayPivot" type="Node3D" parent="." unique_id=87571630]
+
+[node name="TrayMesh" type="MeshInstance3D" parent="TrayPivot" unique_id=1021923891]
+
+[node name="TrayHitbox" type="Area3D" parent="TrayPivot/TrayMesh" unique_id=695743350]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="TrayPivot/TrayMesh/TrayHitbox" unique_id=627266709]
+transform = Transform3D(2, 0, 0, 0, 50, 0, 0, 0, 2, 3.7699585, -2.6218262, 0.39489746)
+shape = SubResource("BoxShape3D_6m1n2")
+
+[node name="DetectionArea" type="Area3D" parent="." unique_id=189222826]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="DetectionArea" unique_id=1787940344]
+transform = Transform3D(8, 0, 0, 0, 8, 0, 0, 0, 8, 0, 0, 0)
+shape = SubResource("SphereShape3D_5cxxb")
+
+[node name="NavigationAgent3D" type="NavigationAgent3D" parent="." unique_id=1187926052]
