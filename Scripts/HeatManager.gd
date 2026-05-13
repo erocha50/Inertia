@@ -69,7 +69,16 @@ func set_heat(new_value: float) -> void:
 		heat_value = new_value
 		var tier: String = get_tier()
 		heat_changed.emit(heat_value, tier)
+		
+func restore_heat(amount: float) -> void:
+	"""Called by Hearth — restores heat up to max."""
+	set_heat(heat_value + amount)
 
+func add_heat_floor_bonus(amount: float) -> void:
+	"""Called by Hearth on first activation — permanently raises the heat floor."""
+	heat_floor = minf(heat_floor + amount, 12.0)  # Max +12 across 6 hearths
+	# Re-clamp current heat in case floor is now higher
+	set_heat(heat_value)
 func add_heat(amount: float) -> void:
 	set_heat(heat_value + amount)
 
