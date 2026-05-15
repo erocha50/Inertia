@@ -4,10 +4,10 @@ extends CharacterBody3D
 @export var max_health: float = 80.0
 @export var move_speed: float = 4.5
 @export var sprint_speed: float = 8.0
-@export var fork_volley_count: int = 3
-@export var fork_interval: float = 0.15
+@export var fork_volley_count: int = 5
+@export var fork_interval: float = 0.1
 @export var volley_cooldown: float = 2.5
-@export var detection_range: float = 14.0
+@export var detection_range: float = 35.0
 @export var fork_scene: PackedScene
 
 # --- State Machine ---
@@ -26,6 +26,11 @@ var volley_timer: float = 0.0
 var volley_shots_fired: int = 0
 var fork_fire_timer: float = 0.0
 var sprint_target: Vector3 = Vector3.ZERO
+
+# Fork beam: lateral offsets so forks fan out side-by-side like a swept beam.
+# Generated fresh each volley so the beam always cleanly brackets the player.
+var _beam_offsets: Array = []
+var _beam_curve_sign: float = 1.0  # +1 or -1, randomised per volley
 
 const GRAVITY = -9.8
 
@@ -81,7 +86,7 @@ func _state_chase(delta: float) -> void:
 
 	var dist = global_position.distance_to(player.global_position)
 
-	if dist <= detection_range * 0.6 and volley_timer <= 0.0:
+	if dist <= detection_range and volley_timer <= 0.0:
 		_change_state(State.WINDUP)
 		return
 
@@ -132,14 +137,45 @@ func _fire_fork() -> void:
 	if not fork_scene or not player:
 		return
 
+	# --- Build the beam offset list once at the start of each volley ---
+	if volley_shots_fired == 0:
+		_beam_offsets = _build_beam_offsets(fork_volley_count)
+		# Randomise which side the whole beam curves toward each volley
+		_beam_curve_sign = 1.0 if randf() > 0.5 else -1.0
+
 	var fork = fork_scene.instantiate()
 	get_tree().current_scene.add_child(fork)
 	fork.global_position = fork_spawn.global_position
 
+	# Aim toward the predicted player position
 	var predicted = _predict_player_position(0.4)
 	var aim_dir = (predicted - fork_spawn.global_position).normalized()
-	fork.launch(aim_dir)
-	print_debug("Fork fired! Total fired: ", volley_shots_fired + 1, "/", fork_volley_count)
+
+	# --- Lateral spawn offset (perpendicular to aim, in XZ) ---
+	# Each fork starts from a slightly different side so they travel as a
+	# swept parallel beam rather than all erupting from one point.
+	var right = aim_dir.cross(Vector3.UP).normalized()
+	var lateral_offset: float = _beam_offsets[volley_shots_fired]
+	fork.global_position += right * lateral_offset
+
+	# --- All forks curve the same direction this volley so the whole beam
+	# sweeps together like the arcing lines in the reference image. ---
+	var curve_strength: float = _beam_curve_sign * 0.25
+
+	fork.launch(aim_dir, curve_strength)
+	print_debug("Fork fired! %d/%d  lateral=%.2f  curve=%.2f" % [
+		volley_shots_fired + 1, fork_volley_count, lateral_offset, curve_strength
+	])
+
+# Returns evenly-spaced lateral offsets centred on 0 so the beam brackets
+# the player symmetrically.  E.g. count=5, spacing=0.35 → [-0.7,-0.35,0,0.35,0.7]
+func _build_beam_offsets(count: int) -> Array:
+	var spacing: float = 0.35
+	var offsets: Array = []
+	var half: float = (count - 1) * spacing * 0.5
+	for i in count:
+		offsets.append(i * spacing - half)
+	return offsets
 
 func _predict_player_position(time_ahead: float) -> Vector3:
 	if player and player is CharacterBody3D:
