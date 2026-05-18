@@ -1,0 +1,39 @@
+[gd_scene format=3 uid="uid://cbf4vlpu17yv0"]
+
+[ext_resource type="Script" path="res://characters/bloated_diner.gd" id="1_c8vvd"]
+[ext_resource type="PackedScene" path="res://Resources/fork.tscn" id="2_356s3"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_356s3"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_356s3"]
+albedo_color = Color(0, 1, 1, 1)
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_ax37f"]
+material = SubResource("StandardMaterial3D_356s3")
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_yrd0h"]
+radius = 35.0
+
+[node name="BloatedDiner" type="CharacterBody3D" unique_id=56293077]
+script = ExtResource("1_c8vvd")
+fork_scene = ExtResource("2_356s3")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1566450284]
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0)
+shape = SubResource("CapsuleShape3D_356s3")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1754916471]
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0)
+mesh = SubResource("CapsuleMesh_ax37f")
+
+[node name="ForkLauncher" type="Node3D" parent="." unique_id=2147134896]
+
+[node name="ForkSpawnPoint" type="Marker3D" parent="ForkLauncher" unique_id=1854585626]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 2.5)
+
+[node name="DetectionArea" type="Area3D" parent="." unique_id=948170061]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="DetectionArea" unique_id=965543309]
+shape = SubResource("SphereShape3D_yrd0h")
+
+[node name="NavigationAgent3D" type="NavigationAgent3D" parent="." unique_id=949660016]
