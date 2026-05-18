@@ -1,7 +1,7 @@
-[gd_scene format=3 uid="uid://cbf4vlpu17yv0"]
+[gd_scene format=3 uid="uid://b3yu1v3s3m84f"]
 
-[ext_resource type="Script" path="res://characters/bloated_diner.gd" id="1_c8vvd"]
-[ext_resource type="PackedScene" path="res://Resources/fork.tscn" id="2_356s3"]
+[ext_resource type="Script" uid="uid://c0soebck5tfjm" path="res://Scripts/bloated_diner.gd" id="1_c8vvd"]
+[ext_resource type="PackedScene" uid="uid://qawr3wwmowge" path="res://Resources/fork.tscn" id="2_356s3"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_356s3"]
 
@@ -20,6 +20,7 @@ fork_scene = ExtResource("2_356s3")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1566450284]
 transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0)
+visibility_parent = NodePath("../MeshInstance3D")
 shape = SubResource("CapsuleShape3D_356s3")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1754916471]
