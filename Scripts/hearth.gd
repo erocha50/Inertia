@@ -42,7 +42,7 @@ func _ready() -> void:
 		_activated_mesh.visible = false
 
 	# Restore activated state if already visited this save
-	if SaveManager.is_hearth_activated(hearth_id):
+	if hearth_id in SaveManager.save_data['hearths_activated']:
 		_set_activated_visual(true)
 		_activated = true
 
@@ -72,7 +72,7 @@ func _do_rest() -> void:
 		# Permanently raise the heat floor (capped in HeatManager)
 		if HeatManager.has_method("add_heat_floor_bonus"):
 			HeatManager.add_heat_floor_bonus(heat_floor_bonus)
-		SaveManager.mark_hearth_activated(hearth_id)
+		SaveManager.activate_hearth(hearth_id)
 
 	# 3. Refill food slots
 	if player.has_method("refill_food_slots"):
