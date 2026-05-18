@@ -164,10 +164,6 @@ func _ready()->void:
 	add_to_group("player")
 	GameEvents.player_consumed_food.connect(_on_food_consumed)
 
-	# Register with HeatManager
-	HeatManager.register_player(self)
-
-
 func _physics_process(d:float)->void:
 	_bounce_cd=maxf(_bounce_cd-d,0.0); _dash_cd=maxf(_dash_cd-d,0.0); _dash_attack_cd=maxf(_dash_attack_cd-d,0.0); _roll_cd=maxf(_roll_cd-d,0.0); _buf=maxf(_buf-d,0.0)
 
