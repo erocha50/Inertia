@@ -6,6 +6,7 @@
 script = ExtResource("1_sd512")
 
 [node name="HeatBarBG" type="ColorRect" parent="." unique_id=1057397068]
+anchors_preset = 3
 anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
@@ -17,6 +18,7 @@ offset_bottom = -50.0
 color = Color(0.2, 0.2, 0.2, 0.8)
 
 [node name="HeatBar" type="ColorRect" parent="." unique_id=1476371474]
+anchors_preset = 3
 anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
@@ -25,9 +27,11 @@ offset_left = -320.0
 offset_top = -70.0
 offset_right = -20.0
 offset_bottom = -50.0
-color = Color(1.0, 0.0, 0.0, 1.0)
+color = Color(1, 0, 0, 1)
 
 [node name="HeatLabel" type="Label" parent="." unique_id=1469835169]
+custom_minimum_size = Vector2(200, 30)
+anchors_preset = 3
 anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
@@ -37,9 +41,10 @@ offset_top = -50.0
 offset_right = -20.0
 offset_bottom = -20.0
 text = "Heat: 0%"
-custom_minimum_size = Vector2(200, 30)
 
 [node name="TierLabel" type="Label" parent="." unique_id=103987336]
+custom_minimum_size = Vector2(200, 30)
+anchors_preset = 3
 anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
@@ -47,11 +52,10 @@ anchor_bottom = 1.0
 offset_left = -320.0
 offset_top = -20.0
 offset_right = -20.0
-offset_bottom = 0.0
 text = "Cold"
-custom_minimum_size = Vector2(200, 30)
 
 [node name="HealthBar" type="TextureProgressBar" parent="." unique_id=493576199]
+anchors_preset = 3
 anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
@@ -62,6 +66,7 @@ offset_right = -20.0
 offset_bottom = -50.0
 
 [node name="FoodSlots" type="HBoxContainer" parent="." unique_id=2111419850]
+anchors_preset = 3
 anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
