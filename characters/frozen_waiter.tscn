@@ -13,6 +13,12 @@ size = Vector3(12.539917, 1.1713867, 21.759521)
 
 [node name="FrozenWaiter" type="CharacterBody3D" unique_id=1007907867]
 script = ExtResource("1_sds1l")
+patrol_speed = 5.0
+chase_speed = 15.0
+sweep_cooldown = 3.0
+sweep_duration = 0.9
+sweep_speed_threshold = 8.0
+knockback_force = 25.0
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=2122793925]
 transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0)
