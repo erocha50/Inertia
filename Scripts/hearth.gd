@@ -8,22 +8,21 @@ extends StaticBody3D
 signal hearth_activated(hearth_id: String)
 
 @export_group("Hearth Identity")
-@export var hearth_id: String = "hearth_01"          # Unique ID — set per instance in editor
-@export var heat_restore_amount: float = 100.0        # How much heat to restore (set to your max)
-@export var heat_floor_bonus: float = 2.0             # Added to minimum heat floor on first activation
+@export var hearth_id: String = "hearth_01"
+@export var heat_restore_amount: float = 100.0
+@export var heat_floor_bonus: float = 2.0
 
 @export_group("Nodes")
 @export var interact_area_path: NodePath = ^"InteractArea"
 @export var activated_mesh_path: NodePath = ^"ActivatedMesh"
-@export var particles_path: NodePath = ^"CPUParticles3D"
+@export var particles_path: NodePath = ^"GPUParticles3D"
 
 # Internal
 var _activated: bool = false
 var _player_inside: bool = false
 var _interact_area: Area3D
 var _activated_mesh: MeshInstance3D
-var _particles: CPUParticles3D
-
+var _particles: GPUParticles3D
 
 func _ready() -> void:
 	_interact_area = get_node(interact_area_path)
@@ -33,26 +32,23 @@ func _ready() -> void:
 	_interact_area.body_entered.connect(_on_interact_area_body_entered)
 	_interact_area.body_exited.connect(_on_interact_area_body_exited)
 
-	# Particles run always — they represent the fire existing
 	if _particles:
 		_particles.emitting = true
 
-	# ActivatedMesh starts hidden; shown after first rest
 	if _activated_mesh:
 		_activated_mesh.visible = false
 
-	# Restore activated state if already visited this save
 	if hearth_id in SaveManager.save_data['hearths_activated']:
 		_set_activated_visual(true)
 		_activated = true
 
-
 func _unhandled_input(event: InputEvent) -> void:
+	if not event is InputEventKey:
+		return
 	if not _player_inside:
 		return
-	if event.is_action_just_pressed("interact"):
+	if event.keycode == KEY_E and event.pressed and not event.echo:
 		_do_rest()
-
 
 # ── Rest Logic ───────────────────────────────────────────────────────────────
 
@@ -69,9 +65,6 @@ func _do_rest() -> void:
 	if not _activated:
 		_activated = true
 		_set_activated_visual(true)
-		# Permanently raise the heat floor (capped in HeatManager)
-		if HeatManager.has_method("add_heat_floor_bonus"):
-			HeatManager.add_heat_floor_bonus(heat_floor_bonus)
 		SaveManager.activate_hearth(hearth_id)
 
 	# 3. Refill food slots
@@ -99,7 +92,6 @@ func _set_activated_visual(on: bool) -> void:
 
 
 func _get_player() -> Player:
-	# Grab whichever Player body is inside the area
 	for body in _interact_area.get_overlapping_bodies():
 		if body is Player:
 			return body
