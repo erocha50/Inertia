@@ -59,11 +59,9 @@ script = ExtResource("3_icmfn")
 
 [node name="FrozenWaiter" parent="." unique_id=1007907867 instance=ExtResource("5_b4682")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 36.08735, 2.9481783, -5.7928715)
-script = null
 
 [node name="BloatedDiner" parent="." unique_id=56293077 instance=ExtResource("6_0fvnv")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.028602, 1.9481773, 17.423744)
-script = null
 
 [node name="StaticBody3D" parent="." unique_id=1297852556 instance=ExtResource("7_ouixf")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.8019352, -0.05182028, 11.983263)
