@@ -160,8 +160,10 @@ func _set_color(s : State) -> void:
 	var mat : StandardMaterial3D = _mat_normal
 	if s == State.WINDUP:     mat = _mat_windup
 	elif s == State.SWEEPING: mat = _mat_sweep
-	if body_mesh: body_mesh.set_surface_override_material(0, mat)
-	if tray_mesh: tray_mesh.set_surface_override_material(0, mat)
+	if body_mesh and body_mesh.get_surface_override_material_count() > 0:
+		body_mesh.set_surface_override_material(0, mat)
+	if tray_mesh and tray_mesh.get_surface_override_material_count() > 0:
+		tray_mesh.set_surface_override_material(0, mat)
 
 
 func _physics_process(delta: float) -> void:
