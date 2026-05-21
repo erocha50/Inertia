@@ -2,9 +2,8 @@
 
 [ext_resource type="PackedScene" uid="uid://baqg8tg5p4h1t" path="res://maps/test_plate.tscn" id="1_icmfn"]
 [ext_resource type="PackedScene" uid="uid://b355nnhi1g7tg" path="res://characters/player_controller.tscn" id="2_icmfn"]
-[ext_resource type="Script" path="res://characters/canvas_layer.gd" id="3_icmfn"]
+[ext_resource type="Script" uid="uid://dbx0jqdm54cwo" path="res://characters/canvas_layer.gd" id="3_icmfn"]
 [ext_resource type="PackedScene" uid="uid://b84c1dymjri4k" path="res://Scenes/HUD.tscn" id="4_icmfn"]
-
 [ext_resource type="PackedScene" uid="uid://c87qnrg3hihha" path="res://characters/frozen_waiter.tscn" id="5_b4682"]
 [ext_resource type="PackedScene" uid="uid://b3yu1v3s3m84f" path="res://characters/bloated_diner.tscn" id="6_0fvnv"]
 [ext_resource type="PackedScene" uid="uid://duaemlg4b788f" path="res://Scenes/hearth.tscn" id="7_ouixf"]
