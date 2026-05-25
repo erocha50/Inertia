@@ -119,11 +119,11 @@ func _process(delta: float) -> void:
 
 # ── Event hooks ───────────────────────────────────────────────────────────────
 
-func _on_wall_hit(wall_normal: Vector3, impact_speed: float) -> void:
+func _on_wall_hit(_wall_normal: Vector3, impact_speed: float) -> void:
 	# Bigger impact = bigger chunk drop
 	remove_heat(impact_speed * wall_hit_drain_per_speed)
 
-func _on_landed(impact_speed: float) -> void:
+func _on_landed(_impact_speed: float) -> void:
 	# Hard landing — flat drain (already gated by fall_damage_spd in player)
 	remove_heat(landing_drain)
 
