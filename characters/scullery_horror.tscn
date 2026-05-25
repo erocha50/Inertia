@@ -1,0 +1,27 @@
+[gd_scene format=3 uid="uid://u2c8cmscyaoh"]
+
+[ext_resource type="Script" uid="uid://c7klrjqiofn48" path="res://Scripts/scullery_horror.gd" id="1_2fjyf"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_lw7la"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_2fjyf"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_7cebc"]
+
+[node name="SculleryHorror" type="CharacterBody3D" unique_id=1923869172]
+script = ExtResource("1_2fjyf")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=60504231]
+transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 0, 0, 0)
+shape = SubResource("CapsuleShape3D_lw7la")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=12334191]
+transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 0, 0, 0)
+mesh = SubResource("CapsuleMesh_2fjyf")
+
+[node name="DetectionArea" type="Area3D" parent="." unique_id=679928781]
+transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 0, 0, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="DetectionArea" unique_id=2128630521]
+transform = Transform3D(40, 0, 0, 0, 40, 0, 0, 0, 40, 0, 0, 0)
+shape = SubResource("SphereShape3D_7cebc")

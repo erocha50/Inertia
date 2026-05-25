@@ -2,11 +2,12 @@
 
 [ext_resource type="PackedScene" uid="uid://baqg8tg5p4h1t" path="res://maps/test_plate.tscn" id="1_icmfn"]
 [ext_resource type="PackedScene" uid="uid://b355nnhi1g7tg" path="res://characters/player_controller.tscn" id="2_icmfn"]
-[ext_resource type="Script" uid="uid://dbx0jqdm54cwo" path="res://characters/canvas_layer.gd" id="3_icmfn"]
+[ext_resource type="Script" uid="uid://dbx0jqdm54cwo" path="res://canvas_layer.gd" id="3_icmfn"]
 [ext_resource type="PackedScene" uid="uid://b84c1dymjri4k" path="res://Scenes/HUD.tscn" id="4_icmfn"]
 [ext_resource type="PackedScene" uid="uid://c87qnrg3hihha" path="res://characters/frozen_waiter.tscn" id="5_b4682"]
 [ext_resource type="PackedScene" uid="uid://b3yu1v3s3m84f" path="res://characters/bloated_diner.tscn" id="6_0fvnv"]
 [ext_resource type="PackedScene" uid="uid://duaemlg4b788f" path="res://Scenes/hearth.tscn" id="7_ouixf"]
+[ext_resource type="PackedScene" uid="uid://u2c8cmscyaoh" path="res://characters/scullery_horror.tscn" id="8_v2hsh"]
 
 [sub_resource type="Environment" id="Environment_s3ba5"]
 background_energy_multiplier = 2.98
@@ -65,3 +66,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.028602, 1.9481773, 17.4237
 
 [node name="StaticBody3D" parent="." unique_id=1297852556 instance=ExtResource("7_ouixf")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.8019352, -0.05182028, 11.983263)
+
+[node name="SculleryHorror" parent="." unique_id=1923869172 instance=ExtResource("8_v2hsh")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.636604, 1.4481792, 1.698267)
