@@ -17,8 +17,13 @@ extends CharacterBody3D
 @export var hearing_range         : float = 18.0
 
 @export_group("Chase")
-@export var preferred_distance    : float = 3.5   # stop closing when this close
-@export var give_up_time          : float = 6.0   # seconds without seeing player before searching
+@export var preferred_distance    : float = 3.5
+@export var give_up_time          : float = 6.0
+
+@export_group("Momentum")
+@export var turn_speed            : float = 2.2   # radians/sec — how fast it can steer (lower = more car-like)
+@export var acceleration          : float = 14.0  # how fast it reaches top speed
+@export var friction              : float = 5.0   # how fast it slows when not thrusting (coasting drag)
 
 @export_group("Search & Memory")
 @export var search_duration       : float = 8.0
@@ -70,6 +75,7 @@ var _search_picks     : int     = 0
 var _fake_pause_timer : float = 0.0
 var _fake_pausing     : bool  = false
 
+var _heading          : Vector3 = Vector3.FORWARD  # current committed travel direction
 var _siblings         : Array = []
 
 # ════════════════════════════════════════════════════════════════════════════
@@ -100,6 +106,11 @@ func _deferred_init() -> void:
 		if n != self:
 			_siblings.append(n)
 	add_to_group("scullery_horror")
+
+	# Initialise heading from whichever way we're facing at spawn
+	_heading = -global_transform.basis.z
+	_heading.y = 0.0
+	_heading = _heading.normalized() if _heading.length_squared() > 0.01 else Vector3.FORWARD
 
 	state = State.HUNT
 
@@ -213,10 +224,7 @@ func _state_hunt(delta: float) -> void:
 	# Always move toward player (or last known pos) unless already on top of them
 	var target : Vector3 = player.global_position
 	if dist <= preferred_distance:
-		# Close enough — face them and wait
-		_face_toward(to_player, delta)
-		velocity.x = 0.0
-		velocity.z = 0.0
+		_coast(delta)
 		return
 
 	_move_toward(target, _get_speed(), delta)
@@ -264,8 +272,7 @@ func _pick_search_point() -> void:
 
 
 func _state_hurt(delta: float) -> void:
-	velocity.x  = 0.0
-	velocity.z  = 0.0
+	_coast(delta)
 	_hurt_timer -= delta
 	if _hurt_timer <= 0.0:
 		state = State.HUNT
@@ -277,14 +284,16 @@ func _state_hurt(delta: float) -> void:
 func _move_toward(target: Vector3, speed: float, delta: float) -> void:
 	var to_target : Vector3 = target - global_position
 	to_target.y = 0.0
-	if to_target.length() < 0.1:
-		velocity.x = 0.0
-		velocity.z = 0.0
+
+	var desired_dir : Vector3
+	if to_target.length() > 0.1:
+		desired_dir = to_target.normalized()
+	else:
+		# Already on target — coast to a stop
+		_coast(delta)
 		return
 
-	var dir : Vector3 = to_target.normalized()
-
-	# Pack spread — nudge away from siblings
+	# Pack spread — nudge heading away from siblings
 	var push : Vector3 = Vector3.ZERO
 	for s in _siblings:
 		var sib := s as SculleryHorror
@@ -296,18 +305,36 @@ func _move_toward(target: Vector3, speed: float, delta: float) -> void:
 		if d < pack_spread_radius and d > 0.01:
 			push += to_sib.normalized() * (1.0 - d / pack_spread_radius)
 	if push.length_squared() > 0.01:
-		dir = (dir + push.normalized() * 0.3).normalized()
+		desired_dir = (desired_dir + push.normalized() * 0.3).normalized()
 
-	velocity.x = dir.x * speed
-	velocity.z = dir.z * speed
-	_face_toward(dir, delta)
+	# Rotate heading toward desired direction at turn_speed — this is the car feel
+	_heading = _heading.rotated(Vector3.UP,
+		clampf(_heading.signed_angle_to(desired_dir, Vector3.UP),
+			-turn_speed * delta,
+			 turn_speed * delta))
+	_heading = _heading.normalized()
+
+	# Accelerate flat speed toward target speed along committed heading
+	var flat     : Vector3 = Vector3(velocity.x, 0.0, velocity.z)
+	var cur_spd  : float   = flat.length()
+	var new_spd  : float   = minf(cur_spd + acceleration * delta, speed)
+	velocity.x = _heading.x * new_spd
+	velocity.z = _heading.z * new_spd
+
+	# Face the way we're actually travelling
+	rotation.y = lerp_angle(rotation.y, atan2(_heading.x, _heading.z), delta * 8.0)
 
 
-func _face_toward(dir: Vector3, delta: float) -> void:
-	dir.y = 0.0
-	if dir.length_squared() < 0.01:
-		return
-	rotation.y = lerp_angle(rotation.y, atan2(dir.x, dir.z), delta * 8.0)
+func _coast(delta: float) -> void:
+	# Bleed speed off without snapping to zero
+	var flat    : Vector3 = Vector3(velocity.x, 0.0, velocity.z)
+	var new_spd : float   = maxf(flat.length() - friction * delta, 0.0)
+	if new_spd > 0.01:
+		velocity.x = _heading.x * new_spd
+		velocity.z = _heading.z * new_spd
+	else:
+		velocity.x = 0.0
+		velocity.z = 0.0
 
 # ════════════════════════════════════════════════════════════════════════════
 # DAMAGE / DEATH
