@@ -49,6 +49,12 @@ particles_anim_loop = false
 material = SubResource("StandardMaterial3D_7coo5")
 text = "fire"
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_a02ui"]
+albedo_color = Color(1, 0, 0, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_7coo5"]
+material = SubResource("StandardMaterial3D_a02ui")
+
 [node name="StaticBody3D" type="StaticBody3D" unique_id=1297852556]
 script = ExtResource("1_a02ui")
 
@@ -71,3 +77,6 @@ process_material = SubResource("ParticleProcessMaterial_md20t")
 draw_pass_1 = SubResource("TextMesh_md20t")
 
 [node name="ActivatedMesh" type="MeshInstance3D" parent="." unique_id=1469830175]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=289101204]
+mesh = SubResource("BoxMesh_7coo5")

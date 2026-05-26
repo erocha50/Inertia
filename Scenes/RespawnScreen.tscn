@@ -1,0 +1,31 @@
+[gd_scene format=3 uid="uid://ctwafpi661v1i"]
+
+[ext_resource type="Script" uid="uid://bjjl2areqnkot" path="res://Scripts/RespawnScreen.gd" id="1_0vbb2"]
+
+[node name="RespawnScreen" type="CanvasLayer" unique_id=1511386983]
+script = ExtResource("1_0vbb2")
+
+[node name="Panel" type="Panel" parent="." unique_id=1389070251]
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="DeathLabel" type="Label" parent="Panel" unique_id=2014666472]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+
+[node name="HeatLabel" type="Label" parent="Panel" unique_id=1301599180]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+
+[node name="CountdownBar" type="ProgressBar" parent="Panel" unique_id=1374815514]
+layout_mode = 0
+offset_right = 4.0
+offset_bottom = 27.0
+
+[node name="RespawnButton" type="Button" parent="Panel" unique_id=197455027]
+layout_mode = 0
+offset_right = 8.0
+offset_bottom = 8.0
+text = "Run Again"
