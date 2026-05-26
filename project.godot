@@ -20,6 +20,7 @@ config/icon="res://icon.svg"
 HeatManager="*uid://b3wqjiqh2oy36"
 GameEvents="*uid://d1dbr0o1ct6xl"
 SaveManager="*uid://kopaoy8lmn1f"
+DeathRespawnManager="*uid://rjpvkddqeed7"
 
 [display]
 
