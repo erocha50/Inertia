@@ -63,12 +63,13 @@ enum State { IDLE, RUN, AIR, SLIDE, ARC }
 @export var knockback_decay:float=18.0
 
 @export_group("Dash Attack")
-@export var dash_attack_force:float=50.0
+@export var dash_attack_speed:float=38.0
 @export var dash_attack_cooldown:float=5.0
 @export var dash_attack_fov_pop:float=15.0
 @export var dash_attack_fov_duration:float=0.3
-@export var dash_attack_momentum_scale:float=1.5
-@export var dash_attack_min_speed:float=15.0
+@export var dash_attack_duration:float=0.28
+@export var dash_attack_decel:float=55.0
+@export var dash_attack_curve_strength:float=0.18
 
 @export_group("Roll")
 @export var roll_duration:float=0.45
@@ -124,7 +125,6 @@ var _dash_attack_cd:float=0.0
 var _dash_attack_active:bool=false
 var _dash_attack_dir:=Vector3.ZERO
 var _dash_attack_end_time:float=0.0
-var _dash_attack_duration:float=0.2
 
 var _roll_cd:float=0.0
 var _roll_active:bool=false
@@ -197,6 +197,7 @@ func _physics_process(d:float)->void:
 
 	var pre_slide_flat:=Vector3(velocity.x,0,velocity.z)
 	move_and_slide()
+	if _dash_attack_active: _dash_knockback_enemies()
 	_check_wall_bounce()
 
 	var post_flat:=Vector3(velocity.x,0,velocity.z)
@@ -319,6 +320,23 @@ func _apply_gravity(d:float)->void:
 
 func _horiz(d:float)->float:
 	var _action_active:=_dash_attack_active or _roll_active
+
+	if _dash_attack_active:
+		var flat:=Vector3(velocity.x,0,velocity.z)
+		var spd:=flat.length()
+		# Decelerate naturally during the dash window
+		var new_spd:=maxf(spd-dash_attack_decel*d, speed_min)
+		# Slight A/D curve — strafe axis only, no forward influence
+		var raw:=Input.get_vector("move_left","move_right","move_forward","move_back")
+		var strafe_sign:=signf(raw.x) if absf(raw.x)>0.2 else 0.0
+		if strafe_sign!=0.0 and _camera:
+			var cam_right:=_camera.global_transform.basis.x*Vector3(1,0,1)
+			if cam_right.length_squared()>0.01:
+				_dash_attack_dir=(_dash_attack_dir+cam_right.normalized()*strafe_sign*dash_attack_curve_strength*d).normalized()
+		velocity.x=_dash_attack_dir.x*new_spd
+		velocity.z=_dash_attack_dir.z*new_spd
+		turn_strain.emit(0.0); _drifting=false
+		return 0.0
 
 	if _roll_active:
 		var flat:=Vector3(velocity.x,0,velocity.z)
@@ -514,26 +532,25 @@ func try_dash()->void:
 func _perform_dash_attack()->void:
 	if _dash_attack_cd>0.0: return
 
-	var flat_vel:=Vector3(velocity.x, 0.0, velocity.z)
-	var current_speed:=flat_vel.length()
-
-	var momentum_factor:=clampf(current_speed/speed_max, 0.0, 1.0)
-	var effective_force:=dash_attack_force+dash_attack_force*momentum_factor*dash_attack_momentum_scale
-
 	var wish_dir:Vector3=_wish_dir()
+	var flat_vel:=Vector3(velocity.x, 0.0, velocity.z)
 
 	if wish_dir.length_squared()<0.01 and flat_vel.length()>0.1:
 		wish_dir=flat_vel.normalized()
 	elif wish_dir.length_squared()<0.01:
-		var cam_dir:Vector3=_camera.global_transform.basis.z.normalized()
+		var cam_dir:Vector3=-_camera.global_transform.basis.z
 		cam_dir.y=0.0
 		wish_dir=cam_dir.normalized()
 
-	_dash_attack_dir=wish_dir
+	_dash_attack_dir=wish_dir.normalized()
 	_dash_attack_active=true
-	_dash_attack_end_time=_dash_attack_duration
+	_dash_attack_end_time=dash_attack_duration
 
-	add_impulse(wish_dir*effective_force/mass)
+	# Instant velocity snap — this is the ram. No impulse accumulation.
+	velocity.x=_dash_attack_dir.x*dash_attack_speed
+	velocity.z=_dash_attack_dir.z*dash_attack_speed
+	# Preserve a little vertical if airborne, zero it on ground
+	if is_on_floor(): velocity.y=0.0
 
 	if _camera:
 		_apply_dash_attack_camera_pop()
@@ -582,6 +599,20 @@ func is_sliding_state()->bool:         return _state==State.SLIDE
 func is_in_momentum_arc()->bool:       return _state==State.ARC
 func is_drifting()->bool:             return _drifting
 
+
+func _dash_knockback_enemies()->void:
+	for i in get_slide_collision_count():
+		var col:=get_slide_collision(i)
+		var body:=col.get_collider()
+		if body==null or body==self: continue
+		# Works with any node that exposes add_impulse or take_knockback
+		var flat_spd:=Vector3(velocity.x,0,velocity.z).length()
+		var knock_dir:=(_dash_attack_dir+Vector3.UP*0.3).normalized()
+		var knock_mag:=flat_spd*mass*1.6
+		if body.has_method("add_impulse"):
+			body.add_impulse(knock_dir*knock_mag)
+		elif body.has_method("take_knockback"):
+			body.take_knockback(knock_dir*knock_mag)
 
 func _apply_dash_attack_camera_pop()->void:
 	pass
