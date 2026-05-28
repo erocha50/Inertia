@@ -1,10 +1,18 @@
 [gd_scene format=3 uid="uid://c87qnrg3hihha"]
 
 [ext_resource type="Script" uid="uid://bhp5wn5hmpxuf" path="res://Scripts/frozen_waiter.gd" id="1_sds1l"]
+[ext_resource type="Texture2D" uid="uid://do4bcyntjfd0f" path="res://Scripts/frozen waiter.png" id="2_c2dk8"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_c2dk8"]
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_opueh"]
+albedo_texture = ExtResource("2_c2dk8")
+uv1_scale = Vector3(0.5, 0.5, 0.5)
+uv1_triplanar = true
+uv1_world_triplanar = true
+
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_opueh"]
+material = SubResource("StandardMaterial3D_opueh")
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_6m1n2"]
 size = Vector3(12.539917, 1.1713867, 21.759521)

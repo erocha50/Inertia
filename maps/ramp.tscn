@@ -1,0 +1,29 @@
+[gd_scene format=3 uid="uid://dgnislkaigdl0"]
+
+[ext_resource type="Texture2D" uid="uid://o5gd1bgcpcss" path="res://ramp.png" id="1_1qd1n"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3o46t"]
+albedo_texture = ExtResource("1_1qd1n")
+uv1_scale = Vector3(2, 2, 2)
+uv1_offset = Vector3(2, 0, 0)
+uv1_triplanar = true
+uv1_triplanar_sharpness = 11.148814
+uv1_world_triplanar = true
+
+[sub_resource type="PrismMesh" id="PrismMesh_76l0q"]
+lightmap_size_hint = Vector2i(14, 21)
+material = SubResource("StandardMaterial3D_3o46t")
+left_to_right = 0.0
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_hbnnh"]
+size = Vector3(1, 1, 1)
+
+[node name="Ramp" type="StaticBody3D" unique_id=934826997]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=201828596]
+transform = Transform3D(3.6164072, 0, 0, 0, 1.4379226, 0, 0, 0, 6.279901, 0, 0, 0)
+mesh = SubResource("PrismMesh_76l0q")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=2059540062]
+transform = Transform3D(3.6164072, 0, 0, 0, 1.4379226, 0, 0, 0, 6.279901, 0, 0, 0)
+shape = SubResource("BoxShape3D_hbnnh")
