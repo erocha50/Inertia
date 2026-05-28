@@ -1,13 +1,18 @@
 [gd_scene format=3 uid="uid://baqg8tg5p4h1t"]
 
 [ext_resource type="Texture2D" uid="uid://bt3xi0tqucpkq" path="res://assets/generated/grid_floor_frame_0_1777509393.png" id="1_p6hlo"]
+[ext_resource type="Texture2D" uid="uid://ct53h0opxad11" path="res://maps/world.png" id="2_r7pfi"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_grid"]
 albedo_texture = ExtResource("1_p6hlo")
 uv1_scale = Vector3(20, 20, 1)
 texture_filter = 1
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_h7isd"]
+albedo_texture = ExtResource("2_r7pfi")
+
 [sub_resource type="BoxMesh" id="BoxMesh_h7isd"]
+material = SubResource("StandardMaterial3D_h7isd")
 size = Vector3(1000, 1000, 1)
 
 [sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_ff8tk"]

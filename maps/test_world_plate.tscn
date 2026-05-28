@@ -1,0 +1,27 @@
+[gd_scene format=3 uid="uid://djy64smshujci"]
+
+[ext_resource type="Texture2D" uid="uid://ct53h0opxad11" path="res://maps/world.png" id="1_ko5s0"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_bnqvy"]
+albedo_texture = ExtResource("1_ko5s0")
+uv1_scale = Vector3(10, 10, 10)
+uv1_offset = Vector3(0, 3, 0)
+uv1_triplanar = true
+uv2_scale = Vector3(3, 3, 3)
+uv2_triplanar = true
+
+[sub_resource type="BoxMesh" id="BoxMesh_b44b0"]
+material = SubResource("StandardMaterial3D_bnqvy")
+size = Vector3(2, 0.1, 2)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ko5s0"]
+size = Vector3(2, 0.1, 2)
+
+[node name="Test World Plate" type="StaticBody3D" unique_id=1729513969]
+transform = Transform3D(100, 0, 0, 0, 1, 0, 0, 0, 100, 0, 0, 0)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=719948730]
+mesh = SubResource("BoxMesh_b44b0")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=313135667]
+shape = SubResource("BoxShape3D_ko5s0")

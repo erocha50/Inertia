@@ -1,0 +1,40 @@
+[gd_scene format=3 uid="uid://b8ceky1qkaaq2"]
+
+[ext_resource type="PackedScene" uid="uid://djy64smshujci" path="res://maps/test_world_plate.tscn" id="1_xg8am"]
+[ext_resource type="PackedScene" uid="uid://b355nnhi1g7tg" path="res://characters/player_controller.tscn" id="2_m3pcu"]
+[ext_resource type="PackedScene" uid="uid://ckf4fc2khm3tw" path="res://maps/wall.tscn" id="3_wpulb"]
+[ext_resource type="PackedScene" uid="uid://dgnislkaigdl0" path="res://maps/ramp.tscn" id="4_m3pcu"]
+[ext_resource type="PackedScene" uid="uid://dqpyyegn558v6" path="res://maps/floor.tscn" id="5_wpulb"]
+[ext_resource type="Environment" uid="uid://xqmcfx4bwqxp" path="res://environments/world_environment.tres" id="6_ab3cd"]
+
+[node name="Node3D" type="Node3D" unique_id=1338068242]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1409954185]
+environment = ExtResource("6_ab3cd")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=298843074]
+transform = Transform3D(-0.709455, 0.704692, 0, -0.52863, -0.532036, 0.653147, 0.460239, 0.469485, 0.757541, 0, 30, 0)
+light_energy = 1.3
+shadow_enabled = true
+shadow_blur = 2.0
+
+[node name="Test World Plate" parent="." unique_id=1729513969 instance=ExtResource("1_xg8am")]
+transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, -2.2295418, -4.3874984, 0)
+
+[node name="CharacterBody3D" parent="." unique_id=1229242080 instance=ExtResource("2_m3pcu")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.15, 0)
+
+[node name="Wall" parent="." unique_id=322223508 instance=ExtResource("3_wpulb")]
+transform = Transform3D(1, 0, 0, 0, 0.71734, 0, 0, 0, 1, -34.52201, 0.5, -19.53262)
+
+[node name="Wall2" parent="." unique_id=540585057 instance=ExtResource("3_wpulb")]
+transform = Transform3D(1, 0, 0, 0, 0.71734, 0, 0, 0, 1, -38.722973, 0.5, -25.681532)
+
+[node name="Wall3" parent="." unique_id=2140311011 instance=ExtResource("3_wpulb")]
+transform = Transform3D(1, 0, 0, 0, 0.71734, 0, 0, 0, 1, -47.275906, 0.5, -20.688046)
+
+[node name="Ramp" parent="." unique_id=934826997 instance=ExtResource("4_m3pcu")]
+transform = Transform3D(5, 0, 0, 0, 5, 0, 0, 0, 5, -20.377712, 0, -3.3503113)
+
+[node name="Floor" parent="." unique_id=1331778835 instance=ExtResource("5_wpulb")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 3.695043, -34.48803, 0, -0.63482285)
