@@ -26,6 +26,7 @@ offset_bottom = 27.0
 
 [node name="RespawnButton" type="Button" parent="Panel" unique_id=197455027]
 layout_mode = 0
-offset_right = 8.0
-offset_bottom = 8.0
+offset_top = 40.0
+offset_right = 87.0
+offset_bottom = 71.0
 text = "Run Again"

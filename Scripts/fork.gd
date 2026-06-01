@@ -1,7 +1,5 @@
 extends Area3D
 
-class_name Fork
-
 ## Fork projectile with a quadratic Bézier curved trajectory.
 ## The curve is defined by three points:
 ##   P0 = spawn position
