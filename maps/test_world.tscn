@@ -8,6 +8,7 @@
 [ext_resource type="PackedScene" uid="uid://b3yu1v3s3m84f" path="res://characters/bloated_diner.tscn" id="6_0fvnv"]
 [ext_resource type="PackedScene" uid="uid://duaemlg4b788f" path="res://Scenes/hearth.tscn" id="7_ouixf"]
 [ext_resource type="PackedScene" uid="uid://dyorpcsov38vh" path="res://Scenes/Checkpoint.tscn" id="8_v2hsh"]
+[ext_resource type="PackedScene" uid="uid://ctwafpi661v1i" path="res://Scenes/RespawnScreen.tscn" id="9_j6jwi"]
 
 [sub_resource type="Environment" id="Environment_s3ba5"]
 background_energy_multiplier = 2.98
@@ -69,3 +70,5 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.8019352, -0.05182028, 11.9
 
 [node name="Checkpoint" parent="." unique_id=1812112370 instance=ExtResource("8_v2hsh")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.764945, 0.4481802, 8.648274)
+
+[node name="RespawnScreen" parent="." unique_id=1511386983 instance=ExtResource("9_j6jwi")]
