@@ -2,37 +2,23 @@
 
 [ext_resource type="PackedScene" uid="uid://djy64smshujci" path="res://maps/test_world_plate.tscn" id="1_xg8am"]
 [ext_resource type="PackedScene" uid="uid://b355nnhi1g7tg" path="res://characters/player_controller.tscn" id="2_m3pcu"]
-[ext_resource type="PackedScene" uid="uid://ckf4fc2khm3tw" path="res://maps/wall.tscn" id="3_wpulb"]
-[ext_resource type="PackedScene" uid="uid://dgnislkaigdl0" path="res://maps/ramp.tscn" id="4_m3pcu"]
-[ext_resource type="PackedScene" uid="uid://dqpyyegn558v6" path="res://maps/floor.tscn" id="5_wpulb"]
-[ext_resource type="Environment" uid="uid://xqmcfx4bwqxp" path="res://environments/world_environment.tres" id="6_ab3cd"]
+[ext_resource type="Environment" path="res://environments/world_environment.tres" id="6_ab3cd"]
 
-[node name="Node3D" type="Node3D" unique_id=1338068242]
+[node name="Node3D" type="Node3D" unique_id=301413277]
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1409954185]
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=482210711]
 environment = ExtResource("6_ab3cd")
 
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=298843074]
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=982215889]
 transform = Transform3D(0.707107, -0.612372, 0.353553, 0, 0.5, 0.866025, -0.707107, -0.612372, 0.353553, 0, 30, 0)
+light_color = Color(0.95, 0.9, 0.85, 1)
+light_energy = 0.8
+light_volumetric_fog_energy = 1.5
 shadow_enabled = true
+shadow_blur = 1.5
 
-[node name="Test World Plate" parent="." unique_id=1729513969 instance=ExtResource("1_xg8am")]
-transform = Transform3D(87.92892, 0, 0, 0, 10, 0, 0, 0, 111.67654, -2.2295418, -4.3874984, 0)
+[node name="Test World Plate" parent="." unique_id=1097685331 instance=ExtResource("1_xg8am")]
+transform = Transform3D(100, 0, 0, 0, 5, 0, 0, 0, 300, 0, -30, -150)
 
-[node name="CharacterBody3D" parent="." unique_id=1229242080 instance=ExtResource("2_m3pcu")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.15, 0)
-
-[node name="Wall" parent="." unique_id=322223508 instance=ExtResource("3_wpulb")]
-transform = Transform3D(1, 0, 0, 0, 0.71734, 0, 0, 0, 1, -31.842693, 0.5, -36.63281)
-
-[node name="Wall2" parent="." unique_id=540585057 instance=ExtResource("3_wpulb")]
-transform = Transform3D(1, 0, 0, 0, 0.71734, 0, 0, 0, 1, -47.093956, 0.5, -42.781723)
-
-[node name="Wall3" parent="." unique_id=2140311011 instance=ExtResource("3_wpulb")]
-transform = Transform3D(1, 0, 0, 0, 0.71734, 0, 0, 0, 1, -55.64689, 0.5, -37.788235)
-
-[node name="Ramp" parent="." unique_id=934826997 instance=ExtResource("4_m3pcu")]
-transform = Transform3D(5, 0, 0, 0, 5, 0, 0, 0, 5, -20.377712, -0.40215206, -3.3503113)
-
-[node name="Floor" parent="." unique_id=1331778835 instance=ExtResource("5_wpulb")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 3.695043, -34.48803, 3.1381311, -0.63482285)
+[node name="CharacterBody3D" parent="." unique_id=212768901 instance=ExtResource("2_m3pcu")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -27.290222, 0)

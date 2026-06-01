@@ -1,28 +1,43 @@
-[gd_resource type="Environment" format=3 uid="uid://xqmcfx4bwqxp"]
+[gd_resource type="Environment" format=3 uid="uid://2fy4vnjxv27c"]
+
+[sub_resource type="PhysicalSkyMaterial" id="PhysicalSkyMaterial_aqo3l"]
+rayleigh_color = Color(0.24, 0.44, 0.71, 1)
+mie_color = Color(0.87, 0.9, 0.96, 1)
+ground_color = Color(0.16, 0.2, 0.25, 1)
+
+[sub_resource type="Sky" id="Sky_ls76e"]
+sky_material = SubResource("PhysicalSkyMaterial_aqo3l")
 
 [resource]
-background_mode = 0
+background_mode = 2
 background_color = Color(0.301961, 0.47451, 0.67451, 1)
 background_energy_multiplier = 1.5
-ambient_light_source = 2
-ambient_light_color = Color(1, 1, 1, 1)
-ambient_light_energy = 1.2
-ambient_light_sky_contribution = 0.5
-fog_enabled = false
-adjustments_enabled = true
-adjustments_brightness = 1.2
+sky = SubResource("Sky_ls76e")
+ambient_light_source = 3
+ambient_light_color = Color(0.2, 0.25, 0.3, 1)
+ambient_light_sky_contribution = 0.6
+ambient_light_energy = 0.5
+tonemap_mode = 3
+tonemap_exposure = 0.85
+ssr_enabled = true
 ssao_enabled = true
-ssao_radius = 1.2
-ssao_intensity = 0.8
-ssao_power = 2.0
-ssao_detail = 0.5
-ssao_horizon = 0.06
+ssao_intensity = 1.5
 ssao_sharpness = 0.8
 ssao_light_affect = 0.1
-tonemap_mode = 2
+ssil_enabled = true
+ssil_radius = 3.0
+ssil_intensity = 0.8
 glow_enabled = true
-glow_intensity = 0.6
-glow_bloom = 0.1
-glow_blend_mode = 1
-glow_hdr_threshold = 1.0
-glow_hdr_scale = 2.0
+glow_intensity = 0.4
+glow_bloom = 0.05
+glow_blend_mode = 2
+volumetric_fog_enabled = true
+volumetric_fog_density = 0.02
+volumetric_fog_albedo = Color(0.7, 0.8, 0.9, 1)
+volumetric_fog_emission = Color(0.02, 0.05, 0.1, 1)
+volumetric_fog_emission_energy = 0.2
+volumetric_fog_ambient_inject = 0.6
+adjustment_enabled = true
+adjustment_brightness = 0.9
+adjustment_contrast = 1.15
+adjustment_saturation = 1.1
