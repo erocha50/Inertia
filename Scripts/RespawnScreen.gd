@@ -44,18 +44,21 @@ var _pulse_t:       float = 0.0
 func _ready() -> void:
 	_build_danger_overlay()
 	_build_ui()
-	hide()
+	visible = false
 	call_deferred("_connect_signals")
 
 
 func _connect_signals() -> void:
+	print("RespawnScreen: Connecting signals...")
 	DeathRespawnManager.death_timer_changed.connect(_on_death_timer_changed)
 	DeathRespawnManager.player_died.connect(_on_player_died)
+	print("RespawnScreen: Signals connected successfully")
 
 
 # ── Public API ────────────────────────────────────────────────────────────────
 
 func show_screen() -> void:
+	print("RespawnScreen: show_screen() called!")
 	_heat_at_death = HeatManager.heat_value
 
 	_death_label.text = death_messages[randi() % death_messages.size()]
@@ -69,12 +72,13 @@ func show_screen() -> void:
 	_heat_bar.value           = 0.0
 	_respawn_btn.disabled     = false
 
-	show()
+	visible = true
+	print("RespawnScreen: visibility set to true")
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 
 
 func hide_screen() -> void:
-	hide()
+	visible = false
 	# Clear the danger overlay on respawn
 	if _danger_overlay:
 		var tw := create_tween()

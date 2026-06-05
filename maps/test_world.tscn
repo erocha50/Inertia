@@ -50,7 +50,7 @@ mesh = SubResource("CylinderMesh_icmfn")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -92.29945, 3.2919846, -22.365002)
 mesh = SubResource("CylinderMesh_icmfn")
 
-[node name="CharacterBody3D" parent="." unique_id=300315409 groups=["player"] instance=ExtResource("2_icmfn")]
+[node name="CharacterBody3D" parent="." unique_id=300315409 instance=ExtResource("2_icmfn")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.48233223, 1.3538585, -3.5766232)
 
 [node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=2017854093]
