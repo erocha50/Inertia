@@ -1,99 +1,120 @@
 extends Node3D
 
-# ── HeatTrail.gd ──────────────────────────────────────────────────────────────
-# Attach to: scenes/items/HeatTrail.tscn  (Root Node3D)
-#
-# Scene structure expected:
-#   HeatTrail (Node3D)          ← this script
+# ── heat_trail.gd ─────────────────────────────────────────────────────────────
+# Builds all visuals in code — no material or particle setup needed in editor.
+# Scene structure needed:
+#   HeatTrail (Node3D)      ← this script
 #   ├── Particles (CPUParticles3D)
 #   ├── CollectArea (Area3D)
-#   │   └── CollectShape (CollisionShape3D)  ← SphereShape3D, generous radius
-#   └── GlowMesh (MeshInstance3D)            ← flat sphere, emissive material
-#
-# How it works:
-#   1. Player dies → something calls HeatTrail.spawn_at(position, heat_amount)
-#      OR the player controller calls PlayerDeathHandler which instances & places this.
-#   2. Trail sits at death position, pulsing.
-#   3. Player re-enters CollectArea → heat is restored, trail removes itself.
+#   │   └── CollisionShape3D  ← SphereShape3D
+#   └── GlowMesh (MeshInstance3D)
 # ─────────────────────────────────────────────────────────────────────────────
 
-## How much heat this trail holds (set via spawn_at or manually before adding to scene)
-@export var stored_heat: float = 0.0
+@export var stored_heat: float      = 0.0
+@export var heat_refund_ratio: float = 0.85
+@export var lifetime: float          = 60.0
+@export var pulse_speed: float       = 2.2
+@export var pulse_scale_min: float   = 0.85
+@export var pulse_scale_max: float   = 1.15
+@export var colour_cold: Color       = Color(1.0, 0.55, 0.1, 1.0)
+@export var colour_hot:  Color       = Color(1.0, 0.05, 0.0, 1.0)
 
-## Fraction of stored heat actually returned to player (1.0 = full refund)
-@export_range(0.1, 1.0, 0.05) var heat_refund_ratio: float = 0.85
+@onready var _particles:    CPUParticles3D = $Particles
+@onready var _collect_area: Area3D         = $CollectArea
+@onready var _glow_mesh:    MeshInstance3D = $GlowMesh
 
-## How long (seconds) before the trail decays on its own. 0 = never.
-@export var lifetime: float = 60.0
-
-## Pulse speed of the glow mesh
-@export var pulse_speed: float = 2.2
-## Pulse scale range (min/max uniform scale of GlowMesh)
-@export var pulse_scale_min: float = 0.85
-@export var pulse_scale_max: float = 1.15
-
-## Colour tint driven by heat amount (cold → hot)
-@export var colour_cold: Color = Color(1.0, 0.55, 0.1, 1.0)   # orange
-@export var colour_hot:  Color = Color(1.0, 0.05, 0.0, 1.0)   # deep red
-
-# ── Internal refs ─────────────────────────────────────────────────────────────
-@onready var _particles:     CPUParticles3D  = $Particles
-@onready var _collect_area:  Area3D          = $CollectArea
-@onready var _glow_mesh:     MeshInstance3D  = $GlowMesh
-
-var _lifetime_timer: float = 0.0
-var _pulse_t: float        = 0.0
-var _collected: bool       = false
-var _mat: StandardMaterial3D
+var _lifetime_timer: float   = 0.0
+var _pulse_t: float          = 0.0
+var _collected: bool         = false
+var _mat: StandardMaterial3D = null
 
 
 func _ready() -> void:
-	# Wire up the collect signal
+	_setup_glow_material()
+	_setup_particles()
+	_setup_collision()
 	_collect_area.body_entered.connect(_on_collect_area_body_entered)
-
-	# Grab / duplicate the glow material so we can tint it per-instance
-	if _glow_mesh and _glow_mesh.get_surface_override_material(0):
-		_mat = _glow_mesh.get_surface_override_material(0).duplicate() as StandardMaterial3D
-		_glow_mesh.set_surface_override_material(0, _mat)
-
-	_apply_heat_visuals()
 	_lifetime_timer = lifetime
+
+
+func _setup_glow_material() -> void:
+	# Always create a fresh emissive material in code
+	_mat = StandardMaterial3D.new()
+	_mat.emission_enabled          = true
+	_mat.emission                  = colour_cold
+	_mat.emission_energy_multiplier = 2.0
+	_mat.albedo_color              = Color(0, 0, 0, 1)
+
+	# Make sure GlowMesh has a sphere mesh
+	if _glow_mesh.mesh == null:
+		var sphere := SphereMesh.new()
+		sphere.radius = 0.3
+		sphere.height = 0.6
+		_glow_mesh.mesh = sphere
+
+	_glow_mesh.set_surface_override_material(0, _mat)
+
+
+func _setup_particles() -> void:
+	_particles.emitting        = false
+	_particles.amount          = 24
+	_particles.lifetime        = 1.2
+	_particles.explosiveness   = 0.0
+	_particles.randomness      = 0.5
+	_particles.emission_shape  = CPUParticles3D.EMISSION_SHAPE_SPHERE
+	_particles.emission_sphere_radius = 0.2
+	_particles.gravity         = Vector3(0, 1.5, 0)
+	_particles.initial_velocity_min = 0.5
+	_particles.initial_velocity_max = 1.5
+	_particles.scale_amount_min = 0.1
+	_particles.scale_amount_max = 0.3
+	_particles.color           = colour_cold
+
+
+func _setup_collision() -> void:
+	# Make sure CollectArea has a collision shape
+	var existing := _collect_area.get_node_or_null("CollisionShape3D")
+	if existing == null:
+		var shape_node := CollisionShape3D.new()
+		var sphere     := SphereShape3D.new()
+		sphere.radius  = 3.5
+		shape_node.shape = sphere
+		_collect_area.add_child(shape_node)
 
 
 func _process(delta: float) -> void:
 	if _collected:
 		return
 
-	# ── Lifetime decay ────────────────────────────────────────────────────────
+	# Lifetime decay
 	if lifetime > 0.0:
 		_lifetime_timer -= delta
 		if _lifetime_timer <= 0.0:
 			_decay_away()
 			return
 
-	# ── Glow pulse ───────────────────────────────────────────────────────────
+	# Glow pulse
 	_pulse_t += delta * pulse_speed
-	var s: float = lerpf(pulse_scale_min, pulse_scale_max, (sin(_pulse_t) * 0.5 + 0.5))
-	if _glow_mesh:
-		_glow_mesh.scale = Vector3(s, s, s)
+	var s := lerpf(pulse_scale_min, pulse_scale_max, sin(_pulse_t) * 0.5 + 0.5)
+	_glow_mesh.scale = Vector3(s, s, s)
 
-	# ── Flicker particle colour toward hot end as lifetime runs out ───────────
-	if lifetime > 0.0 and _particles:
-		var urgency: float = 1.0 - clampf(_lifetime_timer / lifetime, 0.0, 1.0)
-		_particles.color = colour_cold.lerp(colour_hot, urgency)
+	# Colour flicker toward hot as lifetime runs out
+	if lifetime > 0.0:
+		var urgency := 1.0 - clampf(_lifetime_timer / lifetime, 0.0, 1.0)
+		var tint    := colour_cold.lerp(colour_hot, urgency)
+		_particles.color  = tint
+		_mat.emission     = tint
 
 
 # ── Public API ────────────────────────────────────────────────────────────────
 
-## Call this after instancing to place the trail and set its heat value.
-## e.g.:  var trail = HeatTrailScene.instantiate(); get_tree().root.add_child(trail)
-##        trail.spawn_at(player.global_position, HeatManager.heat_value)
 func spawn_at(world_position: Vector3, heat_amount: float) -> void:
+	print("HeatTrail: spawn_at called with position: ", world_position, " heat: ", heat_amount)
 	global_position = world_position
 	stored_heat     = heat_amount
 	_apply_heat_visuals()
-	if _particles:
-		_particles.emitting = true
+	_particles.emitting = true
+	print("HeatTrail: global_position set to: ", global_position)
 
 
 # ── Collection ────────────────────────────────────────────────────────────────
@@ -101,40 +122,30 @@ func spawn_at(world_position: Vector3, heat_amount: float) -> void:
 func _on_collect_area_body_entered(body: Node3D) -> void:
 	if _collected:
 		return
-	# Only the player collects trails
 	if not body.is_in_group("player"):
 		return
 
 	_collected = true
 
-	var refund: float = stored_heat * heat_refund_ratio
-	# Restore heat via HeatManager autoload
-	HeatManager.restore_heat(refund)
+	HeatManager.restore_heat(stored_heat * heat_refund_ratio)
 
-	# Burst the particles one last time before leaving
 	if _particles:
-		_particles.emitting  = false
-		_particles.one_shot  = true
+		_particles.emitting = false
+		_particles.one_shot = true
 		_particles.restart()
 
-	# Small delay so the burst plays, then remove
 	await get_tree().create_timer(0.6).timeout
 	queue_free()
 
 
-# ── Natural decay (lifetime expired) ─────────────────────────────────────────
+# ── Natural decay ─────────────────────────────────────────────────────────────
 
 func _decay_away() -> void:
-	_collected = true   # stop processing
+	_collected = true
+	_particles.emitting = false
 
-	if _particles:
-		_particles.emitting = false
-
-	# Fade out glow mesh
-	var tween: Tween = create_tween()
-	if _glow_mesh:
-		tween.tween_property(_glow_mesh, "scale",
-			Vector3(0.0, 0.0, 0.0), 0.5).set_trans(Tween.TRANS_QUAD)
+	var tween := create_tween()
+	tween.tween_property(_glow_mesh, "scale", Vector3.ZERO, 0.5).set_trans(Tween.TRANS_QUAD)
 
 	await get_tree().create_timer(0.6).timeout
 	queue_free()
@@ -143,19 +154,10 @@ func _decay_away() -> void:
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
 func _apply_heat_visuals() -> void:
-	# Normalise stored_heat against HeatManager's max (defaults sensibly if unavailable)
-	var max_heat: float = 100.0
-	if HeatManager:
-		max_heat = HeatManager.max_heat
+	var t    := clampf(stored_heat / maxf(HeatManager.max_heat, 1.0), 0.0, 1.0)
+	var tint := colour_cold.lerp(colour_hot, t)
 
-	var t: float = clampf(stored_heat / maxf(max_heat, 1.0), 0.0, 1.0)
-	var tint: Color = colour_cold.lerp(colour_hot, t)
-
-	if _particles:
-		_particles.color = tint
-
-	if _mat:
-		_mat.emission          = tint
-		_mat.emission_enabled  = true
-		# Scale emission intensity with stored heat
-		_mat.emission_energy_multiplier = lerpf(0.8, 3.0, t)
+	_particles.color                    = tint
+	_mat.emission                       = tint
+	_mat.emission_enabled               = true
+	_mat.emission_energy_multiplier     = lerpf(0.8, 3.0, t)

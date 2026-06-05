@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="Inertia"
-run/main_scene="uid://t3ejc2fqyx2n"
+run/main_scene="uid://cnor3184re68b"
 config/features=PackedStringArray("4.6", "Forward Plus")
 config/icon="res://icon.svg"
 
