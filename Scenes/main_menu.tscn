@@ -1,56 +1,149 @@
 [gd_scene format=3 uid="uid://cnor3184re68b"]
 
 [ext_resource type="Script" uid="uid://fs6ikynpy5r" path="res://Scripts/main_menu.gd" id="1_28flt"]
+[ext_resource type="Script" uid="uid://bvhgrsyyyx8i3" path="res://Scripts/GridBackground.gd" id="2_grid"]
+[ext_resource type="Script" uid="uid://djeu33h3qyk83" path="res://Scripts/MenuButton.gd" id="3_btn"]
 
-[node name="MainMenu" type="Control" unique_id=930209946]
+[node name="MainMenu" type="Control" unique_id=788094216]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-size_flags_horizontal = 4
-size_flags_vertical = 4
 script = ExtResource("1_28flt")
 
-[node name="ColorRect" type="ColorRect" parent="." unique_id=814945205]
-layout_mode = 0
-offset_top = -13.0
-offset_right = 40.0
-offset_bottom = 27.0
-scale = Vector2(28.960003, 16.400002)
-color = Color(0, 0, 0, 1)
+[node name="BackgroundColor" type="ColorRect" parent="." unique_id=1248736505]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.0196078, 0.0196078, 0.0745098, 1)
 
-[node name="TitleLabel" type="Label" parent="." unique_id=829377665]
-layout_mode = 0
-offset_left = 462.0
-offset_top = 108.0
-offset_right = 736.0
-offset_bottom = 195.0
-theme_override_font_sizes/font_size = 37
-text = "Inertia"
-uppercase = true
+[node name="Background" type="Control" parent="." unique_id=506360141]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("2_grid")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=779719804]
-layout_mode = 0
-offset_left = 456.0
-offset_top = 177.0
-offset_right = 526.0
-offset_bottom = 305.0
-scale = Vector2(2.347822, 1.673776)
+[node name="TitleContainer" type="VBoxContainer" parent="." unique_id=337898856]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.08
+anchor_right = 0.5
+anchor_bottom = 0.25
+offset_left = -500.0
+offset_right = 500.0
+grow_horizontal = 2
+alignment = 1
 
-[node name="PlayButton" type="Button" parent="VBoxContainer" unique_id=272983455]
+[node name="TitleBorder" type="Control" parent="TitleContainer" unique_id=1034890501]
+custom_minimum_size = Vector2(800, 1)
 layout_mode = 2
-text = "Play"
 
-[node name="SettingsButton" type="Button" parent="VBoxContainer" unique_id=1197430814]
+[node name="Title" type="Label" parent="TitleContainer" unique_id=1386129243]
 layout_mode = 2
-text = "Settings"
+theme_override_colors/font_color = Color(0, 1, 1, 1)
+theme_override_font_sizes/font_size = 80
+text = "INERTIA"
+horizontal_alignment = 1
 
-[node name="QuitButton" type="Button" parent="VBoxContainer" unique_id=396902248]
+[node name="Subtitle" type="Label" parent="TitleContainer" unique_id=846347616]
 layout_mode = 2
-text = "Quit"
+theme_override_colors/font_color = Color(0, 1, 1, 0.6)
+theme_override_font_sizes/font_size = 14
+text = "A VELOCITY-BASED EXPERIENCE"
+horizontal_alignment = 1
 
-[connection signal="pressed" from="VBoxContainer/PlayButton" to="." method="_on_play_button_pressed"]
-[connection signal="pressed" from="VBoxContainer/SettingsButton" to="." method="_on_settings_button_pressed"]
-[connection signal="pressed" from="VBoxContainer/QuitButton" to="." method="_on_quit_button_pressed"]
+[node name="TitleBorderBottom" type="Control" parent="TitleContainer" unique_id=1304831697]
+custom_minimum_size = Vector2(800, 1)
+layout_mode = 2
+
+[node name="MenuContainer" type="HBoxContainer" parent="." unique_id=1015457491]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.38
+anchor_right = 0.5
+anchor_bottom = 0.55
+offset_left = -480.0
+offset_right = 480.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 30
+alignment = 1
+
+[node name="PlayButton" type="Button" parent="MenuContainer" unique_id=1894163734]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 1, 1, 1)
+theme_override_font_sizes/font_size = 16
+text = "● PLAY"
+script = ExtResource("3_btn")
+
+[node name="SettingsButton" type="Button" parent="MenuContainer" unique_id=1166128193]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0, 1, 1)
+theme_override_font_sizes/font_size = 16
+text = "⚙ SETTINGS"
+script = ExtResource("3_btn")
+button_color = Color(0.6, 0, 1, 1)
+
+[node name="QuitButton" type="Button" parent="MenuContainer" unique_id=1992847733]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.2, 0.2, 1)
+theme_override_font_sizes/font_size = 16
+text = "● QUIT"
+script = ExtResource("3_btn")
+button_color = Color(1, 0.2, 0.2, 1)
+
+[node name="StatusContainer" type="HBoxContainer" parent="." unique_id=1117410157]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = -40.0
+offset_right = -10.0
+grow_horizontal = 0
+grow_vertical = 2
+
+[node name="StatusIcon" type="Label" parent="StatusContainer" unique_id=720134829]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 1, 1, 1)
+theme_override_font_sizes/font_size = 12
+text = "●"
+
+[node name="StatusText" type="Label" parent="StatusContainer" unique_id=748299311]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 0.8)
+theme_override_font_sizes/font_size = 14
+text = "Game Ready"
+
+[node name="VersionContainer" type="HBoxContainer" parent="." unique_id=1329961333]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -40.0
+offset_bottom = -10.0
+grow_horizontal = 2
+alignment = 2
+
+[node name="VersionText" type="Label" parent="VersionContainer" unique_id=647583821]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 0.6)
+theme_override_font_sizes/font_size = 11
+text = "v1.0 | Built with Godot 4"
+
+[connection signal="pressed" from="MenuContainer/PlayButton" to="." method="_on_play_button_pressed"]
+[connection signal="pressed" from="MenuContainer/SettingsButton" to="." method="_on_settings_button_pressed"]
+[connection signal="pressed" from="MenuContainer/QuitButton" to="." method="_on_quit_button_pressed"]
