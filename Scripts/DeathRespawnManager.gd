@@ -1,20 +1,21 @@
 extends Node
 
 # ── DeathRespawnManager.gd ────────────────────────────────────────────────────
-# Autoload. Listens to HeatManager.heat_changed.
-# Instant death when heat hits 0.
+# Autoload. Death now triggers when HP hits 0 (via HealthManager).
+# Heat hitting 0 starts HP drain — HP reaching 0 = death.
 # ─────────────────────────────────────────────────────────────────────────────
 
 signal player_died(death_position: Vector3)
 signal player_respawned(respawn_position: Vector3)
 signal death_timer_changed(seconds_remaining: float)
 
-@export var respawn_heat_gift: float   = 50.0
-var heat_zero_death_delay: float       = 1.0   # kept for RespawnScreen compat
+@export var respawn_heat_gift: float = 50.0
+var heat_zero_death_delay: float     = 4.0   # kept for overlay timing
 
 const HEAT_TRAIL_SCENE := "res://Scenes/heat_trail.tscn"
 
 var _is_dead: bool                 = false
+var _heat_timer: float             = 0.0    # how long heat has been at 0
 var _last_checkpoint: Vector3      = Vector3.ZERO
 var _has_checkpoint: bool          = false
 var _heat_at_death: float          = 50.0
@@ -32,47 +33,47 @@ func _ready() -> void:
 		push_error("DeathRespawnManager: HeatTrail not found at " + HEAT_TRAIL_SCENE)
 
 
-func _process(_delta: float) -> void:
-	# Keep trying to connect until everything is in the tree
+func _process(delta: float) -> void:
 	if not _connected:
 		_try_connect()
+		return
+
+	if _is_dead:
+		return
+
+	# Track heat timer just for the darkness overlay signal
+	if HeatManager.heat_value <= 0.0:
+		_heat_timer += delta
+		death_timer_changed.emit(maxf(heat_zero_death_delay - _heat_timer, 0.0))
+	else:
+		_heat_at_death = HeatManager.heat_value
+		if _heat_timer > 0.0:
+			_heat_timer = 0.0
+			death_timer_changed.emit(heat_zero_death_delay)
 
 
 func _try_connect() -> void:
-	# Find player
 	if _player == null:
 		var players := get_tree().get_nodes_in_group("player")
 		if not players.is_empty():
 			_player = players[0]
 
-	# Find respawn screen
 	if _respawn_screen == null:
 		var screens := get_tree().get_nodes_in_group("respawn_screen")
 		if not screens.is_empty():
 			_respawn_screen = screens[0]
 
-	# Connect to HeatManager once player is found
-	if _player != null and not _connected:
-		HeatManager.heat_changed.connect(_on_heat_changed)
+	if _player != null:
+		# Death is now triggered by HP hitting 0
+		HealthManager.player_hp_zero.connect(_trigger_death)
 		_connected = true
-
-
-func _on_heat_changed(new_value: float, _tier: String) -> void:
-	if _is_dead:
-		return
-
-	if new_value > 0.0:
-		_heat_at_death = new_value
-		death_timer_changed.emit(heat_zero_death_delay)
-	else:
-		death_timer_changed.emit(0.0)
-		_trigger_death()
 
 
 func _trigger_death() -> void:
 	if _is_dead:
 		return
-	_is_dead = true
+	_is_dead    = true
+	_heat_timer = 0.0
 
 	var death_pos := _player.global_position if _player else Vector3.ZERO
 
@@ -109,8 +110,10 @@ func do_respawn() -> void:
 		_player.set_process(true)
 
 	HeatManager.set_heat(respawn_heat_gift)
-	_is_dead       = false
-	_heat_at_death = respawn_heat_gift
+	HealthManager.reset_hp()
+
+	_is_dead    = false
+	_heat_timer = 0.0
 
 	death_timer_changed.emit(heat_zero_death_delay)
 	player_respawned.emit(respawn_pos)

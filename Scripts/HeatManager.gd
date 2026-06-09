@@ -13,7 +13,7 @@ var heat_floor: float  = 0.0
 
 @export var heat_gain_per_second: float        = 5.0
 @export var heat_loss_per_second: float        = 15.0
-@export var movement_speed_threshold: float    = 2.0
+@export var movement_speed_threshold: float    = 1.0
 @export_range(0.01,0.3,0.01) var gain_speed_scale_min: float = 0.02
 @export_range(1.0,5.0,0.1)   var gain_curve_power: float     = 4.0
 @export_range(1.0,12.0,0.1)  var loss_speed_scale_max: float = 7.0
