@@ -1,17 +1,9 @@
 [gd_scene format=3 uid="uid://djy64smshujci"]
 
-[ext_resource type="Texture2D" uid="uid://ct53h0opxad11" path="res://maps/world.png" id="1_ko5s0"]
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_bnqvy"]
-albedo_texture = ExtResource("1_ko5s0")
-uv1_scale = Vector3(10, 10, 10)
-uv1_offset = Vector3(0, 3, 0)
-uv1_triplanar = true
-uv2_scale = Vector3(3, 3, 3)
-uv2_triplanar = true
+[ext_resource type="Material" uid="uid://c2ahdp8s1bvhd" path="res://materials/ground_cel.tres" id="1_cel_mat"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_b44b0"]
-material = SubResource("StandardMaterial3D_bnqvy")
+material = ExtResource("1_cel_mat")
 size = Vector3(2, 0.1, 2)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_ko5s0"]

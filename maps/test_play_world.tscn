@@ -2,23 +2,94 @@
 
 [ext_resource type="PackedScene" uid="uid://djy64smshujci" path="res://maps/test_world_plate.tscn" id="1_xg8am"]
 [ext_resource type="PackedScene" uid="uid://b355nnhi1g7tg" path="res://characters/player_controller.tscn" id="2_m3pcu"]
-[ext_resource type="Environment" path="res://environments/world_environment.tres" id="6_ab3cd"]
+[ext_resource type="PackedScene" uid="uid://dqpyyegn558v6" path="res://maps/floor.tscn" id="3_floor"]
+[ext_resource type="PackedScene" uid="uid://dgnislkaigdl0" path="res://maps/ramp.tscn" id="4_ramp"]
+[ext_resource type="PackedScene" uid="uid://ckf4fc2khm3tw" path="res://maps/wall.tscn" id="5_wall"]
+[ext_resource type="PackedScene" uid="uid://2jwlt0h1vdgu" path="res://maps/block.tscn" id="5_wpulb"]
+[ext_resource type="Environment" uid="uid://2fy4vnjxv27c" path="res://environments/world_environment.tres" id="6_ab3cd"]
 
-[node name="Node3D" type="Node3D" unique_id=301413277]
+[node name="Node3D" type="Node3D" unique_id=1913226338]
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=482210711]
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=269784550]
 environment = ExtResource("6_ab3cd")
 
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=982215889]
-transform = Transform3D(0.707107, -0.612372, 0.353553, 0, 0.5, 0.866025, -0.707107, -0.612372, 0.353553, 0, 30, 0)
-light_color = Color(0.95, 0.9, 0.85, 1)
-light_energy = 0.8
-light_volumetric_fog_energy = 1.5
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=718796078]
+transform = Transform3D(0.9, 0, 0, 0, 0.436, 0.9, 0, -1, 0.436, 0, 40, 0)
+light_color = Color(1, 0.98, 0.95, 1)
+light_energy = 1.5
+light_volumetric_fog_energy = 0.5
 shadow_enabled = true
-shadow_blur = 1.5
+shadow_blur = 0.5
 
-[node name="Test World Plate" parent="." unique_id=1097685331 instance=ExtResource("1_xg8am")]
-transform = Transform3D(100, 0, 0, 0, 5, 0, 0, 0, 300, 0, -30, -150)
+[node name="CharacterBody3D" parent="." unique_id=1229242080 instance=ExtResource("2_m3pcu")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.732183, 1.0499992, 5.316284)
 
-[node name="CharacterBody3D" parent="." unique_id=212768901 instance=ExtResource("2_m3pcu")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -27.290222, 0)
+[node name="Tower" type="Node3D" parent="." unique_id=89620368]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17.617792, 0, 0)
+
+[node name="Block" parent="Tower" unique_id=1291896812 instance=ExtResource("5_wpulb")]
+transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 24.899609, 5.0133533, -4.8480444)
+
+[node name="Ramp" parent="Tower" unique_id=934826997 instance=ExtResource("4_ramp")]
+transform = Transform3D(3, 0, 0, 0, 4, 0, 0, 0, 2, 22.440552, 2.473402, 10.107813)
+
+[node name="Floor" parent="Tower" unique_id=1576018846 instance=ExtResource("3_floor")]
+transform = Transform3D(1.5, 0, 0, 0, 1, 0, 0, 0, 2, 9.525821, 5.2880936, 6.3525496)
+
+[node name="Ramp2" parent="Tower" unique_id=900730629 instance=ExtResource("4_ramp")]
+transform = Transform3D(-2, 0, -3.019916e-07, 0, 5, 0, 3.019916e-07, 0, -2, 13.782099, 8.927969, -3.664737)
+
+[node name="Tower2" type="Node3D" parent="." unique_id=411698353]
+transform = Transform3D(0.3504809, 0, 0.5336419, 0, 0.8812034, 0, -0.7970191, 0, 0.23466349, -34.526375, 0, 39.638287)
+
+[node name="Block" parent="Tower2" unique_id=571366614 instance=ExtResource("5_wpulb")]
+transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 24.899609, 5.0133533, -4.8480444)
+
+[node name="Ramp" parent="Tower2" unique_id=1327372815 instance=ExtResource("4_ramp")]
+transform = Transform3D(3, 0, 0, 0, 4, 0, 0, 0, 2, 22.440552, 2.473402, 10.107813)
+
+[node name="Floor" parent="Tower2" unique_id=2041245097 instance=ExtResource("3_floor")]
+transform = Transform3D(1.5, 0, 0, 0, 1, 0, 0, 0, 2, 9.525821, 5.2880936, 6.3525496)
+
+[node name="Ramp2" parent="Tower2" unique_id=1611901444 instance=ExtResource("4_ramp")]
+transform = Transform3D(-2, 0, -3.019916e-07, 0, 5, 0, 3.019916e-07, 0, -2, 13.782099, 8.927969, -3.664737)
+
+[node name="Wall Hop" type="Node3D" parent="." unique_id=1149038820]
+transform = Transform3D(3.0899508, 0, -0.56613475, 0, 2, 0, 1.6212975, 0, 1.0789682, 59.93318, 0, 0)
+
+[node name="Block" parent="Wall Hop" unique_id=858497517 instance=ExtResource("5_wpulb")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -29.548737, 5.049999, -9.425217)
+
+[node name="Block2" parent="Wall Hop" unique_id=918226433 instance=ExtResource("5_wpulb")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 0.36453354, -35.718918, 5.05, -19.768196)
+
+[node name="Block3" parent="Wall Hop" unique_id=553289199 instance=ExtResource("5_wpulb")]
+transform = Transform3D(0.34649038, 0, 0, 0, 1.817199, 0, 0, 0, 1, -41.041786, 8.422711, -11.773603)
+
+[node name="Ramp" parent="Wall Hop" unique_id=1593160487 instance=ExtResource("4_ramp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -37.50113, 13.755691, -9.942568)
+
+[node name="Wall5" parent="Wall Hop" unique_id=265347371 instance=ExtResource("5_wall")]
+transform = Transform3D(1, 0, 0, 0, 0.6808302, 0, 0, 0, 1, -34.74613, 13.365118, -6.160492)
+
+[node name="Wall6" parent="Wall Hop" unique_id=2034262072 instance=ExtResource("5_wall")]
+transform = Transform3D(0.66256773, 0, -0.749002, 0, 1, 0, 0.749002, 0, 0.66256773, -34.309334, 17.192017, -18.054155)
+
+[node name="Floor" parent="Wall Hop" unique_id=941757663 instance=ExtResource("3_floor")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -41.8264, 17.466784, -21.773603)
+
+[node name="Fence" type="Node3D" parent="." unique_id=604448335]
+
+[node name="Test World Plate" parent="Fence" unique_id=1729513969 instance=ExtResource("1_xg8am")]
+
+[node name="Wall" parent="Fence" unique_id=1531613323 instance=ExtResource("5_wall")]
+transform = Transform3D(19.99344, 0, 0, 0, 2.7975073, 0, 0, 0, 1, 0, 14.031414, -99.40464)
+
+[node name="Wall2" parent="Fence" unique_id=20341870 instance=ExtResource("5_wall")]
+transform = Transform3D(19.99344, 0, 0, 0, 2.7975073, 0, 0, 0, 1, 0, 14.031414, 99.63656)
+
+[node name="Wall3" parent="Fence" unique_id=476672424 instance=ExtResource("5_wall")]
+transform = Transform3D(-8.73941e-07, 0, -0.99999994, 0, 2.7975073, 0, 19.99344, 0, -4.3711385e-08, 99.48595, 14.031414, -2.5100284)
+
+[node name="Wall4" parent="Fence" unique_id=736762323 instance=ExtResource("5_wall")]
+transform = Transform3D(-8.73941e-07, 0, -0.99999994, 0, 2.7975073, 0, 19.99344, 0, -4.3711385e-08, -99.48595, 14.031414, 2.7419467)
