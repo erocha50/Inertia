@@ -68,6 +68,15 @@ extends Node3D
 @export_group("Follow")
 @export var character_path:NodePath=^".."
 
+@export_group("Wall Ride Camera")
+@export var wall_tilt_enabled:bool=true
+@export var wall_tilt_angle:float=20.0
+@export var wall_tilt_smooth:float=8.0
+
+@export_group("Wallhop Assist Camera")
+@export var wallhop_fov_assist:float=5.0
+@export var wallhop_arm_closer:float=1.5; @export var wallhop_arm_smooth:float=6.0
+
 # ── State ─────────────────────────────────────────────────────────────────────
 var _cam_yaw:float; var _char_yaw:float; var _pitch:float
 var _smooth_yaw:float; var _smooth_pitch:float
@@ -83,6 +92,18 @@ var _lateral_input:float; var _extra_pitch:float
 var _character:CharacterBody3D; var _camera:Camera3D
 var _line_ctrl:_SpeedLineControl; var _space:PhysicsDirectSpaceState3D
 
+# Wall ride camera tilt
+var _wall_tilt_target:float=0.0
+var _wall_tilt_current:float=0.0
+var _wall_yaw_target:float=0.0
+var _wall_yaw_current:float=0.0
+var _is_wall_riding:bool=false
+
+# Wallhop assist
+var _wallhop_assist_active:bool=false
+var _wallhop_time_scale:float=1.0
+var _engine_time_scale:float=1.0
+
 
 func _ready() -> void:
 	_character=get_node(character_path); _camera=$Camera3D
@@ -92,7 +113,7 @@ func _ready() -> void:
 	_arm_target=arm_length; _arm_current=arm_length; _shoulder_cur=shoulder_base
 	_apply_orbital_transform(); _build_speed_lines()
 	for sig in [["speed_changed",_on_speed_changed],["turn_strain",_on_turn_strain],
-				["landed",_on_landed],["dash_performed",_on_dash],["dash_attack_performed",_on_dash_attack],["wall_hit",_on_wall_hit]]:
+				["landed",_on_landed],["dash_performed",_on_dash],["dash_attack_performed",_on_dash_attack],["wall_hit",_on_wall_hit],["state_changed",_on_state_changed],["wallhop_assist_changed",_on_wallhop_assist_changed]]:
 		if _character.has_signal(sig[0]): _character.connect(sig[0],sig[1])
 
 
@@ -118,6 +139,19 @@ func _on_dash_attack()->void:
 func _on_wall_hit(_wall_normal:Vector3,impact_speed:float)->void:
 	var t:=clampf(impact_speed/maxf(_max_spd,1.0),0.0,1.0)
 	_impact_trauma=maxf(_impact_trauma,wall_hit_trauma*t); _extra_pitch+=wall_pitch_kick*t
+
+func _on_state_changed(new_state:int)->void:
+	# State 5 is WALL_RIDE
+	_is_wall_riding=(new_state==5)
+	if not _is_wall_riding:
+		_wall_tilt_target=0.0
+
+func _on_wallhop_assist_changed(active:bool,time_scale:float)->void:
+	_wallhop_assist_active=active
+	_wallhop_time_scale=time_scale
+	# Update engine time scale
+	_engine_time_scale=time_scale
+	Engine.time_scale=_engine_time_scale
 
 
 func _input(event:InputEvent)->void:
@@ -155,6 +189,7 @@ func _process(delta:float)->void:
 	_smooth_pitch=lerpf(_smooth_pitch,_pitch,spring_v*delta)
 
 	var lean_t:=clampf(absf(_lean_roll)/roll_max_deg,0.0,1.0)
+	
 	_arm_current=lerpf(_arm_current,
 		clampf(_arm_target+arm_speed_pullback*spd_t*spd_t-lean_t*lean_t*lean_arm_pull,arm_min,arm_max+arm_speed_pullback),
 		arm_zoom_smooth*delta)
@@ -184,6 +219,16 @@ func _process(delta:float)->void:
 	_extra_pitch=lerpf(_extra_pitch,0.0,8.0*delta)
 
 	var fall_bias:=clampf((-_vert_vel-fall_pitch_speed)/20.0,0.0,1.0)*fall_pitch_bias
+	
+	# Update wall tilt for wall ride camera
+	if wall_tilt_enabled and _is_wall_riding:
+		_update_wall_tilt()
+	else:
+		_wall_tilt_target=0.0
+		_wall_yaw_target=0.0
+	_wall_tilt_current=lerpf(_wall_tilt_current,_wall_tilt_target,wall_tilt_smooth*delta)
+	_wall_yaw_current=lerpf(_wall_yaw_current,_wall_yaw_target,wall_tilt_smooth*delta)
+	
 	_apply_orbital_transform(
 		_compute_impact_shake(delta)+_compute_run_shake(delta,spd_t),
 		fall_bias+_extra_pitch+_lean_pitch,
@@ -193,14 +238,58 @@ func _process(delta:float)->void:
 		_character.global_transform.basis=_character.global_transform.basis.slerp(
 			Basis(Vector3.UP,deg_to_rad(_char_yaw)),minf(delta*20.0,1.0))
 	_yaw_delta=0.0
+	
 	_camera.fov=lerpf(_camera.fov,lerpf(fov_base,fov_max,spd_t*spd_t),fov_smooth*delta)
 	_line_ctrl.set_intensity(clampf((_current_speed-lines_start_speed)/(lines_max_speed-lines_start_speed),0.0,1.0)**3)
+
+
+func _update_wall_tilt()->void:
+	"""Rotate camera to face parallel to the wall during wall ride."""
+	if _character==null: return
+	
+	# Get the wall normal from the player's exposed wall_normal_exposed variable
+	var wall_normal:Vector3=Vector3.ZERO
+	if "wall_normal_exposed" in _character:
+		wall_normal=_character.get("wall_normal_exposed") as Vector3
+	
+	if wall_normal.length_squared()<0.01:
+		_wall_yaw_target=0.0
+		return
+	
+	# Project wall normal onto horizontal plane
+	var horiz_normal:Vector3=Vector3(wall_normal.x,0.0,wall_normal.z).normalized()
+	
+	# Calculate the tangent direction (parallel to wall, perpendicular to wall normal)
+	# This is what we want to face towards
+	var wall_tangent:Vector3=Vector3(-horiz_normal.z,0.0,horiz_normal.x).normalized()
+	
+	# Calculate current camera forward direction
+	var cam_fwd:Vector3=(-global_transform.basis.z*Vector3(1,0,1)).normalized()
+	if cam_fwd.length_squared()<0.01:
+		_wall_yaw_target=0.0
+		return
+	
+	# Calculate the angle between camera forward and the wall tangent
+	# We want to rotate towards the tangent (parallel to wall)
+	var cross:Vector3=cam_fwd.cross(wall_tangent)
+	var dot_product:float=cam_fwd.dot(wall_tangent)
+	
+	# Determine rotation direction and magnitude
+	# Clamp the dot product to avoid numerical errors
+	var angle_to_tangent:float=acos(clampf(dot_product,-1.0,1.0))
+	
+	# Determine which direction to rotate (positive = counterclockwise viewed from above)
+	var rotation_direction:float=1.0 if cross.y>0.0 else -1.0
+	
+	# Set target yaw rotation to face parallel to wall
+	# Limit the rotation to reasonable bounds (20 degrees max)
+	_wall_yaw_target=clampf(rotation_direction*angle_to_tangent,-deg_to_rad(20.0),deg_to_rad(20.0))
 
 
 func _apply_orbital_transform(shake:Vector2=Vector2.ZERO, extra_pitch:float=0.0, spd_t:float=0.0)->void:
 	var char_pos:=_character.global_position+Vector3(0,pivot_height_offset,0)
 	global_position=char_pos
-	rotation_degrees=Vector3(0,_smooth_yaw+shake.x,0)
+	rotation_degrees=Vector3(0,_smooth_yaw+rad_to_deg(_wall_yaw_current)+shake.x,0)
 	var pr:=deg_to_rad(_smooth_pitch+shake.y+extra_pitch)
 	var pitch_t:=clampf((-(_smooth_pitch+extra_pitch)-20.0)/maxf(-pitch_min-20.0,1.0),0.0,1.0)
 	var ground_drop:=pitch_t*pitch_t*pitch_ground_factor*_arm_current
@@ -221,7 +310,7 @@ func _apply_orbital_transform(shake:Vector2=Vector2.ZERO, extra_pitch:float=0.0,
 		if hit:
 			arm=arm.normalized()*maxf(char_pos.distance_to(hit.position)-collision_radius,collision_radius)
 	_camera.position=arm; _camera.look_at(global_position,Vector3.UP)
-	_camera.rotation_degrees.z=_lean_roll
+	_camera.rotation_degrees.z=_lean_roll+rad_to_deg(_wall_tilt_current)
 
 
 func _compute_impact_shake(delta:float)->Vector2:

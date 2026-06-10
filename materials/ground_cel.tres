@@ -1,0 +1,15 @@
+[gd_resource type="ShaderMaterial" format=3 uid="uid://c2ahdp8s1bvhd"]
+
+[ext_resource type="Shader" path="res://shaders/cel_shading.gdshader" id="cel_shader"]
+[ext_resource type="Texture2D" uid="uid://ct53h0opxad11" path="res://maps/world.png" id="ground_tex"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("cel_shader")
+shader_parameter/albedo_texture = ExtResource("ground_tex")
+shader_parameter/albedo_color = Vector3(1, 1, 1)
+shader_parameter/cel_bands = 3
+shader_parameter/shadow_darkness = 0.25
+shader_parameter/shadow_threshold = 0.0
+shader_parameter/light_falloff_distance = 150.0
+shader_parameter/ambient_multiplier = 0.8
