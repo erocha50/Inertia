@@ -21,6 +21,11 @@ var _roll_cooldown     : float = 0.0
 var _roll_max_cooldown : float = 3.0
 var _player: Node = null
 
+# ── Wallhop assist state ───────────────────────────────────────────────────────
+var _wallhop_assist_active : bool = false
+var _wallhop_time_scale_display : float = 1.0
+var wallhop_assist_label : Label = null
+
 # ── Circle layout ──────────────────────────────────────────────────────────────
 const CIRCLE_RADIUS  := 30.0
 const ARC_WIDTH      := 8.0
@@ -131,6 +136,9 @@ func _ready() -> void:
 		if player.has_signal("dash_attack_performed"): player.dash_attack_performed.connect(_on_dash_performed)
 		if player.has_signal("roll_performed"):        player.roll_performed.connect(_on_roll_performed)
 		if "base_damage" in player: base_damage = player.base_damage
+		if player.has_signal("state_changed"): player.state_changed.connect(_on_player_state_changed)
+	
+	_create_wallhop_assist_label()
 
 
 func _build_hp_bar() -> void:
@@ -351,6 +359,14 @@ func _on_heat_changed(new_value: float, tier: String) -> void:
 func _on_health_changed(new_hp: float, max_hp: float) -> void:
 	_refresh_hp_ui(new_hp, max_hp)
 
+func _on_player_state_changed(new_state: int) -> void:
+	# States from player_controller.gd:
+	# enum State { IDLE, RUN, AIR, SLIDE, ARC, WALL_RIDE }
+	# State 5 is WALL_RIDE
+	_wallhop_assist_active = (new_state == 5)
+	if wallhop_assist_label:
+		wallhop_assist_label.visible = _wallhop_assist_active
+
 func _on_wallhop_assist_changed(active: bool, time_scale: float) -> void:
 	_wallhop_assist_active = active
 	_wallhop_time_scale_display = time_scale
@@ -365,11 +381,17 @@ func _refresh_heat_ui(value: float, tier: String) -> void:
 	tier_label.text = tier.to_upper()
 
 func _create_wallhop_assist_label() -> void:
+	if wallhop_assist_label != null:
+		return
+	
 	wallhop_assist_label = Label.new()
-	wallhop_assist_label.text = "⏱ WALLHOP ASSIST"
+	wallhop_assist_label.text = "⏱ WALL RIDE"
 	wallhop_assist_label.add_theme_font_size_override("font_size", 18)
 	wallhop_assist_label.add_theme_color_override("font_color", Color(0.2, 0.8, 1.0, 0.95))
-	wallhop_assist_label.position = Vector2(get_viewport_rect().size.x * 0.5 - 100, 40)
+	wallhop_assist_label.anchor_left = 0.5
+	wallhop_assist_label.anchor_top = 0.0
+	wallhop_assist_label.offset_left = -100.0
+	wallhop_assist_label.offset_top = 40.0
 	wallhop_assist_label.custom_minimum_size = Vector2(200, 30)
 	wallhop_assist_label.visible = false
 	add_child(wallhop_assist_label)
