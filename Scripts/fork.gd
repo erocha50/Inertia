@@ -1,7 +1,12 @@
 extends Area3D
-
-
-
+## Fork projectile with a quadratic Bézier curved trajectory.
+## The curve is defined by three points:
+##   P0 = spawn position
+##   P1 = control point (offset perpendicular to the aim line → the bend)
+##   P2 = target position (predicted player position)
+## All motion is relative to those three world-space points, so it
+## never drifts toward the world centre regardless of where the enemy is.
+>>>>>>> heat_trail-and-death_mechanic
 ## Fork projectile with a quadratic Bézier curved trajectory.
 ## The curve is defined by three points:
 ##   P0 = spawn position

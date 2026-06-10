@@ -1,0 +1,51 @@
+[gd_scene format=3 uid="uid://k28cvkbvqg86"]
+
+[ext_resource type="Script" uid="uid://dqm4mwkew2jra" path="res://Scripts/heat_trail.gd" id="1_tqdjk"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_gjhcg"]
+albedo_color = Color(0.48235294, 0.24705882, 0, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_tqdjk"]
+material = SubResource("StandardMaterial3D_gjhcg")
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_noykc"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_noykc"]
+emission_enabled = true
+emission_energy_multiplier = 2.67
+
+[sub_resource type="SphereMesh" id="SphereMesh_d4wq5"]
+material = SubResource("StandardMaterial3D_noykc")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_tqdjk"]
+emission_enabled = true
+
+[sub_resource type="TextMesh" id="TextMesh_noykc"]
+material = SubResource("StandardMaterial3D_tqdjk")
+text = "HEAT TRAIL"
+
+[sub_resource type="Curve" id="Curve_tqdjk"]
+_limits = [-360.0, 360.0, 0.0, 1.0]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[node name="HeatTrail" type="Node3D" unique_id=1084618729]
+script = ExtResource("1_tqdjk")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=478904407]
+mesh = SubResource("BoxMesh_tqdjk")
+
+[node name="CollectArea" type="Area3D" parent="." unique_id=468590847]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="CollectArea" unique_id=382715680]
+shape = SubResource("BoxShape3D_noykc")
+
+[node name="GlowMesh" type="MeshInstance3D" parent="." unique_id=823594353]
+mesh = SubResource("SphereMesh_d4wq5")
+
+[node name="Particles" type="CPUParticles3D" parent="." unique_id=291958571]
+mesh = SubResource("TextMesh_noykc")
+emission_shape = 1
+emission_sphere_radius = 1.0
+angle_min = -720.0
+angle_curve = SubResource("Curve_tqdjk")

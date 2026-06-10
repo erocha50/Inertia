@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://ctwafpi661v1i"]
+
+[ext_resource type="Script" uid="uid://bjjl2areqnkot" path="res://Scripts/RespawnScreen.gd" id="1_0vbb2"]
+
+[node name="RespawnScreen" type="CanvasLayer" unique_id=1511386983 groups=["respawn_screen"]]
+script = ExtResource("1_0vbb2")
