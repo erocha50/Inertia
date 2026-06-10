@@ -1,16 +1,11 @@
-[gd_resource type="Resource" script_class="FontConfig" format=3]
+[gd_resource type="Resource" script_class="FontConfig" format=3 uid="uid://cwfo55432r5dn"]
 
-[ext_resource type="Script" path="res://Scripts/FontConfig.gd" id="1_x631b"]
+[ext_resource type="Script" uid="uid://bcvj4tm047rec" path="res://Scripts/FontConfig.gd" id="1_x631b"]
 
 [resource]
 script = ExtResource("1_x631b")
-title_font_path = "res://fonts/BebasNeue-Regular.ttf"
-title_font_size = 72
-subtitle_font_path = "res://fonts/BebasNeue-Regular.ttf"
-subtitle_font_size = 16
-button_font_path = "res://fonts/BebasNeue-Regular.ttf"
-button_font_size = 24
-status_font_path = "res://fonts/BebasNeue-Regular.ttf"
-status_font_size = 14
-version_font_path = "res://fonts/BebasNeue-Regular.ttf"
-version_font_size = 10
+title_font_size = 100
+subtitle_font_size = 25
+button_font_size = 30
+status_font_size = 30
+version_font_size = 30
