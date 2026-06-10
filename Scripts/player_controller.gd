@@ -1,4 +1,4 @@
-class_name Player
+
 
 extends CharacterBody3D
 
@@ -157,6 +157,7 @@ var _prev_flat_vel:=Vector3.ZERO
 
 var _wall_normal:=Vector3.ZERO
 var _wall_ride_timer:float=0.0
+var wall_normal_exposed:Vector3=Vector3.ZERO
 
 # Food inventory system
 var food_inventory: Dictionary = {}
@@ -205,6 +206,7 @@ func _physics_process(d:float)->void:
 		velocity.x=fv.x; velocity.z=fv.z
 
 	_run_sm(d)
+	
 	velocity+=(_impulse+wind)*d
 	velocity-=velocity.normalized()*drag_coefficient*_surf_drag*velocity.length_squared()*d
 
@@ -307,11 +309,9 @@ func _air(d:float)->State:
 	if wall_ride_enabled and is_on_wall_only() and velocity.y < 5.0 and _flat_spd() >= wall_ride_min_speed:
 		var wn := get_wall_normal()
 		if absf(wn.y) < 0.2:
-			var flat := Vector3(velocity.x,0,velocity.z)
-			if flat.length() > 0.1 and -flat.normalized().dot(wn) < 0.8:
-				_wall_normal = wn
-				_wall_ride_timer = 0.0
-				return State.WALL_RIDE
+			_wall_normal = wn
+			_wall_ride_timer = 0.0
+			return State.WALL_RIDE
 				
 	if is_on_floor():
 		if _buf>0.0: _jump()
@@ -334,11 +334,14 @@ func _arc(d:float)->State:
 
 func _wall_ride(d:float)->State:
 	_wall_ride_timer += d
-	if is_on_floor(): return State.RUN if _flat_spd() > 0.5 else State.IDLE
-	if not is_on_wall(): return State.AIR
+	if is_on_floor():
+		return State.RUN if _flat_spd() > 0.5 else State.IDLE
+	if not is_on_wall():
+		return State.AIR
 	
 	var wn := get_wall_normal()
 	_wall_normal = wn
+	wall_normal_exposed = wn
 	
 	var flat := Vector3(velocity.x, 0, velocity.z)
 	var spd := flat.length()
@@ -355,11 +358,12 @@ func _wall_ride(d:float)->State:
 	if spd < wall_ride_min_speed or _wall_ride_timer > wall_ride_time_limit:
 		return State.AIR
 		
-	var stick_force := 2.0
+	var stick_force := 4.0
 	velocity.x = wall_fwd.x * spd - wn.x * stick_force
 	velocity.z = wall_fwd.z * spd - wn.z * stick_force
 	
 	var wish := _wish_dir()
+	
 	if Input.is_action_just_pressed("jump") or _buf > 0.0:
 		var w_fwd := wall_fwd * signf(flat.dot(wall_fwd)) if flat.dot(wall_fwd) != 0.0 else wall_fwd
 		velocity.x = w_fwd.x * wall_jump_force_fwd + wn.x * wall_jump_force_out
@@ -528,9 +532,15 @@ func _check_wall_bounce()->void:
 		if absf(normal.y)>0.65: continue
 		var fv:=Vector3(velocity.x,0,velocity.z)
 		
-		# Prioritize Wall Ride over bounce if angle is shallow enough
-		if wall_ride_enabled and _state == State.AIR and -fv.normalized().dot(normal) < 0.8 and fv.length() >= wall_ride_min_speed:
+		# If in wall ride state, never bounce - the stick force handles it
+		if _state == State.WALL_RIDE:
 			continue
+		
+		# Check if wall ride is possible - if so, don't bounce
+		if wall_ride_enabled and _state == State.AIR and velocity.y < 5.0 and fv.length() >= wall_ride_min_speed:
+			if absf(normal.y) < 0.2:
+				# Wall ride possible, don't bounce
+				continue
 			
 		if -fv.normalized().dot(normal)<bounce_dot_threshold: continue
 		if col.get_position().y-global_position.y<0.32: continue

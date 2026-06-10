@@ -1,0 +1,292 @@
+╔═══════════════════════════════════════════════════════════════════════════╗
+║          TEST ROOM ZONE COORDINATES & LAYOUT MAP                          ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+
+COORDINATE SYSTEM
+═════════════════
+  X-Axis: Left-Right (negative left, positive right)
+  Y-Axis: Up-Down (negative down, positive up)
+  Z-Axis: Forward-Backward (negative back, positive forward)
+
+Player spawns at: X:-80  Y:-30  Z:-50
+
+═══════════════════════════════════════════════════════════════════════════════
+
+ZONE MAP (Top-Down View)
+════════════════════════
+
+        Z:-50           Z:0            Z:50           Z:100          Z:135
+         |              |               |              |               |
+    ┌────┴──────────────┴───────────────┴──────────────┴───────────────┴───┐
+-80 │                                                                       │
+    │  ZONE_1           ZONE_4              ZONE_5          ZONE_6        │
+    │  ACCEL            WALL_JUMP           JUMPING         ARC_TURN      │
+ 0  │  [Floor]          [Walls]             [Platforms]     [Ramp]        │
+    │                                                                       │
+    │  ZONE_2           ZONE_7              ZONE_8                        │
+ 80 │  SLIDING          DASH_ATTACK        AIR_CONTROL                     │
+    │  [Ramp+Floor]     [Corridor]         [Multi-Plat]                    │
+    │                                                                       │
+    └───────────────────────────────────────────────────────────────────────┘
+                                    X-Axis →
+
+═══════════════════════════════════════════════════════════════════════════════
+
+DETAILED ZONE COORDINATES
+═════════════════════════
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ ZONE 1: ACCELERATION TESTING                                                │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ Location: X: -80  |  Z: -50  |  Y: -10 (floor surface)                     │
+│ Size: 25×25 units (flat, stable platform)                                  │
+│ Structures:                                                                  │
+│   - Floor_Accel_Main: Transform at (-80, -10, -50), scale 25×1×25         │
+│                                                                              │
+│ Purpose: Test base movement mechanics                                       │
+│ - Acceleration ramp-up from 0 to speed_max                                 │
+│ - Input responsiveness and steering                                        │
+│ - Speed_min floor enforcement                                              │
+│ - Friction decay when not accelerating                                     │
+│                                                                              │
+│ Player Spawn: (-80, -30, -50) ← On edge of this floor                      │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ ZONE 2: SLIDING MECHANICS TESTING                                           │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ Location: X: 0  |  Z: -50 to -25  |  Y: varies (slope)                    │
+│ Structures:                                                                  │
+│   - Ramp_Down_Slide: Transform (0, 5, -50), scale 18×3.5×22                │
+│                      (slopes downward, tall to create grade)                │
+│   - Floor_Slide_Bottom: Transform (0, -18, -25), scale 25×1×25             │
+│                        (flat landing zone)                                  │
+│                                                                              │
+│ Purpose: Test slope-based physics                                          │
+│ - Slope bonus acceleration (slide_slope_boost)                             │
+│ - Friction on slopes vs flat                                               │
+│ - Speed_max cap during slide (60.0)                                        │
+│ - Speed decay back to normal cap after exiting slide                       │
+│                                                                              │
+│ Approach: From Zone 1, move right (positive X)                             │
+│ Path: Accelerate → Hit ramp → Slide down → Land on flat → Decay          │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ ZONE 3: WALL RIDING MECHANICS TESTING                                       │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ Location: X: 80  |  Z: -50 to -25  |  Y: varies (wall height)             │
+│ Structures:                                                                  │
+│   - Floor_WallRide_Approach: Transform (80, -10, -50), scale 25×1×25       │
+│                              (approach zone, flat)                          │
+│   - Wall_Vertical_Ride: Transform (80, 8, -25), scale 2.5×16×20            │
+│                         (tall vertical wall, X:80, Y:0-16, Z:-25)          │
+│                                                                              │
+│ Purpose: Test extended wall contact mechanics                              │
+│ - Wall riding minimum speed entry (8.0)                                    │
+│ - Gentle gravity during wall ride (8.0 vs normal 42.0)                    │
+│ - Forward momentum decay on wall (wall_ride_drag)                          │
+│ - Time limit enforcement (1.25s max hang)                                  │
+│                                                                              │
+│ Approach: From Zone 1, move far right (X: 80)                              │
+│ Path: Accelerate on floor → Run into wall → Stick & ride → Auto-eject     │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ ZONE 4: WALL JUMPING MECHANICS TESTING                                      │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ Location: X: -80 to -60  |  Z: 20 to 55  |  Y: varies (wall height)       │
+│ Structures:                                                                  │
+│   - Floor_WallJump_Setup: Transform (-80, -10, 20), scale 25×1×25          │
+│                           (approach zone)                                    │
+│   - Wall_Jump_Left: Transform (-100, 5, 20), scale 2×14×20                 │
+│                     (left wall, X: -100, Y: 0-14, Z: 20)                   │
+│   - Wall_Jump_Right: Transform (-60, 5, 20), scale 2×14×20                 │
+│                      (right wall, X: -60, Y: 0-14, Z: 20)                  │
+│   - Floor_WallJump_Land: Transform (-80, -10, 55), scale 25×1×25           │
+│                          (safe landing zone)                                │
+│                                                                              │
+│ Purpose: Test wall jump momentum and chaining                              │
+│ - Wall jump output forces (up, out, forward)                               │
+│ - Arcing between parallel walls                                            │
+│ - Momentum conservation through wall jump                                  │
+│ - Twin-wall chaining technique                                             │
+│                                                                              │
+│ Approach: From Zone 1, move forward (increasing Z)                         │
+│ Path: Setup → Hit left wall → Jump to right → Back to left → Land        │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ ZONE 5: JUMPING & COYOTE TIME TESTING                                       │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ Location: X: 0  |  Z: 20 to 105  |  Y: varies (platform heights)          │
+│ Structures:                                                                  │
+│   - Floor_Jump_Start: Transform (0, -10, 20), scale 25×1×25                │
+│                       (first platform, Y: -10)                              │
+│   - Floor_Jump_Gap_1: Transform (0, -5, 50), scale 15×1×15                 │
+│                       (second platform, Y: -5)                              │
+│   - Floor_Jump_Gap_2: Transform (0, 0, 75), scale 15×1×15                  │
+│                       (third platform, Y: 0)                                │
+│   - Floor_Jump_End: Transform (0, -10, 105), scale 25×1×25                 │
+│                     (final platform, Y: -10)                                │
+│                                                                              │
+│ Purpose: Test jumping mechanics, coyote time, air control                 │
+│ - Coyote time window (0.12s post-edge jump)                               │
+│ - Jump buffer (0.14s pre-jump)                                             │
+│ - Mid-air steering with air strafe                                         │
+│ - Gravity during rise vs fall phases                                       │
+│                                                                              │
+│ Approach: From Zone 1, move forward and right                              │
+│ Path: Platform 1 → Gap jump (test coyote) → Platform 2 → Platform 3 → End │
+│                                                                              │
+│ Gaps (approximate):                                                         │
+│  Gap 1→2: ~30 units, -5 to 0 height difference (easy)                     │
+│  Gap 2→3: ~25 units, 0 to 5 height difference (medium)                    │
+│  Gap 3→4: ~30 units, 5 to -10 height difference (medium, downward)        │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ ZONE 6: ARC TURNING MECHANICS TESTING                                       │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ Location: X: 80  |  Z: 20 to 80  |  Y: varies (ramp angles)               │
+│ Structures:                                                                  │
+│   - Floor_Turn_Setup: Transform (80, -10, 20), scale 25×1×25               │
+│                       (approach zone, speed builder)                        │
+│   - Ramp_Turn_Left: Transform (80, 0, 50), scale 12×2.5×18                 │
+│                     (angled ramp, rotated in X axis by -3°)                │
+│   - Floor_Turn_Recovery: Transform (80, -10, 80), scale 25×1×25            │
+│                          (recovery zone after turn)                         │
+│                                                                              │
+│ Purpose: Test arc turning and momentum resistance                          │
+│ - Arc state activation (>70° turn at speed)                                │
+│ - Arc turn rate limiting (140°/s max rotation)                             │
+│ - Speed bleed during turns (corner_speed_bleed)                            │
+│ - Momentum resistance at high speed (momentum_resistance)                  │
+│                                                                              │
+│ Approach: From Zone 1 via Zone 6 setup area                                │
+│ Path: Accelerate on setup → Hit banked ramp → Turn hard (>70°) → Land    │
+│                                                                              │
+│ Turn Challenge:                                                             │
+│  Entry Speed: Should be 35-40 (at speed_max)                               │
+│  Turn Angle: ~90° (hard left on angled ramp)                               │
+│  Expected Speed Loss: ~10-15% from entry to exit                           │
+│  Exit Speed: Should be ~30-35 at recovery floor                            │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ ZONE 7: DASH ATTACK MECHANICS TESTING                                       │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ Location: X: -80 to -60  |  Z: 80  |  Y: varies (walls/floor)             │
+│ Structures:                                                                  │
+│   - Floor_Corridor_Approach: Transform (-80, -10, 80), scale 25×1×25       │
+│                              (approach zone, speed builder)                 │
+│   - Wall_Corridor_Left: Transform (-100, 5, 80), scale 1.8×11×22           │
+│                         (left wall, X: -100, tight space)                  │
+│   - Wall_Corridor_Right: Transform (-60, 5, 80), scale 1.8×11×22           │
+│                          (right wall, X: -60, narrow corridor)              │
+│   - Floor_Corridor_Base: Transform (-80, -15, 80), scale 20×1×22           │
+│                          (floor through corridor, slightly lower)            │
+│                                                                              │
+│ Purpose: Test dash attack state and wall bouncing                          │
+│ - Dash attack activation (Left Mouse Click)                                │
+│ - High-speed state with limited steering                                   │
+│ - Tight corridor navigation test                                           │
+│ - Wall bounce mechanics (restitution 0.55)                                 │
+│ - Recovery and cooldown (5s)                                               │
+│                                                                              │
+│ Approach: From Zone 1, move forward then left                              │
+│ Path: Approach zone → Activate dash → Navigate corridor → Exit & cooldown │
+│                                                                              │
+│ Corridor Details:                                                           │
+│  Width: ~40 units (X: -100 to -60)                                         │
+│  Length: ~22 units (Z: 80, along floor)                                    │
+│  Wall Height: 11 units (Y: 0 to 11)                                        │
+│  Floor Position: Y: -15 (slightly recessed)                                │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ ZONE 8: AIR CONTROL & VELOCITY TESTING                                      │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ Location: X: 80  |  Z: 80 to 135  |  Y: varies (platform heights)         │
+│ Structures:                                                                  │
+│   - Floor_AirControl_Base: Transform (80, -10, 80), scale 25×1×25          │
+│                            (base platform, starting point)                  │
+│   - Floor_Air_Platform_1: Transform (60, 0, 105), scale 12×1×12            │
+│                           (left platform, Y: 0)                             │
+│   - Floor_Air_Platform_2: Transform (80, 5, 120), scale 12×1×12            │
+│                           (center-top platform, Y: 5)                       │
+│   - Floor_Air_Platform_3: Transform (100, 2, 105), scale 12×1×12           │
+│                           (right platform, Y: 2)                            │
+│   - Floor_Air_Landing: Transform (80, -10, 135), scale 25×1×25             │
+│                        (final landing zone)                                 │
+│                                                                              │
+│ Purpose: Test air control and platform precision landing                   │
+│ - Air strafe acceleration (40.0/frame)                                     │
+│ - Mid-air momentum preservation                                            │
+│ - Precision landing on small platforms                                     │
+│ - Diagonal air control (multiple directions)                               │
+│ - Safe recovery zone                                                        │
+│                                                                              │
+│ Approach: From Zone 1, move forward then right                             │
+│ Path: Base → Jump left to Plat1 → Jump up to Plat2 → Jump right to Plat3 │
+│       → Jump to Landing                                                     │
+│                                                                              │
+│ Platform Distances (approximate):                                           │
+│  Base→P1: 25 units forward, 10 up, steer LEFT                              │
+│  P1→P2:   20 units forward-right, 5 up, steer DIAG                         │
+│  P2→P3:   25 units forward-right, -3 down, steer RIGHT                     │
+│  P3→Land: 35 units forward, -12 down, steer FORWARD                        │
+│                                                                              │
+│ Expected Mechanics:                                                         │
+│  - Can steer toward all platforms (air_strafe_accel: 40.0)                │
+│  - Landing is forgiving (large zones except Plat2)                        │
+│  - Momentum roughly preserved between jumps                                │
+│  - Final landing is always safe (large 25×25 zone)                         │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════════════════
+
+QUICK SPAWN COORDINATES
+═══════════════════════
+
+To test a specific zone, edit CharacterBody3D transform in test_play_world.tscn:
+
+  ZONE 1 (Acceleration):   transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -80, -30, -50)
+  ZONE 2 (Sliding):        transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1,   0, -30, -50)
+  ZONE 3 (Wall Ride):      transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1,  80, -30, -50)
+  ZONE 4 (Wall Jump):      transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -80, -30,  20)
+  ZONE 5 (Jumping):        transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1,   0, -30,  20)
+  ZONE 6 (Arc Turning):    transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1,  80, -30,  20)
+  ZONE 7 (Dash Attack):    transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -80, -30,  80)
+  ZONE 8 (Air Control):    transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1,  80, -30,  80)
+
+═══════════════════════════════════════════════════════════════════════════════
+
+ZONE GRID SPACING
+═════════════════
+
+X-Axis (Left-Right):
+  Zone columns: -80 (left), 0 (center), 80 (right)
+  Spacing: 80 units between each column
+
+Z-Axis (Forward-Backward):
+  Zone rows: -50 (back), 20, 50, 80, 135 (forward)
+  Variable spacing for different zone sizes
+
+Y-Axis (Up-Down):
+  Reference level: -10 (most platforms)
+  Wall heights: 0 to 14 units
+  Elevation changes per zone: -25 to +10 range
+
+═══════════════════════════════════════════════════════════════════════════════
+
+TOTAL FACILITY DIMENSIONS
+═════════════════════════
+
+Width (X-axis):  -100 to 100  = 200 units
+Depth (Z-axis):  -50 to 135   = 185 units
+Height (Y-axis): -30 to 16    = 46 units
+
+Usable area for testing: ~200×200 units (excluding player spawn height buffer)
+
+═══════════════════════════════════════════════════════════════════════════════
