@@ -1,0 +1,83 @@
+╔════════════════════════════════════════════════════════════════════════════╗
+║                     FONT CONFIGURATION - QUICK START                        ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+🎨 CHANGING FONTS - 3 SIMPLE STEPS:
+
+Step 1: Drop Your Font File
+  • Copy your .ttf or .otf font file to: res://fonts/
+  • Examples: res://fonts/MyFont.ttf, res://fonts/CoolFont.otf
+
+Step 2: Open the Font Config Resource
+  • Navigate to: res://Resources/font_config.tres
+  • Double-click to open in the Inspector
+
+Step 3: Update the Font Paths
+  In the Inspector, you'll see these editable properties:
+  
+  ✓ title_font_path          → Font for "INERTIA" title
+  ✓ title_font_size          → Size of title (default: 72)
+  
+  ✓ subtitle_font_path       → Font for subtitle text
+  ✓ subtitle_font_size       → Size of subtitle (default: 16)
+  
+  ✓ button_font_path         → Font for PLAY/SETTINGS/QUIT buttons
+  ✓ button_font_size         → Size of buttons (default: 24)
+  
+  ✓ status_font_path         → Font for "Game Ready" status
+  ✓ status_font_size         → Size of status (default: 14)
+  
+  ✓ version_font_path        → Font for version info
+  ✓ version_font_size        → Size of version (default: 10)
+
+  Just click the folder icon next to each path and select your font!
+
+────────────────────────────────────────────────────────────────────────────
+
+💡 PRO TIPS:
+
+Use Different Fonts:
+  • Title: Elegant, bold font (e.g., Bebas Neue, Orbitron)
+  • Buttons: Tech, geometric font (e.g., JetBrains Mono, Space Mono)
+  • Status: Clean, readable font (e.g., any monospace font)
+
+Recommended Font Sizes:
+  • Title:    60-80px
+  • Subtitle: 14-18px
+  • Buttons:  20-28px
+  • Status:   10-14px
+
+Font Sources:
+  • Google Fonts (fonts.google.com) - Free
+  • DaFont (dafont.com) - Free
+  • FontForge - Create your own!
+
+────────────────────────────────────────────────────────────────────────────
+
+📁 FILE LOCATIONS:
+
+Your Font Files:      res://fonts/
+Font Configuration:   res://Resources/font_config.tres
+Font Script:          res://Scripts/FontConfig.gd
+
+────────────────────────────────────────────────────────────────────────────
+
+🔧 IF SOMETHING GOES WRONG:
+
+Font not loading?
+  → Check the file path is exactly correct (res://fonts/YourFont.ttf)
+  → Make sure the file actually exists in res://fonts/
+  → Try a different font to test if it's a file issue
+
+Text looks wrong?
+  → Adjust the font size (usually too small is the problem)
+  → Try a different font file
+
+Want to reset to defaults?
+  → Open res://Resources/font_config.tres
+  → Change all paths back to: "res://fonts/BebasNeue-Regular.ttf"
+  → Reset sizes: title=72, subtitle=16, buttons=24, status=14, version=10
+
+────────────────────────────────────────────────────────────────────────────
+
+For more detailed information, see: FONTS_GUIDE.md
