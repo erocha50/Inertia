@@ -99,12 +99,3 @@ transform = Transform3D(-8.73941e-07, 0, -0.99999994, 0, 2.7975073, 0, 19.99344,
 [node name="HUD" parent="." unique_id=2053975017 instance=ExtResource("8_nby6e")]
 
 [node name="RespawnScreen" parent="." unique_id=1511386983 instance=ExtResource("9_2u3jn")]
-
-[node name="Ramp" parent="." unique_id=1023385516 instance=ExtResource("4_ramp")]
-transform = Transform3D(-6.380922, 0, 0.71267533, 0, 14.242896, 0, -6.482627, 0, -0.70149416, 33.15792, 10.0559, 50.495213)
-
-[node name="Ramp2" parent="." unique_id=1503786904 instance=ExtResource("4_ramp")]
-transform = Transform3D(2.229473, 0, 0.7068844, 0, 14.472053, 0, -2.2280726, 0, 0.7073288, 53.071777, 9.870857, 58.373173)
-
-[node name="Floor" parent="." unique_id=1358950360 instance=ExtResource("3_floor")]
-transform = Transform3D(0.70710677, 0, 0.70710677, 0, 1, 0, -0.70710677, 0, 0.70710677, 46.79608, 20.209753, 67.18102)
