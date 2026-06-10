@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://cnor3184re68b"]
 
 [ext_resource type="Script" uid="uid://fs6ikynpy5r" path="res://Scripts/main_menu.gd" id="1_28flt"]
+[ext_resource type="Resource" path="res://Resources/font_config.tres" id="2_ce3w2"]
 [ext_resource type="Script" uid="uid://bvhgrsyyyx8i3" path="res://Scripts/GridBackground.gd" id="2_grid"]
 [ext_resource type="Script" uid="uid://djeu33h3qyk83" path="res://Scripts/MenuButton.gd" id="3_btn"]
 
@@ -12,6 +13,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_28flt")
+font_config = ExtResource("2_ce3w2")
 
 [node name="BackgroundColor" type="ColorRect" parent="." unique_id=1248736505]
 layout_mode = 1
@@ -126,24 +128,6 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 0.8)
 theme_override_font_sizes/font_size = 14
 text = "Game Ready"
-
-[node name="VersionContainer" type="HBoxContainer" parent="." unique_id=1329961333]
-layout_mode = 1
-anchors_preset = 12
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_top = -40.0
-offset_bottom = -10.0
-grow_horizontal = 2
-grow_vertical = 0
-alignment = 2
-
-[node name="VersionText" type="Label" parent="VersionContainer" unique_id=647583821]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 0.6)
-theme_override_font_sizes/font_size = 11
-text = "v1.0 | Built with Godot 4"
 
 [connection signal="pressed" from="MenuContainer/PlayButton" to="." method="_on_play_button_pressed"]
 [connection signal="pressed" from="MenuContainer/SettingsButton" to="." method="_on_settings_button_pressed"]
