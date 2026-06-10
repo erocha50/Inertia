@@ -58,7 +58,7 @@ func _apply_fonts() -> void:
 		version_text.add_theme_font_size_override("font_size", font_config.version_font_size)
 
 func _on_play_button_pressed():
-	get_tree().change_scene_to_file("res://maps/test_world.tscn")
+	get_tree().change_scene_to_file("res://maps/test_play_world.tscn")
 
 func _on_settings_button_pressed():
 	get_tree().change_scene_to_file("res://Scenes/settings.tscn")
