@@ -1,8 +1,7 @@
 extends Node
 
 # ── HeatManager.gd ────────────────────────────────────────────────────────────
-# Autoload. Tracks player heat. Emits heat_changed whenever value changes.
-# Connects to player signals lazily on first update_speed() call.
+# Autoload. Tracks player heat. Heat tier drives speed multiplier.
 # ─────────────────────────────────────────────────────────────────────────────
 
 signal heat_changed(new_value: float, tier: String)
@@ -12,8 +11,8 @@ var max_heat: float    = 100.0
 var heat_floor: float  = 0.0
 
 @export var heat_gain_per_second: float        = 8.0
-@export var heat_loss_per_second: float = 25.0
-@export var movement_speed_threshold: float = 1.0
+@export var heat_loss_per_second: float        = 25.0
+@export var movement_speed_threshold: float    = 1.0
 @export_range(0.01,0.3,0.01) var gain_speed_scale_min: float = 0.02
 @export_range(1.0,5.0,0.1)   var gain_curve_power: float     = 4.0
 @export_range(1.0,12.0,0.1)  var loss_speed_scale_max: float = 7.0
@@ -28,6 +27,10 @@ var heat_floor: float  = 0.0
 @export_range(1.0,4.0,0.1)   var decay_curve_peak: float     = 2.5
 @export var player_speed_min: float = 10.0
 @export var player_speed_max: float = 40.0
+
+## Speed multiplier range driven by heat (cold → burning)
+@export var speed_mult_min: float = 0.65   # at 0 heat
+@export var speed_mult_max: float = 1.45   # at max heat
 
 var current_flat_speed: float = 0.0
 var _prev_flat_speed: float   = 0.0
@@ -58,7 +61,6 @@ func _try_connect_signals() -> void:
 
 
 func _process(delta: float) -> void:
-	# Try connecting signals every frame until successful
 	if not _signals_connected:
 		_try_connect_signals()
 
@@ -89,9 +91,14 @@ func _on_state_changed(s: int) -> void:
 	_prev_state = s
 
 
-## Called every physics frame by the player controller
 func update_speed(flat_speed: float) -> void:
 	current_flat_speed = flat_speed
+
+
+## Returns a speed multiplier based on current heat (0.65 cold → 1.45 burning)
+func get_heat_speed_multiplier() -> float:
+	var t := clampf(heat_value / maxf(max_heat, 1.0), 0.0, 1.0)
+	return lerpf(speed_mult_min, speed_mult_max, t)
 
 
 func get_tier() -> String:
@@ -109,7 +116,6 @@ func get_damage_multiplier() -> float:
 func set_heat(new_value: float) -> void:
 	var prev   := heat_value
 	heat_value  = clampf(new_value, heat_floor, max_heat)
-	# Always emit if value changed OR if we just hit the floor
 	if heat_value != prev or (heat_value <= heat_floor and prev > heat_floor):
 		heat_changed.emit(heat_value, get_tier())
 
