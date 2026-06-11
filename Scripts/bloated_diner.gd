@@ -14,6 +14,7 @@ extends CharacterBody3D
 enum State { IDLE, CHASE, WINDUP, VOLLEY, SPRINT, HURT, DEAD }
 var state: State = State.IDLE
 
+var _health_bar: Node3D = null
 var current_health: float
 var player: Node3D = null
 
@@ -37,6 +38,9 @@ const GRAVITY = -9.8
 func _ready() -> void:
 	current_health = max_health
 
+	_spawn_position = global_position
+	_health_bar = preload("res://Scripts/EnemyHealthBar.gd").new()
+	add_child(_health_bar)
 	if detection_area:
 		detection_area.body_entered.connect(_on_detection_area_body_entered)
 		detection_area.body_exited.connect(_on_detection_area_body_exited)
@@ -81,14 +85,15 @@ func _state_idle() -> void:
 
 func _state_chase(delta: float) -> void:
 	if not player:
-		_change_state(State.IDLE)
-		return
+		if _health_bar: _health_bar.reset()
+	_change_state(State.IDLE)
+	return
 
 	var dist = global_position.distance_to(player.global_position)
 
 	if dist <= detection_range and volley_timer <= 0.0:
 		_change_state(State.WINDUP)
-		return
+	return
 
 	# Move directly toward player (no navigation mesh in scene)
 	var target_pos = player.global_position
@@ -211,7 +216,10 @@ func _change_state(new_state: State) -> void:
 func take_damage(amount: float) -> void:
 	if state == State.DEAD:
 		return
-	current_health -= amount
+	var scaled := amount * HeatManager.get_damage_multiplier()
+	current_health -= scaled
+	if _health_bar:
+		_health_bar.show_damage(current_health, max_health)
 	if current_health <= 0:
 		_change_state(State.DEAD)
 	else:
@@ -222,10 +230,23 @@ func take_damage(amount: float) -> void:
 				_change_state(State.CHASE)
 		)
 
+@export var respawn_delay: float = 5.0
+var _spawn_position: Vector3 = Vector3.ZERO
+
 func _die() -> void:
 	velocity = Vector3.ZERO
-	var t = get_tree().create_timer(1.2)
-	t.timeout.connect(queue_free)
+	if _health_bar: _health_bar.show_dead()
+	_change_state(State.DEAD)
+	get_tree().create_timer(respawn_delay).timeout.connect(_respawn)
+
+func _respawn() -> void:
+	current_health = max_health
+	global_position = _spawn_position
+	velocity = Vector3.ZERO
+	volley_timer = volley_cooldown
+	volley_shots_fired = 0
+	if _health_bar: _health_bar.reset()
+	_change_state(State.IDLE)
 
 # ─── Helpers ─────────────────────────────────────────────────
 func _face_direction(dir: Vector3) -> void:
@@ -247,4 +268,5 @@ func _on_detection_area_body_entered(body: Node3D) -> void:
 func _on_detection_area_body_exited(body: Node3D) -> void:
 	if body.is_in_group("player"):
 		player = null
-		_change_state(State.IDLE)
+		if _health_bar: _health_bar.reset()
+	_change_state(State.IDLE)
