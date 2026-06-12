@@ -29,8 +29,8 @@ var heat_floor: float  = 0.0
 @export var player_speed_max: float = 40.0
 
 ## Speed multiplier range driven by heat (cold → burning)
-@export var speed_mult_min: float = 0.65   # at 0 heat
-@export var speed_mult_max: float = 1.45   # at max heat
+@export var speed_mult_min: float = 0.5    # was 0.65
+@export var speed_mult_max: float = 1.8    # was 1.45
 
 var current_flat_speed: float = 0.0
 var _prev_flat_speed: float   = 0.0
