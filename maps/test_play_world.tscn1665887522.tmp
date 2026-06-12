@@ -10,7 +10,6 @@
 [ext_resource type="PackedScene" uid="uid://b84c1dymjri4k" path="res://Scenes/HUD.tscn" id="8_nby6e"]
 [ext_resource type="PackedScene" uid="uid://ctwafpi661v1i" path="res://Scenes/RespawnScreen.tscn" id="9_2u3jn"]
 [ext_resource type="PackedScene" uid="uid://dcm2wffcxim02" path="res://Scenes/FoodItem.tscn" id="10_2u3jn"]
-[ext_resource type="PackedScene" uid="uid://duaemlg4b788f" path="res://Scenes/hearth.tscn" id="11_slu43"]
 
 [node name="Node3D" type="Node3D" unique_id=1913226338]
 
@@ -102,15 +101,6 @@ transform = Transform3D(-8.73941e-07, 0, -0.99999994, 0, 2.7975073, 0, 19.99344,
 
 [node name="RespawnScreen" parent="." unique_id=1511386983 instance=ExtResource("9_2u3jn")]
 
-[node name="Ramp" parent="." unique_id=1023385516 instance=ExtResource("4_ramp")]
-transform = Transform3D(-6.380922, 0, 0.71267533, 0, 14.242896, 0, -6.482627, 0, -0.70149416, 33.15792, 10.0559, 50.495213)
-
-[node name="Ramp2" parent="." unique_id=1503786904 instance=ExtResource("4_ramp")]
-transform = Transform3D(2.229473, 0, 0.7068844, 0, 14.472053, 0, -2.2280726, 0, 0.7073288, 53.071777, 9.870857, 58.373173)
-
-[node name="Floor" parent="." unique_id=1358950360 instance=ExtResource("3_floor")]
-transform = Transform3D(0.70710677, 0, 0.70710677, 0, 1, 0, -0.70710677, 0, 0.70710677, 46.79608, 20.209753, 67.18102)
-
 [node name="FoodItem" parent="." unique_id=433262120 instance=ExtResource("10_2u3jn")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.4293327, 0.54999924, 17.185858)
 
@@ -120,5 +110,13 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.66443, 0.5499973, -10.895
 [node name="FoodItem3" parent="." unique_id=1521021855 instance=ExtResource("10_2u3jn")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16.473495, 0.54999924, 15.304421)
 
-[node name="StaticBody3D" parent="." unique_id=1297852556 instance=ExtResource("11_slu43")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.1468887, 0.54999924, 1.3595047)
+[node name="Ramp Structure" type="Node3D" parent="." unique_id=1164686449]
+
+[node name="Ramp" parent="Ramp Structure" unique_id=1023385516 instance=ExtResource("4_ramp")]
+transform = Transform3D(-6.380922, 0, 0.71267533, 0, 14.242896, 0, -6.482627, 0, -0.70149416, 33.15792, 10.0559, 50.495213)
+
+[node name="Ramp2" parent="Ramp Structure" unique_id=1503786904 instance=ExtResource("4_ramp")]
+transform = Transform3D(2.229473, 0, 0.7068844, 0, 14.472053, 0, -2.2280726, 0, 0.7073288, 53.071777, 9.870857, 58.373173)
+
+[node name="Floor" parent="Ramp Structure" unique_id=1358950360 instance=ExtResource("3_floor")]
+transform = Transform3D(0.70710677, 0, 0.70710677, 0, 1, 0, -0.70710677, 0, 0.70710677, 46.79608, 20.209753, 67.18102)
