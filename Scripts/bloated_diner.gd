@@ -85,8 +85,9 @@ func _state_idle() -> void:
 
 func _state_chase(delta: float) -> void:
 	if not player:
-		if _health_bar: _health_bar.reset()
-	_change_state(State.IDLE)
+		if _health_bar:
+			_health_bar.reset()
+		_change_state(State.IDLE)
 		return
 
 	var dist = global_position.distance_to(player.global_position)
@@ -178,7 +179,7 @@ func _build_beam_offsets(count: int) -> Array:
 	var spacing: float = 0.35
 	var offsets: Array = []
 	var half: float = (count - 1) * spacing * 0.5
-	for i in count:
+	for i in range(count):
 		offsets.append(i * spacing - half)
 	return offsets
 
