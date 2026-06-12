@@ -11,6 +11,9 @@
 [ext_resource type="PackedScene" uid="uid://ctwafpi661v1i" path="res://Scenes/RespawnScreen.tscn" id="9_2u3jn"]
 [ext_resource type="PackedScene" uid="uid://dcm2wffcxim02" path="res://Scenes/FoodItem.tscn" id="10_2u3jn"]
 [ext_resource type="PackedScene" uid="uid://duaemlg4b788f" path="res://Scenes/hearth.tscn" id="11_slu43"]
+[ext_resource type="PackedScene" uid="uid://u2c8cmscyaoh" path="res://characters/scullery_horror.tscn" id="12_3jwxd"]
+[ext_resource type="PackedScene" uid="uid://c87qnrg3hihha" path="res://characters/frozen_waiter.tscn" id="13_8jx5h"]
+[ext_resource type="PackedScene" uid="uid://b3yu1v3s3m84f" path="res://characters/bloated_diner.tscn" id="14_g5rfj"]
 
 [node name="Node3D" type="Node3D" unique_id=1913226338]
 
@@ -122,3 +125,21 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16.473495, 0.54999924, 15.30
 
 [node name="StaticBody3D" parent="." unique_id=1297852556 instance=ExtResource("11_slu43")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.1468887, 0.54999924, 1.3595047)
+
+[node name="SculleryHorror" parent="." unique_id=1923869172 instance=ExtResource("12_3jwxd")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -26.7982, 1.5499973, -18.071104)
+
+[node name="FrozenWaiter" parent="." unique_id=1007907867 instance=ExtResource("13_8jx5h")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -52.76288, 3.0499992, 13.002518)
+
+[node name="BloatedDiner" parent="." unique_id=56293077 instance=ExtResource("14_g5rfj")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16.139984, 2.0499992, -16.093504)
+
+[node name="SculleryHorror2" parent="." unique_id=1982500721 instance=ExtResource("12_3jwxd")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14.425212, 1.5499992, 41.313725)
+
+[node name="BloatedDiner2" parent="." unique_id=1581264417 instance=ExtResource("14_g5rfj")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -17.846434, 2.0499992, 56.806156)
+
+[node name="FrozenWaiter2" parent="." unique_id=98664775 instance=ExtResource("13_8jx5h")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -17.105116, 3.0499992, -28.958115)
