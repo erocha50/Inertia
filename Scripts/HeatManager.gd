@@ -73,7 +73,9 @@ func _process(delta: float) -> void:
 
 	if current_flat_speed >= movement_speed_threshold:
 		_decay_curve_t = 0.0
-		add_heat(heat_gain_per_second * lerpf(1.0, gain_speed_scale_min, pow(raw_t, gain_curve_power)) * delta)
+		# FoodBuffManager.heat_per_hit_bonus adds a flat bonus to the gain rate
+		var gain_rate := heat_gain_per_second + FoodBuffManager.heat_per_hit_bonus
+		add_heat(gain_rate * lerpf(1.0, gain_speed_scale_min, pow(raw_t, gain_curve_power)) * delta)
 	else:
 		_decay_curve_t = minf(_decay_curve_t + delta / maxf(decay_curve_duration, 0.001), 1.0)
 		var curve  := _decay_curve_t * _decay_curve_t * _decay_curve_t
@@ -95,9 +97,13 @@ func update_speed(flat_speed: float) -> void:
 	current_flat_speed = flat_speed
 
 
-## Returns a speed multiplier based on current heat (0.65 cold → 1.45 burning)
+## Returns a speed multiplier based on current heat (0.65 cold → 1.45 burning).
+## FoodBuffManager.momentum_ceiling_bonus raises the effective heat used for
+## this calculation, letting buffs like Raw Beef push the multiplier higher
+## than the player's actual heat value would normally allow.
 func get_heat_speed_multiplier() -> float:
-	var t := clampf(heat_value / maxf(max_heat, 1.0), 0.0, 1.0)
+	var effective_heat := heat_value + FoodBuffManager.momentum_ceiling_bonus
+	var t := clampf(effective_heat / maxf(max_heat, 1.0), 0.0, 1.0)
 	return lerpf(speed_mult_min, speed_mult_max, t)
 
 
@@ -111,6 +117,16 @@ func get_tier() -> String:
 
 func get_damage_multiplier() -> float:
 	return TIER_DAMAGE_MULT.get(get_tier(), 1.0)
+
+
+## Combat damage multiplier including any active sprint damage buffs (e.g. Wine)
+func get_combat_damage_multiplier() -> float:
+	return get_damage_multiplier() + FoodBuffManager.sprint_damage_bonus
+
+
+## True if an active food buff is currently impairing turning (e.g. Wine)
+func is_turning_impaired() -> bool:
+	return FoodBuffManager.turning_impaired
 
 
 func set_heat(new_value: float) -> void:

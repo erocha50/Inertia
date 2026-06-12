@@ -463,6 +463,9 @@ func _horiz(d:float)->float:
 	var spd_t:=clampf(spd/speed_max,0.0,1.0)
 	var ctrl:=lerpf(1.0,0.55,spd_t*spd_t)*(damage_control if _damaged else 1.0)
 	var eff_steer:=eff_a*ctrl*lerpf(1.0,1.0-resist,mom_t)
+	# Wine and similar buffs impair turning responsiveness
+	if HeatManager.is_turning_impaired():
+		eff_steer*=0.55
 
 	if ang>=counter_input_threshold and is_on_floor():
 		var oppose_t:=clampf((ang-counter_input_threshold)/(180.0-counter_input_threshold),0.0,1.0)
