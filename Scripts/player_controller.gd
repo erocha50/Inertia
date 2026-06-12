@@ -1,5 +1,3 @@
-
-
 extends CharacterBody3D
 
 enum State { IDLE, RUN, AIR, SLIDE, ARC, WALL_RIDE }
@@ -430,9 +428,13 @@ func _horiz(d:float)->float:
 	var flat:=Vector3(velocity.x,0,velocity.z)
 	var spd:=flat.length(); var eff_a:=acceleration*_surf_accel/mass
 	var eff_f:=friction*_surf_friction
-	var spd_cap:=speed_max*(damage_speed_cap if _damaged else 1.0)
+	# Heat multiplier scales both the speed cap and the minimum speed
+	var _heat_mult:=HeatManager.get_heat_speed_multiplier()
+	var _eff_speed_max:=speed_max*_heat_mult
+	var _eff_speed_min:=speed_min*_heat_mult
+	var spd_cap:=_eff_speed_max*(damage_speed_cap if _damaged else 1.0)
 	_max_spd=minf(_max_spd+speed_ramp_rate*d,spd_cap) if (_has_in() and is_on_floor()) \
-		else maxf(_max_spd-speed_ramp_decay*d,speed_min)
+		else maxf(_max_spd-speed_ramp_decay*d,_eff_speed_min)
 	var mom_t:=clampf((spd-speed_min)/maxf(momentum_full_speed-speed_min,0.01),0.0,1.0)
 	var resist:=lerpf(0.0,momentum_resistance,mom_t*mom_t)
 
