@@ -87,13 +87,13 @@ func _state_chase(delta: float) -> void:
 	if not player:
 		if _health_bar: _health_bar.reset()
 	_change_state(State.IDLE)
-	return
+		return
 
 	var dist = global_position.distance_to(player.global_position)
 
 	if dist <= detection_range and volley_timer <= 0.0:
 		_change_state(State.WINDUP)
-	return
+		return
 
 	# Move directly toward player (no navigation mesh in scene)
 	var target_pos = player.global_position

@@ -59,6 +59,7 @@ var _detection_area : Area3D         = null
 # RUNTIME
 # ════════════════════════════════════════════════════════════════════════════
 
+var _health_bar: Node3D = null
 var _gravity          : float = ProjectSettings.get_setting("physics/3d/default_gravity")
 var player            : CharacterBody3D = null
 var current_health    : float = 0.0
@@ -83,9 +84,10 @@ var _siblings         : Array = []
 # ════════════════════════════════════════════════════════════════════════════
 
 func _ready() -> void:
-	current_health = max_health
-	rotation.x     = 0.0
-	rotation.z     = 0.0
+	current_health  = max_health
+	_spawn_position = global_position
+	rotation.x      = 0.0
+	rotation.z      = 0.0
 	_body_mesh      = get_node_or_null(^"MeshInstance3D") as MeshInstance3D
 	_detection_area = get_node_or_null(^"DetectionArea") as Area3D
 
@@ -93,6 +95,8 @@ func _ready() -> void:
 		push_error("SculleryHorror: DetectionArea child node not found.")
 
 	_build_material()
+	_health_bar = preload("res://Scripts/EnemyHealthBar.gd").new()
+	add_child(_health_bar)
 	call_deferred("_deferred_init")
 
 
@@ -343,7 +347,10 @@ func _coast(delta: float) -> void:
 func take_damage(amount: float) -> void:
 	if state == State.DEAD:
 		return
-	current_health -= amount
+	var scaled := amount * HeatManager.get_damage_multiplier()
+	current_health -= scaled
+	if _health_bar:
+		_health_bar.show_damage(current_health, max_health)
 	if current_health <= 0.0:
 		_die()
 		return
@@ -363,14 +370,24 @@ func _alert(pos: Vector3) -> void:
 		state         = State.HUNT
 
 
+@export var respawn_delay: float = 5.0
+var _spawn_position: Vector3 = Vector3.ZERO
+
 func _die() -> void:
 	state    = State.DEAD
 	velocity = Vector3.ZERO
-	for s in _siblings:
-		var sib := s as SculleryHorror
-		if is_instance_valid(sib):
-			sib._siblings.erase(self)
-	get_tree().create_timer(1.2).timeout.connect(queue_free)
+	if _health_bar: _health_bar.show_dead()
+	get_tree().create_timer(respawn_delay).timeout.connect(_respawn)
+
+func _respawn() -> void:
+	current_health  = max_health
+	global_position = _spawn_position
+	velocity        = Vector3.ZERO
+	_heading        = -global_transform.basis.z
+	_heading.y      = 0.0
+	_heading        = _heading.normalized() if _heading.length_squared() > 0.01 else Vector3.FORWARD
+	if _health_bar: _health_bar.reset()
+	state           = State.HUNT
 
 
 func notify_sound(world_pos: Vector3, loudness: float = 1.0) -> void:
