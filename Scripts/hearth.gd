@@ -91,9 +91,9 @@ func _set_activated_visual(on: bool) -> void:
 		_activated_mesh.visible = on
 
 
-func _get_player() -> Player:
+func _get_player() -> Node3D:
 	for body in _interact_area.get_overlapping_bodies():
-		if body is Player:
+		if body.is_in_group("player"):
 			return body
 	return null
 
@@ -101,9 +101,9 @@ func _get_player() -> Player:
 # ── Area Signals ─────────────────────────────────────────────────────────────
 
 func _on_interact_area_body_entered(body: Node3D) -> void:
-	if body is Player:
+	if body.is_in_group("player"):
 		_player_inside = true
 
 func _on_interact_area_body_exited(body: Node3D) -> void:
-	if body is Player:
+	if body.is_in_group("player"):
 		_player_inside = false
