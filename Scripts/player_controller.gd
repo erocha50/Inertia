@@ -68,6 +68,7 @@ enum State { IDLE, RUN, AIR, SLIDE, ARC, WALL_RIDE }
 @export var dash_attack_duration:float=0.28
 @export var dash_attack_decel:float=55.0
 @export var dash_attack_curve_strength:float=0.18
+@export var dash_attack_damage:float=15.0
 
 @export_group("Roll")
 @export var roll_duration:float=0.45
@@ -133,6 +134,7 @@ var _dash_attack_cd:float=0.0
 var _dash_attack_active:bool=false
 var _dash_attack_dir:=Vector3.ZERO
 var _dash_attack_end_time:float=0.0
+var _dash_attack_hit_enemies: Array = []  # Track enemies hit during this dash to prevent multi-hit
 
 var _roll_cd:float=0.0
 var _roll_active:bool=false
@@ -634,6 +636,7 @@ func _perform_dash_attack()->void:
 	_dash_attack_dir=wish_dir.normalized()
 	_dash_attack_active=true
 	_dash_attack_end_time=dash_attack_duration
+	_dash_attack_hit_enemies.clear()  # Reset hit tracking for new dash
 
 	# Instant velocity snap — this is the ram. No impulse accumulation.
 	velocity.x=_dash_attack_dir.x*dash_attack_speed
@@ -702,6 +705,10 @@ func _dash_knockback_enemies()->void:
 			body.add_impulse(knock_dir*knock_mag)
 		elif body.has_method("take_knockback"):
 			body.take_knockback(knock_dir*knock_mag)
+		# Only apply damage once per dash attack per enemy
+		if body.has_method("take_damage") and body not in _dash_attack_hit_enemies:
+			body.take_damage(dash_attack_damage)
+			_dash_attack_hit_enemies.append(body)
 
 func _apply_dash_attack_camera_pop()->void:
 	pass
