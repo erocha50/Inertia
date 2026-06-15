@@ -2,15 +2,13 @@ class_name Hearth
 extends StaticBody3D
 
 ## Hearth — Rest Point
-## On interact: restores heat, saves game, resets nearby enemies, gives +2 heat_floor_bonus.
-## Max 6 hearths × +2 = +12 heat_floor_bonus total.
+## On interact: restores heat, saves game, refills food slots.
 
 signal hearth_activated(hearth_id: String)
 
 @export_group("Hearth Identity")
 @export var hearth_id: String = "hearth_01"
 @export var heat_restore_amount: float = 100.0
-@export var heat_floor_bonus: float = 2.0
 
 @export_group("Nodes")
 @export var interact_area_path: NodePath = ^"InteractArea"
@@ -38,10 +36,6 @@ func _ready() -> void:
 	if _activated_mesh:
 		_activated_mesh.visible = false
 
-	if hearth_id in SaveManager.save_data['hearths_activated']:
-		_set_activated_visual(true)
-		_activated = true
-
 func _unhandled_input(event: InputEvent) -> void:
 	if not event is InputEventKey:
 		return
@@ -61,11 +55,10 @@ func _do_rest() -> void:
 	if player.has_method("restore_heat"):
 		player.restore_heat(heat_restore_amount)
 
-	# 2. First-time activation bonus
+	# 2. Mark as activated and update visual
 	if not _activated:
 		_activated = true
 		_set_activated_visual(true)
-		SaveManager.activate_hearth(hearth_id)
 
 	# 3. Refill food slots
 	if player.has_method("refill_food_slots"):
