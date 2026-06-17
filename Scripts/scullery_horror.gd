@@ -41,6 +41,10 @@ extends CharacterBody3D
 @export_group("Pack / Spread")
 @export var pack_spread_radius    : float = 4.0
 
+@export_group("Damage")
+@export var touch_damage : float = 5.0
+@export var damage_cooldown : float = 0.5
+
 # ════════════════════════════════════════════════════════════════════════════
 # STATE MACHINE
 # ════════════════════════════════════════════════════════════════════════════
@@ -78,6 +82,9 @@ var _fake_pausing     : bool  = false
 
 var _heading          : Vector3 = Vector3.FORWARD  # current committed travel direction
 var _siblings         : Array = []
+
+# Damage tracking
+var _last_damage_time : float = -999.0
 
 # ════════════════════════════════════════════════════════════════════════════
 # INIT
@@ -225,6 +232,15 @@ func _state_hunt(delta: float) -> void:
 			_start_search()
 			return
 
+	# Check if touching player and deal damage
+	if is_instance_valid(player):
+		var distance : float = global_position.distance_to(player.global_position)
+		if distance < 2.0:  # Touching range
+			_last_damage_time += delta
+			if _last_damage_time >= damage_cooldown:
+				HealthManager.take_damage(touch_damage)
+				_last_damage_time = 0.0
+	
 	# Always move toward player (or last known pos) unless already on top of them
 	var target : Vector3 = player.global_position
 	if dist <= preferred_distance:
@@ -341,6 +357,12 @@ func _coast(delta: float) -> void:
 		velocity.z = 0.0
 
 # ════════════════════════════════════════════════════════════════════════════
+# DAMAGE MECHANICS
+# ════════════════════════════════════════════════════════════════════════════
+
+
+
+# ════════════════════════════════════════════════════════════════════════════
 # DAMAGE / DEATH
 # ════════════════════════════════════════════════════════════════════════════
 
@@ -386,6 +408,7 @@ func _respawn() -> void:
 	_heading        = -global_transform.basis.z
 	_heading.y      = 0.0
 	_heading        = _heading.normalized() if _heading.length_squared() > 0.01 else Vector3.FORWARD
+	_last_damage_time = -999.0
 	if _health_bar: _health_bar.reset()
 	state           = State.HUNT
 
