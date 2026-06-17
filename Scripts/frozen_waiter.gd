@@ -305,9 +305,8 @@ func _apply_tray_hit(body: Node3D) -> void:
 	away = away.normalized(); away.y = 0.3; away = away.normalized()
 	if body.has_method("take_knockback"): body.take_knockback(away * knockback_force)
 	else:                                  body.velocity = away * knockback_force
-	# Damage scaled by player's current heat multiplier
-	var dmg := base_damage * HeatManager.get_damage_multiplier()
-	HealthManager.take_damage(dmg)
+	# Deal raw base damage (not scaled by player's heat)
+	HealthManager.take_damage(base_damage)
 
 
 # ── HP / Death / Respawn ──────────────────────────────────────────────────────
