@@ -24,6 +24,9 @@ var has_hit: bool = false
 var _ready_to_move: bool = false
 
 func _ready() -> void:
+	monitoring = true
+	collision_layer = 0
+	collision_mask = 0x2  # Layer 2 = Player
 	body_entered.connect(_on_body_entered)
 	area_entered.connect(_on_area_entered)
 	var timer := get_tree().create_timer(lifetime)

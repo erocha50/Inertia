@@ -100,6 +100,10 @@ func _ready() -> void:
 
 	if _detection_area == null:
 		push_error("SculleryHorror: DetectionArea child node not found.")
+	else:
+		_detection_area.monitoring = true
+		_detection_area.collision_layer = 0
+		_detection_area.collision_mask = 0x2  # Layer 2 = Player
 
 	_build_material()
 	_health_bar = preload("res://Scripts/EnemyHealthBar.gd").new()
@@ -236,10 +240,10 @@ func _state_hunt(delta: float) -> void:
 	if is_instance_valid(player):
 		var distance : float = global_position.distance_to(player.global_position)
 		if distance < 2.0:  # Touching range
-			_last_damage_time += delta
-			if _last_damage_time >= damage_cooldown:
+			_last_damage_time -= delta
+			if _last_damage_time <= 0.0:
 				HealthManager.take_damage(touch_damage)
-				_last_damage_time = 0.0
+				_last_damage_time = damage_cooldown
 	
 	# Always move toward player (or last known pos) unless already on top of them
 	var target : Vector3 = player.global_position
