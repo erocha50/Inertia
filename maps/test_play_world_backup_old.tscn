@@ -6,7 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://dgnislkaigdl0" path="res://maps/ramp.tscn" id="4_ramp"]
 [ext_resource type="PackedScene" uid="uid://ckf4fc2khm3tw" path="res://maps/wall.tscn" id="5_wall"]
 [ext_resource type="PackedScene" uid="uid://2jwlt0h1vdgu" path="res://maps/block.tscn" id="5_wpulb"]
-[ext_resource type="Environment" path="res://environments/cinematic_world_environment.tres" id="6_cinematic"]
+[ext_resource type="Environment" uid="uid://c3uogwvhd6x7k" path="res://environments/cinematic_world_environment.tres" id="6_cinematic"]
 [ext_resource type="PackedScene" uid="uid://b84c1dymjri4k" path="res://Scenes/HUD.tscn" id="8_nby6e"]
 [ext_resource type="PackedScene" uid="uid://ctwafpi661v1i" path="res://Scenes/RespawnScreen.tscn" id="9_2u3jn"]
 [ext_resource type="PackedScene" uid="uid://dcm2wffcxim02" path="res://Scenes/FoodItem.tscn" id="10_2u3jn"]
@@ -14,7 +14,6 @@
 [ext_resource type="PackedScene" uid="uid://u2c8cmscyaoh" path="res://characters/scullery_horror.tscn" id="12_3jwxd"]
 [ext_resource type="PackedScene" uid="uid://c87qnrg3hihha" path="res://characters/frozen_waiter.tscn" id="13_8jx5h"]
 [ext_resource type="PackedScene" uid="uid://b3yu1v3s3m84f" path="res://characters/bloated_diner.tscn" id="14_g5rfj"]
-[ext_resource type="Script" uid="uid://c1pdw26wtj4ce" path="res://Scripts/stage_light.gd" id="15_stage"]
 
 [node name="Node3D" type="Node3D" unique_id=1913226338]
 
@@ -22,22 +21,24 @@
 environment = ExtResource("6_cinematic")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=718796078]
-transform = Transform3D(-0.7071, 0.4082, 0.5774, 0, 0.8165, 0.5774, -0.7071, -0.4082, 0.5774, 0, 50, 0)
-light_color = Color(0.9, 0.85, 0.8, 1)
-light_energy = 1.2
+transform = Transform3D(0.9, 0, 0, 0, 0.436, 0.9, 0, -1, 0.436, 0, 40, 0)
+light_color = Color(0.4, 0.35, 0.3, 1)
+light_energy = 0.4
+light_volumetric_fog_energy = 0.2
 shadow_enabled = true
-shadow_blur = 2.0
+shadow_blur = 0.5
 
 [node name="CharacterBody3D" parent="." unique_id=1229242080 groups=["Player"] instance=ExtResource("2_m3pcu")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.732183, 1.0499992, 5.316284)
 
-[node name="FollowLight" type="OmniLight3D" parent="." unique_id=8675309]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.732183, 5, 5.316284)
-light_color = Color(1, 0.9, 0.7, 1)
-light_energy = 2.0
+[node name="StageLight" type="SpotLight3D" parent="." unique_id=8675309]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.732183, 25, 5.316284)
+light_color = Color(1, 0.95, 0.85, 1)
+light_energy = 2.5
+light_volumetric_fog_energy = 0.3
 shadow_enabled = true
-omni_range = 50.0
-script = ExtResource("15_stage")
+spot_range = 50.0
+spot_angle = 20.0
 
 [node name="Tower" type="Node3D" parent="." unique_id=89620368]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17.617792, 0, 0)
