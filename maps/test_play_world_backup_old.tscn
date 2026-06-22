@@ -1,4 +1,4 @@
-[gd_scene format=3 uid="uid://b8ceky1qkaaq2"]
+[gd_scene format=3 uid="uid://bal364hhjr4b0"]
 
 [ext_resource type="PackedScene" uid="uid://djy64smshujci" path="res://maps/test_world_plate.tscn" id="1_xg8am"]
 [ext_resource type="PackedScene" uid="uid://b355nnhi1g7tg" path="res://characters/player_controller.tscn" id="2_m3pcu"]
