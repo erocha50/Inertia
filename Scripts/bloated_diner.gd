@@ -33,6 +33,9 @@ var sprint_target: Vector3 = Vector3.ZERO
 var _beam_offsets: Array = []
 var _beam_curve_sign: float = 1.0  # +1 or -1, randomised per volley
 
+var _spawn_position: Vector3 = Vector3.ZERO
+var respawn_delay: float = 5.0
+
 const GRAVITY = -9.8
 
 func _ready() -> void:
@@ -41,11 +44,25 @@ func _ready() -> void:
 	_spawn_position = global_position
 	_health_bar = preload("res://Scripts/EnemyHealthBar.gd").new()
 	add_child(_health_bar)
+	
 	if detection_area:
+		detection_area.monitoring = true
+		detection_area.collision_layer = 0
+		detection_area.collision_mask = 0x2  # Layer 2 = Player
 		detection_area.body_entered.connect(_on_detection_area_body_entered)
 		detection_area.body_exited.connect(_on_detection_area_body_exited)
 	else:
 		push_error("BloatedDiner: Area3D node not found!")
+	
+	call_deferred("_deferred_init")
+
+func _deferred_init() -> void:
+	var players: Array = get_tree().get_nodes_in_group("player")
+	if players.size() > 0:
+		player = players[0] as CharacterBody3D
+		print_debug("BloatedDiner: Player found via group: %s" % player.name)
+		if state == State.IDLE:
+			_change_state(State.CHASE)
 
 func _physics_process(delta: float) -> void:
 	if state == State.DEAD:
@@ -231,9 +248,6 @@ func take_damage(amount: float) -> void:
 				_change_state(State.CHASE)
 		)
 
-@export var respawn_delay: float = 5.0
-var _spawn_position: Vector3 = Vector3.ZERO
-
 func _die() -> void:
 	velocity = Vector3.ZERO
 	if _health_bar: _health_bar.show_dead()
@@ -261,8 +275,10 @@ func _face_target(target_pos: Vector3) -> void:
 
 # ─── Detection Signals ───────────────────────────────────────
 func _on_detection_area_body_entered(body: Node3D) -> void:
+	print_debug("BloatedDiner: Body entered detection - %s (in player group: %s)" % [body.name, body.is_in_group("player")])
 	if body.is_in_group("player"):
 		player = body
+		print_debug("BloatedDiner: Player detected! Changing to CHASE")
 		if state == State.IDLE:
 			_change_state(State.CHASE)
 

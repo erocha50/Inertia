@@ -158,8 +158,10 @@ func _set_color(s: State) -> void:
 	if s == State.WINDUP:     mat = _mat_windup
 	elif s == State.SWEEPING: mat = _mat_sweep
 	elif s == State.DEAD:     mat = _mat_dead
-	if body_mesh: body_mesh.set_surface_override_material(0, mat)
-	if tray_mesh: tray_mesh.set_surface_override_material(0, mat)
+	if body_mesh and body_mesh.mesh and body_mesh.mesh.get_surface_count() > 0:
+		body_mesh.set_surface_override_material(0, mat)
+	if tray_mesh and tray_mesh.mesh and tray_mesh.mesh.get_surface_count() > 0:
+		tray_mesh.set_surface_override_material(0, mat)
 
 
 func _physics_process(delta: float) -> void:
@@ -303,9 +305,8 @@ func _apply_tray_hit(body: Node3D) -> void:
 	away = away.normalized(); away.y = 0.3; away = away.normalized()
 	if body.has_method("take_knockback"): body.take_knockback(away * knockback_force)
 	else:                                  body.velocity = away * knockback_force
-	# Damage scaled by player's current heat multiplier
-	var dmg := base_damage * HeatManager.get_damage_multiplier()
-	HealthManager.take_damage(dmg)
+	# Deal raw base damage (not scaled by player's heat)
+	HealthManager.take_damage(base_damage)
 
 
 # ── HP / Death / Respawn ──────────────────────────────────────────────────────

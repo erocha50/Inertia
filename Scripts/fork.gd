@@ -24,6 +24,9 @@ var has_hit: bool = false
 var _ready_to_move: bool = false
 
 func _ready() -> void:
+	monitoring = true
+	collision_layer = 0
+	collision_mask = 0x2  # Layer 2 = Player
 	body_entered.connect(_on_body_entered)
 	area_entered.connect(_on_area_entered)
 	var timer := get_tree().create_timer(lifetime)
@@ -88,9 +91,9 @@ func _ease_in_out(t: float) -> float:
 func _on_body_entered(body: Node3D) -> void:
 	if has_hit:
 		return
-	if body.is_in_group("player") and body.has_method("take_damage"):
+	if body.is_in_group("player"):
 		has_hit = true
-		body.take_damage(damage)
+		HealthManager.take_damage(damage)
 		queue_free()
 
 func _on_area_entered(_area: Area3D) -> void:

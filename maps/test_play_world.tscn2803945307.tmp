@@ -6,7 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://dgnislkaigdl0" path="res://maps/ramp.tscn" id="4_ramp"]
 [ext_resource type="PackedScene" uid="uid://ckf4fc2khm3tw" path="res://maps/wall.tscn" id="5_wall"]
 [ext_resource type="PackedScene" uid="uid://2jwlt0h1vdgu" path="res://maps/block.tscn" id="5_wpulb"]
-[ext_resource type="Environment" path="res://environments/cinematic_world_environment.tres" id="6_cinematic"]
+[ext_resource type="Environment" uid="uid://2fy4vnjxv27c" path="res://environments/world_environment.tres" id="6_ab3cd"]
 [ext_resource type="PackedScene" uid="uid://b84c1dymjri4k" path="res://Scenes/HUD.tscn" id="8_nby6e"]
 [ext_resource type="PackedScene" uid="uid://ctwafpi661v1i" path="res://Scenes/RespawnScreen.tscn" id="9_2u3jn"]
 [ext_resource type="PackedScene" uid="uid://dcm2wffcxim02" path="res://Scenes/FoodItem.tscn" id="10_2u3jn"]
@@ -14,30 +14,22 @@
 [ext_resource type="PackedScene" uid="uid://u2c8cmscyaoh" path="res://characters/scullery_horror.tscn" id="12_3jwxd"]
 [ext_resource type="PackedScene" uid="uid://c87qnrg3hihha" path="res://characters/frozen_waiter.tscn" id="13_8jx5h"]
 [ext_resource type="PackedScene" uid="uid://b3yu1v3s3m84f" path="res://characters/bloated_diner.tscn" id="14_g5rfj"]
-[ext_resource type="Script" uid="uid://c1pdw26wtj4ce" path="res://Scripts/stage_light.gd" id="15_stage"]
 
 [node name="Node3D" type="Node3D" unique_id=1913226338]
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=269784550]
-environment = ExtResource("6_cinematic")
+environment = ExtResource("6_ab3cd")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=718796078]
-transform = Transform3D(-0.7071, 0.4082, 0.5774, 0, 0.8165, 0.5774, -0.7071, -0.4082, 0.5774, 0, 50, 0)
-light_color = Color(0.9, 0.85, 0.8, 1)
-light_energy = 1.2
+transform = Transform3D(0.9, 0, 0, 0, 0.436, 0.9, 0, -1, 0.436, 0, 40, 0)
+light_color = Color(1, 0.98, 0.95, 1)
+light_energy = 1.5
+light_volumetric_fog_energy = 0.5
 shadow_enabled = true
-shadow_blur = 2.0
+shadow_blur = 0.5
 
 [node name="CharacterBody3D" parent="." unique_id=1229242080 groups=["Player"] instance=ExtResource("2_m3pcu")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.732183, 1.0499992, 5.316284)
-
-[node name="FollowLight" type="OmniLight3D" parent="." unique_id=8675309]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.732183, 5, 5.316284)
-light_color = Color(1, 0.9, 0.7, 1)
-light_energy = 2.0
-shadow_enabled = true
-omni_range = 50.0
-script = ExtResource("15_stage")
 
 [node name="Tower" type="Node3D" parent="." unique_id=89620368]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17.617792, 0, 0)
@@ -136,18 +128,66 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.1468887, 0.54999924, 1.3595
 
 [node name="SculleryHorror" parent="." unique_id=1923869172 instance=ExtResource("12_3jwxd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -26.7982, 1.5499973, -18.071104)
+speed_mirror = null
+speed_min = null
+rage_speed_boost = null
+fear_speed_scale = null
+vision_range = null
+vision_angle_deg = null
+hearing_range = null
+preferred_distance = null
+give_up_time = null
+turn_speed = null
+acceleration = null
+friction = null
+search_duration = null
+search_wander_radius = null
+fake_pause_chance = null
+fake_pause_duration = null
+rage_health_threshold = null
+fear_health_threshold = null
+pack_spread_radius = null
+approach_damage_per_second = null
+approach_range = null
+impact_damage_threshold = null
+impact_damage = null
+respawn_delay = null
 
 [node name="FrozenWaiter" parent="." unique_id=1007907867 instance=ExtResource("13_8jx5h")]
-transform = Transform3D(0.9979118, 0.0034342671, -0.06450067, -0.002699596, 0.9999306, 0.01147449, 0.06453555, -0.011276334, 0.9978517, -50.48465, 4.1124554, 12.0826845)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -257.40533, 3.0499992, 13.002518)
 
 [node name="BloatedDiner" parent="." unique_id=56293077 instance=ExtResource("14_g5rfj")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.143082, 2.0499992, -16.093504)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -188.50246, 2.0499992, -16.093504)
 
 [node name="SculleryHorror2" parent="." unique_id=1982500721 instance=ExtResource("12_3jwxd")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.262619, 1.5499992, 41.313725)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -177.69572, 1.5499992, 41.313725)
+speed_mirror = null
+speed_min = null
+rage_speed_boost = null
+fear_speed_scale = null
+vision_range = null
+vision_angle_deg = null
+hearing_range = null
+preferred_distance = null
+give_up_time = null
+turn_speed = null
+acceleration = null
+friction = null
+search_duration = null
+search_wander_radius = null
+fake_pause_chance = null
+fake_pause_duration = null
+rage_health_threshold = null
+fear_health_threshold = null
+pack_spread_radius = null
+approach_damage_per_second = null
+approach_range = null
+impact_damage_threshold = null
+impact_damage = null
+respawn_delay = null
 
 [node name="BloatedDiner2" parent="." unique_id=1581264417 instance=ExtResource("14_g5rfj")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -17.075882, 2.0499992, 56.806156)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -222.48888, 2.0499992, 56.806156)
 
 [node name="FrozenWaiter2" parent="." unique_id=98664775 instance=ExtResource("13_8jx5h")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -19.551758, 5.2342415, -29.001888)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -221.74756, 3.0499992, -28.958115)

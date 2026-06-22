@@ -8,21 +8,21 @@ signal heat_changed(new_value: float, tier: String)
 
 var heat_value: float  = 50.0
 var max_heat: float    = 100.0
-var heat_floor: float  = 0.0
+var heat_floor: float  = 0.0  # Can go to 0 when no floor bonuses active
 
-@export var heat_gain_per_second: float        = 8.0
-@export var heat_loss_per_second: float        = 25.0
+@export var heat_gain_per_second: float        = 6.0
+@export var heat_loss_per_second: float        = 12.0
 @export var movement_speed_threshold: float    = 1.0
 @export_range(0.01,0.3,0.01) var gain_speed_scale_min: float = 0.02
 @export_range(1.0,5.0,0.1)   var gain_curve_power: float     = 4.0
-@export_range(1.0,12.0,0.1)  var loss_speed_scale_max: float = 7.0
+@export_range(1.0,12.0,0.1)  var loss_speed_scale_max: float = 4.0
 @export_range(1.0,4.0,0.1)   var loss_curve_power: float     = 2.0
 @export_range(0.0,2.0,0.05)  var decel_drain_per_unit: float = 0.6
 @export_range(0.0,2.0,0.05)  var decel_noise_threshold: float= 0.3
 @export_range(0.0,30.0,0.5)  var wall_hit_drain_per_speed: float = 0.4
-@export_range(0.0,40.0,1.0)  var landing_drain: float        = 12.0
-@export_range(0.0,20.0,0.5)  var idle_transition_drain: float= 5.0
-@export_range(0.0,20.0,0.5)  var arc_end_drain: float        = 4.0
+@export_range(0.0,40.0,1.0)  var landing_drain: float        = 8.0
+@export_range(0.0,20.0,0.5)  var idle_transition_drain: float= 3.0
+@export_range(0.0,20.0,0.5)  var arc_end_drain: float        = 2.0
 @export_range(0.2,5.0,0.1)   var decay_curve_duration: float = 2.0
 @export_range(1.0,4.0,0.1)   var decay_curve_peak: float     = 2.5
 @export var player_speed_min: float = 10.0
@@ -39,11 +39,12 @@ var _prev_state: int          = -1
 var _signals_connected: bool  = false
 
 const TIER_THRESHOLDS := {"cold":0.0,"warm":25.0,"hot":50.0,"burning":75.0}
-const TIER_DAMAGE_MULT := {"cold":1.0,"warm":1.2,"hot":1.5,"burning":2.0}
+const TIER_DAMAGE_MULT := {"cold":1.0,"warm":1.1,"hot":1.25,"burning":1.5}
 
 
 func _ready() -> void:
-	heat_value = 50.0
+	heat_value = 20.0
+	heat_floor = 0.0
 	heat_changed.emit(heat_value, get_tier())
 
 
@@ -73,7 +74,9 @@ func _process(delta: float) -> void:
 
 	if current_flat_speed >= movement_speed_threshold:
 		_decay_curve_t = 0.0
-		add_heat(heat_gain_per_second * lerpf(1.0, gain_speed_scale_min, pow(raw_t, gain_curve_power)) * delta)
+		# FoodBuffManager.heat_per_hit_bonus adds a flat bonus to the gain rate
+		var gain_rate := heat_gain_per_second + FoodBuffManager.heat_per_hit_bonus
+		add_heat(gain_rate * lerpf(1.0, gain_speed_scale_min, pow(raw_t, gain_curve_power)) * delta)
 	else:
 		_decay_curve_t = minf(_decay_curve_t + delta / maxf(decay_curve_duration, 0.001), 1.0)
 		var curve  := _decay_curve_t * _decay_curve_t * _decay_curve_t
@@ -95,9 +98,13 @@ func update_speed(flat_speed: float) -> void:
 	current_flat_speed = flat_speed
 
 
-## Returns a speed multiplier based on current heat (0.65 cold → 1.45 burning)
+## Returns a speed multiplier based on current heat (0.65 cold → 1.45 burning).
+## FoodBuffManager.momentum_ceiling_bonus raises the effective heat used for
+## this calculation, letting buffs like Raw Beef push the multiplier higher
+## than the player's actual heat value would normally allow.
 func get_heat_speed_multiplier() -> float:
-	var t := clampf(heat_value / maxf(max_heat, 1.0), 0.0, 1.0)
+	var effective_heat := heat_value + FoodBuffManager.momentum_ceiling_bonus
+	var t := clampf(effective_heat / maxf(max_heat, 1.0), 0.0, 1.0)
 	return lerpf(speed_mult_min, speed_mult_max, t)
 
 
@@ -113,6 +120,16 @@ func get_damage_multiplier() -> float:
 	return TIER_DAMAGE_MULT.get(get_tier(), 1.0)
 
 
+## Combat damage multiplier including any active sprint damage buffs (e.g. Wine)
+func get_combat_damage_multiplier() -> float:
+	return get_damage_multiplier() + FoodBuffManager.sprint_damage_bonus
+
+
+## True if an active food buff is currently impairing turning (e.g. Wine)
+func is_turning_impaired() -> bool:
+	return FoodBuffManager.turning_impaired
+
+
 func set_heat(new_value: float) -> void:
 	var prev   := heat_value
 	heat_value  = clampf(new_value, heat_floor, max_heat)
@@ -124,8 +141,13 @@ func add_heat(amount: float) -> void:    set_heat(heat_value + amount)
 func remove_heat(amount: float) -> void: set_heat(heat_value - amount)
 func restore_heat(amount: float) -> void: set_heat(heat_value + amount)
 
+func set_heat_floor(new_floor: float) -> void:
+	heat_floor = clampf(new_floor, 0.0, 10.0)  # Cap at 10
+	set_heat(heat_value)
+
 func add_heat_floor_bonus(amount: float) -> void:
-	heat_floor = minf(heat_floor + amount, 12.0)
+	heat_floor = maxf(heat_floor + amount, 0.0)  # Allow floor to reset to 0 if bonuses removed
+	heat_floor = minf(heat_floor, 10.0)  # Cap at 10 instead of 12
 	set_heat(heat_value)
 
 func get_heat_rate_info() -> Dictionary:
