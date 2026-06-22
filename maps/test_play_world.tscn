@@ -130,16 +130,16 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.1468887, 0.54999924, 1.3595
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -26.7982, 1.5499973, -18.071104)
 
 [node name="FrozenWaiter" parent="." unique_id=1007907867 instance=ExtResource("13_8jx5h")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -257.40533, 3.0499992, 13.002518)
+transform = Transform3D(0.9979118, 0.0034342671, -0.06450067, -0.002699596, 0.9999306, 0.01147449, 0.06453555, -0.011276334, 0.9978517, -50.48465, 4.1124554, 12.0826845)
 
 [node name="BloatedDiner" parent="." unique_id=56293077 instance=ExtResource("14_g5rfj")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -188.50246, 2.0499992, -16.093504)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.143082, 2.0499992, -16.093504)
 
 [node name="SculleryHorror2" parent="." unique_id=1982500721 instance=ExtResource("12_3jwxd")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -177.69572, 1.5499992, 41.313725)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.262619, 1.5499992, 41.313725)
 
 [node name="BloatedDiner2" parent="." unique_id=1581264417 instance=ExtResource("14_g5rfj")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -222.48888, 2.0499992, 56.806156)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -17.075882, 2.0499992, 56.806156)
 
 [node name="FrozenWaiter2" parent="." unique_id=98664775 instance=ExtResource("13_8jx5h")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -221.74756, 3.0499992, -28.958115)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -19.551758, 5.2342415, -29.001888)
