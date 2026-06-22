@@ -6,7 +6,6 @@ const SAVE_PATH = 'user://save.json'
 var save_data: Dictionary = {
 	'hearths_activated': [],
 	'knife_shards': [],
-	'heat_floor_bonus': 0,
 	'current_area': 'Foyer',
 	'player_health': 100.0,
 }
@@ -41,7 +40,6 @@ func delete_save() -> void:
 		save_data = {
 			'hearths_activated': [],
 			'knife_shards': [],
-			'heat_floor_bonus': 0,
 			'current_area': 'Foyer',
 			'player_health': 100.0,
 		}
@@ -49,9 +47,6 @@ func delete_save() -> void:
 func activate_hearth(hearth_id: String) -> void:
 	if hearth_id not in save_data['hearths_activated']:
 		save_data['hearths_activated'].append(hearth_id)
-		var bonus = save_data['hearths_activated'].size() * 2
-		save_data['heat_floor_bonus'] = min(12, bonus)
-		HeatManager.heat_floor = float(save_data['heat_floor_bonus'])
 	save()
 
 func add_shard(shard_name: String) -> void:

@@ -68,6 +68,13 @@ func reset_hp() -> void:
 	health_changed.emit(hp, max_hp)
 
 
+## Public heal — call this from food items, healing stations, etc.
+func heal(amount: float) -> void:
+	if _is_dead:
+		return
+	_heal(amount)
+
+
 # ── Internal ──────────────────────────────────────────────────────────────────
 
 func _take_drain(amount: float) -> void:

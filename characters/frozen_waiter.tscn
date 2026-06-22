@@ -14,6 +14,8 @@ uv1_world_triplanar = true
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_opueh"]
 material = SubResource("StandardMaterial3D_opueh")
 
+[sub_resource type="PlaceholderMesh" id="PlaceholderMesh_c2dk8"]
+
 [sub_resource type="BoxShape3D" id="BoxShape3D_6m1n2"]
 size = Vector3(12.539917, 1.1713867, 21.759521)
 
@@ -21,6 +23,7 @@ size = Vector3(12.539917, 1.1713867, 21.759521)
 
 [node name="FrozenWaiter" type="CharacterBody3D" unique_id=1007907867]
 script = ExtResource("1_sds1l")
+max_health = 60.0
 patrol_speed = 5.0
 chase_speed = 15.0
 sweep_cooldown = 3.0
@@ -39,6 +42,7 @@ mesh = SubResource("CapsuleMesh_opueh")
 [node name="TrayPivot" type="Node3D" parent="." unique_id=87571630]
 
 [node name="TrayMesh" type="MeshInstance3D" parent="TrayPivot" unique_id=1021923891]
+mesh = SubResource("PlaceholderMesh_c2dk8")
 
 [node name="TrayHitbox" type="Area3D" parent="TrayPivot/TrayMesh" unique_id=695743350]
 
