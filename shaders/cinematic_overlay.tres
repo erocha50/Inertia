@@ -1,4 +1,4 @@
-[gd_resource type="ShaderMaterial" format=3 uid="uid://3agmmz8wp6bc"]
+[gd_resource type="ShaderMaterial" format=3 uid="uid://3agmm08wp6bc"]
 
 [ext_resource type="Shader" path="res://shaders/cinematic_overlay.gdshader" id="1_shader"]
 
