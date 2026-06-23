@@ -4,6 +4,7 @@
 [ext_resource type="Resource" uid="uid://cwfo55432r5dn" path="res://Resources/font_config.tres" id="2_ce3w2"]
 [ext_resource type="Script" uid="uid://bvhgrsyyyx8i3" path="res://Scripts/GridBackground.gd" id="2_grid"]
 [ext_resource type="Script" uid="uid://djeu33h3qyk83" path="res://Scripts/MenuButton.gd" id="3_btn"]
+[ext_resource type="Texture2D" uid="uid://51kt2fsynuri" path="res://assets/space_spheremaps/hazy_nebulae_1.png" id="3_n45e2"]
 
 [node name="MainMenu" type="Control" unique_id=788094216]
 layout_mode = 3
@@ -24,13 +25,14 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.0196078, 0.0196078, 0.0745098, 1)
 
-[node name="Background" type="Control" parent="." unique_id=506360141]
+[node name="Background" type="TextureRect" parent="." unique_id=1601626902]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+texture = ExtResource("3_n45e2")
 script = ExtResource("2_grid")
 
 [node name="TitleContainer" type="VBoxContainer" parent="." unique_id=337898856]
