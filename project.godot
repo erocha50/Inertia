@@ -22,12 +22,16 @@ GameEvents="*uid://d1dbr0o1ct6xl"
 SaveManager="*uid://kopaoy8lmn1f"
 DeathRespawnManager="*uid://rjpvkddqeed7"
 HealthManager="*uid://blnag3jxcdfmk"
-FoodBuffManager="*uid://c7thddtsghk34"
+FoodBuffManager="*uid://okhh6ro81132"
 
 [display]
 
 window/size/viewport_width=1920
 window/size/mode=2
+
+[editor_plugins]
+
+enabled=PackedStringArray()
 
 [filesystem]
 

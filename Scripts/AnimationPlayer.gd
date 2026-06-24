@@ -1,4 +1,3 @@
-class_name AnimationPlayer
 extends Node3D
 
 ## Bob animation settings

@@ -1,3 +1,21 @@
 [gd_scene format=3 uid="uid://bktbikfgs530x"]
 
+[ext_resource type="Texture2D" uid="uid://6npujj07ntyd" path="res://maps/wall.png" id="1_2igyx"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_yf5fn"]
+albedo_texture = ExtResource("1_2igyx")
+uv1_triplanar = true
+
+[sub_resource type="BoxMesh" id="BoxMesh_g4v7s"]
+material = SubResource("StandardMaterial3D_yf5fn")
+size = Vector3(231.08905, 2.94812, 0.61035156)
+
 [node name="Node3D" type="Node3D" unique_id=1561387120]
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="." unique_id=445573299]
+transform = Transform3D(1, 0, 0, 0, 2.3583786, 0, 0, 0, 2.1721606, 65.19913, 2.865744, 8.582809)
+mesh = SubResource("BoxMesh_g4v7s")
+
+[node name="MeshInstance3D3" type="MeshInstance3D" parent="." unique_id=707723888]
+transform = Transform3D(1, 0, 0, 0, 2.3583786, 0, 0, 0, 2.1721606, 65.19913, 2.745883, 24.228825)
+mesh = SubResource("BoxMesh_g4v7s")
