@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://wcfi4x1idai5"]
+
+[ext_resource type="Script" uid="uid://k2nolc6du4cf" path="res://Scripts/ObjectiveMessage.gd" id="1_wgvru"]
+
+[node name="ObjectMessageUI" type="CanvasLayer" unique_id=7471660]
+script = ExtResource("1_wgvru")
+
+[node name="Panel" type="Panel" parent="." unique_id=1421923452]
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="MessageLabel" type="Label" parent="Panel" unique_id=1142132063]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
