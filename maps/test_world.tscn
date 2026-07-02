@@ -7,9 +7,9 @@
 [ext_resource type="PackedScene" uid="uid://c87qnrg3hihha" path="res://characters/frozen_waiter.tscn" id="5_b4682"]
 [ext_resource type="PackedScene" uid="uid://b3yu1v3s3m84f" path="res://characters/bloated_diner.tscn" id="6_0fvnv"]
 [ext_resource type="PackedScene" uid="uid://duaemlg4b788f" path="res://Scenes/hearth.tscn" id="7_ouixf"]
-[ext_resource type="PackedScene" uid="uid://u2c8cmscyaoh" path="res://characters/scullery_horror.tscn" id="10_u2c8"]
 [ext_resource type="PackedScene" uid="uid://dyorpcsov38vh" path="res://Scenes/Checkpoint.tscn" id="8_v2hsh"]
 [ext_resource type="PackedScene" uid="uid://ctwafpi661v1i" path="res://Scenes/RespawnScreen.tscn" id="9_j6jwi"]
+[ext_resource type="PackedScene" uid="uid://u2c8cmscyaoh" path="res://characters/scullery_horror.tscn" id="10_u2c8"]
 
 [sub_resource type="Environment" id="Environment_s3ba5"]
 background_energy_multiplier = 2.98

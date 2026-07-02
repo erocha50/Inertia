@@ -1,0 +1,187 @@
+================================================================================
+                    TUTORIAL SYSTEM - QUICK REFERENCE
+================================================================================
+
+┌─ WHAT YOU HAVE ────────────────────────────────────────────────────────────┐
+│                                                                              │
+│ ✅ Centered tutorial messages on screen                                     │
+│ ✅ Professional styling with blue border and rounded corners                │
+│ ✅ Smooth fade in/out animations (0.4s fade in, 3s hold, 0.5s fade out)    │
+│ ✅ Large readable text (28px, white, with black outline)                    │
+│ ✅ Fully customizable messages and duration                                 │
+│ ✅ Two example triggers already in place                                    │
+│                                                                              │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ HOW IT LOOKS ─────────────────────────────────────────────────────────────┐
+│                                                                              │
+│   ┌─────────────────────────────────────────────────────────────────────┐  │
+│   │                                                                     │  │
+│   │      ╔═════════════════════════════════════════════════════╗       │  │
+│   │      ║  Welcome to the tutorial!                           ║       │  │
+│   │      ║  Use WASD to move around.                           ║       │  │
+│   │      ╚═════════════════════════════════════════════════════╝       │  │
+│   │                                                                     │  │
+│   └─────────────────────────────────────────────────────────────────────┘  │
+│                                                                              │
+│   [Centered on screen, blue border, dark background, white text]           │
+│                                                                              │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ QUICK SETUP (30 SECONDS) ─────────────────────────────────────────────────┐
+│                                                                              │
+│ 1. Open res://maps/tutorial_map.tscn                                       │
+│ 2. Click on TutorialTrigger1 in the scene tree                             │
+│ 3. In Inspector, change "message" and "duration" fields                    │
+│ 4. Done! Walk through the trigger to see your message                      │
+│                                                                              │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ FREQUENTLY USED SETTINGS ─────────────────────────────────────────────────┐
+│                                                                              │
+│ Property              │ Default   │ What It Does                            │
+│ ──────────────────────┼───────────┼─────────────────────────────────────   │
+│ message               │ "..."     │ Text shown on screen                    │
+│ duration              │ 3.0       │ How long message stays (seconds)        │
+│ font_size             │ 28        │ Size of text (pixels)                   │
+│ bg_color              │ 0,0,0,0.6 │ Background color & transparency         │
+│ border_color          │ Blue      │ Border color                            │
+│ corner_radius         │ 8         │ Roundness of corners (pixels)           │
+│                                                                              │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ COMMON TASKS ─────────────────────────────────────────────────────────────┐
+│                                                                              │
+│ TASK: Change a message                                                      │
+│ HOW:  Select TutorialTrigger → Change "message" in Inspector               │
+│ TIME: 5 seconds                                                             │
+│                                                                              │
+│ TASK: Add a new trigger                                                     │
+│ HOW:  Right-click TutorialTrigger → Duplicate → Move & customize           │
+│ TIME: 10 seconds                                                            │
+│                                                                              │
+│ TASK: Change colors (blue → green)                                          │
+│ HOW:  Select Panel → Theme Overrides → panel → border_color               │
+│ TIME: 15 seconds                                                            │
+│       See CUSTOMIZE_COLORS.md for more options                             │
+│                                                                              │
+│ TASK: Make text bigger/smaller                                              │
+│ HOW:  Select MessageLabel → theme_override_font_sizes/font_size           │
+│ TIME: 5 seconds                                                             │
+│                                                                              │
+│ TASK: Change duration (how long message shows)                              │
+│ HOW:  Select TutorialTrigger → Change "duration" in Inspector              │
+│ TIME: 5 seconds                                                             │
+│                                                                              │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ KEY FILES ────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│ Script:         res://Scripts/TutorialTrigger.gd                           │
+│                 └─ Detects player and shows messages                       │
+│                                                                              │
+│ UI Script:      res://Scripts/ObjectiveMessage.gd                          │
+│                 └─ Handles message display and animations                  │
+│                                                                              │
+│ UI Scene:       res://Scenes/ObjectMessageUI.tscn                          │
+│                 └─ The visual design of the message box                    │
+│                                                                              │
+│ Tutorial Map:   res://maps/tutorial_map.tscn                               │
+│                 └─ Example map with 2 triggers already set up              │
+│                                                                              │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ ANIMATION BREAKDOWN ──────────────────────────────────────────────────────┐
+│                                                                              │
+│ Timeline for a 3-second message:                                            │
+│                                                                              │
+│ 0.0s ─────► 0.4s          3.4s            3.9s ─────► [Done]              │
+│   Fade In      Hold            Fade Out                                     │
+│   0→100%       (message)       100→0%                                       │
+│   smooth       visible         smooth                                       │
+│                                                                              │
+│ Total Duration: ~3.9 seconds (0.4s + 3.0s + 0.5s)                         │
+│                                                                              │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ GOOD EXAMPLE MESSAGES ────────────────────────────────────────────────────┐
+│                                                                              │
+│ ✅ "Welcome! Use WASD to move around."                                     │
+│ ✅ "Great! Now try jumping with SPACE."                                    │
+│ ✅ "You're doing great! Explore more."                                     │
+│ ✅ "Pro tip: Hold Shift to run faster!"                                    │
+│ ✅ "Collect all items to progress."                                        │
+│                                                                              │
+│ Rules:                                                                      │
+│ • Keep it SHORT (1-2 sentences)                                            │
+│ • Be CLEAR about what to do                                                │
+│ • Use 3-4 second DURATION                                                  │
+│ • Place triggers BEFORE new mechanics                                      │
+│                                                                              │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ TROUBLESHOOTING ──────────────────────────────────────────────────────────┐
+│                                                                              │
+│ PROBLEM: Messages don't show                                                │
+│ FIX:     1. Check ObjectMessageUI is in the scene                          │
+│          2. Verify player has "player" group                               │
+│          3. Check console for errors                                        │
+│                                                                              │
+│ PROBLEM: Text is too small                                                  │
+│ FIX:     Select MessageLabel → increase font_size in Inspector             │
+│                                                                              │
+│ PROBLEM: Box doesn't look good                                              │
+│ FIX:     Select Panel → adjust Style settings or see CUSTOMIZE_COLORS.md  │
+│                                                                              │
+│ PROBLEM: Message appears multiple times                                     │
+│ FIX:     This shouldn't happen (one-time by design)                        │
+│          If it does, check for duplicate triggers                          │
+│                                                                              │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ DOCUMENTATION FILES ──────────────────────────────────────────────────────┐
+│                                                                              │
+│ 📖 TUTORIAL_QUICK_START.md        - Get started in 5 minutes               │
+│ 📖 TUTORIAL_SYSTEM_GUIDE.md       - Complete technical guide              │
+│ 📖 CUSTOMIZE_COLORS.md            - Change colors and styling              │
+│ 📖 UI_IMPROVEMENTS.md             - Design details explanation             │
+│ 📖 BEFORE_AFTER.md                - Visual comparison                      │
+│ 📖 TUTORIAL_UI_SUMMARY.md         - Complete overview                      │
+│                                                                              │
+│ All files are in your project root directory (res://)                      │
+│                                                                              │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ CHEAT SHEET: CHANGING COLORS ─────────────────────────────────────────────┐
+│                                                                              │
+│ Blue Border (Current):                                                      │
+│   border_color = Color(0.2, 0.6, 1.0, 0.8)                                │
+│                                                                              │
+│ Green Border:                                                               │
+│   border_color = Color(0.2, 1.0, 0.2, 0.8)                                │
+│                                                                              │
+│ Red Border:                                                                 │
+│   border_color = Color(1.0, 0.2, 0.2, 0.8)                                │
+│                                                                              │
+│ White Border:                                                               │
+│   border_color = Color(1.0, 1.0, 1.0, 0.9)                                │
+│                                                                              │
+│ Text White (Current):                                                       │
+│   font_color = Color(1, 1, 1, 1)                                           │
+│                                                                              │
+│ Text Yellow:                                                                │
+│   font_color = Color(1, 1, 0, 1)                                           │
+│                                                                              │
+│ See CUSTOMIZE_COLORS.md for 20+ more color combinations!                   │
+│                                                                              │
+└────────────────────────────────────────────────────────────────────────────┘
+
+NEED HELP?
+──────────
+1. Check the relevant .md file above
+2. Look at existing triggers in tutorial_map.tscn
+3. Examine the script files in res://Scripts/
+
+YOU'RE ALL SET! 🎮✨
+
+================================================================================

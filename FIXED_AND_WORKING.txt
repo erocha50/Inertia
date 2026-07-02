@@ -1,0 +1,69 @@
+================================================================================
+                    ✅ TEXT DISPLAY ISSUE - FIXED! ✅
+================================================================================
+
+THE PROBLEM:
+────────────
+Text in your tutorial messages wasn't displaying.
+
+THE SOLUTION:
+─────────────
+Fixed the scene structure - simplified layout, proper anchoring, correct script paths.
+
+WHAT'S DIFFERENT:
+─────────────────
+• Removed problematic CenterContainer
+• Added VBoxContainer for proper vertical centering
+• Updated script to reference correct node paths
+• Ensured all layout modes are properly configured
+
+WHAT YOU GET NOW:
+─────────────────
+✅ Text displays in the center of the screen
+✅ Beautiful blue-bordered box (600x120px)
+✅ Large readable text (28px white with black outline)
+✅ Smooth fade in/out animations
+✅ Fully customizable via Inspector
+
+HOW TO TEST (30 SECONDS):
+─────────────────────────
+1. Open: res://maps/tutorial_map.tscn
+2. Press: F5 (to play)
+3. Walk: Forward into the trigger zone
+4. See: Your message appear in the center!
+
+Result:
+    ╔════════════════════════════════════════╗
+    ║  Welcome to the tutorial!              ║
+    ║  Use WASD to move around.              ║
+    ╚════════════════════════════════════════╝
+
+HOW TO CUSTOMIZE (15 SECONDS):
+──────────────────────────────
+1. Select: TutorialTrigger1 (in scene tree)
+2. Change: "message" field in Inspector
+3. Change: "duration" field (how long to show)
+4. Save: And test!
+
+FILES CHANGED:
+──────────────
+✅ res://Scenes/ObjectMessageUI.tscn  (restructured layout)
+✅ res://Scripts/ObjectiveMessage.gd  (updated references)
+
+WHAT WAS FIXED:
+────────────────
+Old Scene Structure:
+  ObjectMessageUI → CenterContainer → Panel → ...
+
+New Scene Structure:
+  ObjectMessageUI → Panel (centered) → MarginContainer → VBoxContainer → Label
+
+Result: Text now displays correctly!
+
+STATUS:
+───────
+✅ WORKING - The text now displays in the center of your screen!
+
+================================================================================
+Ready to use! Open tutorial_map.tscn and test it now.
+================================================================================

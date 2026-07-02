@@ -23,7 +23,7 @@ SaveManager="*uid://kopaoy8lmn1f"
 DeathRespawnManager="*uid://rjpvkddqeed7"
 HealthManager="*uid://blnag3jxcdfmk"
 FoodBuffManager="*uid://okhh6ro81132"
-ObjectiveMessage="*uid://k2nolc6du4cf"
+ObjectMessageUi="*uid://wcfi4x1idai5"
 
 [display]
 
