@@ -36,6 +36,10 @@ extends Node3D
 @export_group("Smoothing")
 ## How quickly the camera follows the character yaw
 @export var yaw_smooth_speed:float = 8.0
+## Spring bounce when turning — higher = more overshoot
+@export var yaw_spring_stiffness:float = 20.0
+## Damping for the yaw spring — lower = more bounce
+@export var yaw_spring_damping:float = 4.0
 ## How quickly pitch catches up
 @export var pitch_smooth_speed:float = 10.0
 
@@ -72,6 +76,7 @@ extends Node3D
 # ── State ─────────────────────────────────────────────────────────────────────
 var _target_yaw:float
 var _smooth_yaw:float
+var _yaw_velocity:float
 var _pitch:float
 var _smooth_pitch:float
 var _character:CharacterBody3D
@@ -178,8 +183,18 @@ func _process(delta:float) -> void:
 
 	var spd_t := clampf(_current_speed / _max_spd, 0.0, 1.0)
 
-	# Smooth yaw and pitch
-	_smooth_yaw = lerpf(_smooth_yaw, _target_yaw, yaw_smooth_speed * delta)
+	# Spring-damper for yaw — overshoots slightly on sharp turns for a
+	# natural cinematic bounce without affecting XY position tracking.
+	var yaw_diff: float = _target_yaw - _smooth_yaw
+	# Normalise angle difference to [-180, 180]
+	if yaw_diff > 180.0:
+		yaw_diff -= 360.0
+	elif yaw_diff < -180.0:
+		yaw_diff += 360.0
+	_yaw_velocity += yaw_diff * yaw_spring_stiffness * delta
+	_yaw_velocity *= maxf(1.0 - yaw_spring_damping * delta, 0.0)
+	_smooth_yaw += _yaw_velocity * delta
+
 	_smooth_pitch = lerpf(_smooth_pitch, _pitch, pitch_smooth_speed * delta)
 
 	# Smooth the vertical float offset

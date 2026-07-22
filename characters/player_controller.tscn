@@ -4,6 +4,40 @@
 [ext_resource type="Script" uid="uid://kpkwthn0lm76" path="res://Scripts/camera_shiftlock.gd" id="2_camera"]
 [ext_resource type="Script" uid="uid://dbx0jqdm54cwo" path="res://canvas_layer.gd" id="3_8ni3k"]
 [ext_resource type="Script" uid="uid://cphlulyb7xl12" path="res://Scripts/PlayerSpeedBridge.gd" id="4_eml8v"]
+[ext_resource type="Texture2D" uid="uid://bqk2vwipc7bpa" path="res://assets/player_animations/player_idle.png" id="5_wiblt"]
+[ext_resource type="Texture2D" uid="uid://y6odmwpk1cql" path="res://assets/player_animations/player_walk1.png" id="6_walk1"]
+[ext_resource type="Texture2D" uid="uid://bf0ofd03nosu2" path="res://assets/player_animations/player_walk2.png" id="7_walk2"]
+[ext_resource type="Texture2D" uid="uid://dlexsbncjlv7l" path="res://assets/player_animations/player_walk3.png" id="8_walk3"]
+[ext_resource type="Texture2D" uid="uid://cfbdqqixmowmi" path="res://assets/player_animations/player_walk4.png" id="9_walk4"]
+[ext_resource type="Script" uid="uid://7wggj6fxjl6d" path="res://Scripts/player_billboard.gd" id="10_niblt"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_abcde"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("5_wiblt")
+}],
+"loop": 1,
+"name": &"idle",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("6_walk1")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_walk2")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_walk3")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_walk4")
+}],
+"loop": 1,
+"name": &"walk",
+"speed": 1.0
+}]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_fghij"]
 albedo_color = Color(0.4, 0.6, 0.8, 1)
@@ -19,10 +53,26 @@ dash_attack_speed = 70.0
 [node name="CameraController" type="Node3D" parent="." unique_id=1765414761]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0)
 script = ExtResource("2_camera")
+camera_height = 0.8
+sensitivity_y = -0.16
+pitch_max = 15.0
+yaw_smooth_speed = 10.0
+pitch_smooth_speed = 12.0
+fov_base = 80.0
+fov_max = 100.0
 
 [node name="Camera3D" type="Camera3D" parent="CameraController" unique_id=1657557889]
 
+[node name="PlayerBillboard" type="AnimatedSprite3D" parent="." unique_id=980855327]
+transform = Transform3D(6, 0, 0, 0, 6, 0, 0, 0, 6, 0, 0.6091789, 0)
+pixel_size = 0.0005
+billboard = 1
+sprite_frames = SubResource("SpriteFrames_abcde")
+animation = &"idle"
+script = ExtResource("10_niblt")
+
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=636966049]
+visible = false
 material_override = SubResource("StandardMaterial3D_fghij")
 mesh = SubResource("CapsuleMesh_j8adm")
 
