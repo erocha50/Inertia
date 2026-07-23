@@ -5,6 +5,8 @@
 [ext_resource type="Texture2D" uid="uid://cyfhsemgoighp" path="res://materials/diagonal_parquet_4k.blend/textures/diagonal_parquet_diff_4k.jpg" id="2_xgesu"]
 [ext_resource type="PackedScene" uid="uid://wcfi4x1idai5" path="res://Scenes/ObjectMessageUI.tscn" id="3_msg"]
 [ext_resource type="Script" uid="uid://c13xonjjr56br" path="res://Scripts/TutorialTrigger.gd" id="4_trig"]
+[ext_resource type="Script" uid="uid://bth0q672felfp" path="res://Scripts/RealisticEnvironmentSetup.gd" id="6_hxcwp"]
+[ext_resource type="Script" uid="uid://dn8ou32b0detw" path="res://scripts/WindBlownFog.gd" id="7_hxcwp"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_57qmd"]
 albedo_texture = ExtResource("2_xgesu")
@@ -114,3 +116,9 @@ shape = SubResource("BoxShape3D_2")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=109777037]
 environment = SubResource("Environment_xgesu")
+script = ExtResource("6_hxcwp")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="WorldEnvironment" unique_id=10079617]
+
+[node name="FogVolume" type="FogVolume" parent="." unique_id=2089268070]
+script = ExtResource("7_hxcwp")
