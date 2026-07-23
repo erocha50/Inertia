@@ -150,6 +150,11 @@ billboard = 1
 sprite_frames = SubResource("SpriteFrames_abcde")
 animation = &"wall_run"
 script = ExtResource("10_niblt")
+idle_fps = null
+walk_min_fps = null
+walk_max_fps = null
+min_move_speed = null
+jump_fps = null
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=636966049]
 visible = false
