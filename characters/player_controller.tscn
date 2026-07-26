@@ -17,6 +17,8 @@
 [ext_resource type="Texture2D" uid="uid://bqx4wh7anrytw" path="res://assets/player_animations/player wall run/player wall run4.png" id="20_wr4"]
 [ext_resource type="Texture2D" uid="uid://c4dlw7fu5aeiv" path="res://assets/player_animations/player wall run/player wall run3 (wall on left side).png" id="21_wr3l"]
 [ext_resource type="Texture2D" uid="uid://dlit0gbmv6xi8" path="res://assets/player_animations/player wall run/player wall run4 (wall on left side).png" id="22_wr4l"]
+[ext_resource type="Texture2D" uid="uid://bl54raigacq4v" path="res://assets/player_animations/player dash/player_dash.png" id="23_dash"]
+[ext_resource type="Texture2D" uid="uid://bpsltq3wr7ud8" path="res://assets/player_animations/player dash/player_dash_land.png" id="24_dash_land"]
 
 [sub_resource type="CompressedTexture2D" id="CompressedTexture2D_cqy3o"]
 
@@ -28,6 +30,22 @@ load_path = "res://.godot/imported/jump to fall start.png-a5c3f3fdd3cb382c6656a0
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_abcde"]
 animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("23_dash")
+}],
+"loop": 0,
+"name": &"dash",
+"speed": 7.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("24_dash_land")
+}],
+"loop": 0,
+"name": &"dash_land",
+"speed": 1.0
+}, {
 "frames": [{
 "duration": 1.0,
 "texture": ExtResource("5_wiblt")
@@ -148,7 +166,7 @@ transform = Transform3D(6, 0, 0, 0, 6, 0, 0, 0, 6, 0, 0.6091789, 0)
 pixel_size = 0.0005
 billboard = 1
 sprite_frames = SubResource("SpriteFrames_abcde")
-animation = &"wall_run"
+animation = &"dash"
 script = ExtResource("10_niblt")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=636966049]
