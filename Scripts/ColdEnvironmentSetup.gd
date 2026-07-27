@@ -1,111 +1,103 @@
-extends WorldEnvironment
+extends CanvasLayer
 
-# Attach this to your WorldEnvironment node.
-# Builds a cold, overcast, foggy Environment entirely in code.
-# You can still tweak the values below to taste, or override
-# them from the Inspector after they get applied once (see
-# the "apply_in_editor" note below).
-
-@export var apply_in_editor: bool = true
+var panel: PanelContainer
+var vbox: VBoxContainer
+var kicker_label: Label
+var message_label: Label
+var fade_tween: Tween
 
 func _ready() -> void:
-	if Engine.is_editor_hint() and not apply_in_editor:
-		return
-	_build_environment()
-	_setup_sun()
+	panel = PanelContainer.new()
+	panel.name = "MessagePanel"
 
-func _build_environment() -> void:
-	var env := Environment.new()
+	# True center, auto-sized to content: anchor the CENTER POINT
+	# only (all anchors = 0.5, all offsets = 0), then let the
+	# panel's own minimum size (driven by its children) determine
+	# how big it actually is. No manual pixel math to get wrong.
+	panel.anchors_preset = Control.PRESET_CENTER
+	panel.anchor_left = 0.5
+	panel.anchor_right = 0.5
+	panel.anchor_top = 0.5
+	panel.anchor_bottom = 0.5
+	panel.offset_left = 0.0
+	panel.offset_right = 0.0
+	panel.offset_top = 0.0
+	panel.offset_bottom = 0.0
+	panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	panel.grow_vertical = Control.GROW_DIRECTION_BOTH
+	panel.custom_minimum_size = Vector2(560, 0)  # fixed width, auto height
 
-	# --- Sky: overcast, not blue ---
-	var sky_material := ProceduralSkyMaterial.new()
-	sky_material.sky_top_color = Color(0.42, 0.46, 0.52)
-	sky_material.sky_horizon_color = Color(0.55, 0.57, 0.60)
-	sky_material.sky_curve = 0.15
-	sky_material.ground_bottom_color = Color(0.2, 0.2, 0.22)
-	sky_material.ground_horizon_color = Color(0.5, 0.5, 0.52)
-	sky_material.sun_angle_max = 30.0
-	sky_material.sun_curve = 0.15
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.05, 0.045, 0.04, 0.72)
+	style.border_width_left = 1
+	style.border_width_top = 1
+	style.border_width_right = 1
+	style.border_width_bottom = 1
+	style.border_color = Color(0.85, 0.7, 0.5, 0.35)
+	style.corner_radius_top_left = 10
+	style.corner_radius_top_right = 10
+	style.corner_radius_bottom_right = 10
+	style.corner_radius_bottom_left = 10
+	style.content_margin_left = 26.0
+	style.content_margin_top = 16.0
+	style.content_margin_right = 26.0
+	style.content_margin_bottom = 18.0
+	style.shadow_color = Color(0.0, 0.0, 0.0, 0.5)
+	style.shadow_size = 10
+	style.shadow_offset = Vector2(0, 4)
 
-	var sky := Sky.new()
-	sky.sky_material = sky_material
+	panel.add_theme_stylebox_override("panel", style)
 
-	env.background_mode = Environment.BG_SKY
-	env.sky = sky
+	vbox = VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 4)
+	panel.add_child(vbox)
 
-	# --- Ambient light: soft, cool, sky-driven, low energy ---
-	env.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
-	env.ambient_light_energy = 0.6
-	env.ambient_light_sky_contribution = 1.0
+	kicker_label = Label.new()
+	kicker_label.text = "OBJECTIVE"
+	kicker_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	kicker_label.add_theme_color_override("font_color", Color(0.85, 0.7, 0.5, 0.9))
+	kicker_label.add_theme_font_size_override("font_size", 14)
+	vbox.add_child(kicker_label)
 
-	# --- Fog: this is what sells the "cold, heavy air" feel ---
-	# --- Fog: distance haze, not a wall right in front of you ---
-	env.fog_enabled = true
-	env.fog_light_color = Color(0.55, 0.58, 0.62)
-	env.fog_light_energy = 1.0
-	env.fog_sun_scatter = 0.1
-	env.fog_density = 0.002        # was 0.015 — much gentler falloff
-	env.fog_aerial_perspective = 0.3
-	env.fog_height = 0.0
-	env.fog_height_density = 0.0
+	message_label = Label.new()
+	message_label.text = "Tutorial Message"
+	message_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	message_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	message_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	message_label.add_theme_color_override("font_color", Color(1, 1, 1, 1))
+	message_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.8))
+	message_label.add_theme_constant_override("outline_size", 3)
+	message_label.add_theme_font_size_override("font_size", 24)
+	vbox.add_child(message_label)
 
-	# --- Volumetric fog: light haze only, not a solid block ---
-	env.volumetric_fog_enabled = true
-	env.volumetric_fog_density = 0.008   # was 0.04 — big cut
-	env.volumetric_fog_albedo = Color(0.6, 0.62, 0.65)
-	env.volumetric_fog_emission = Color(0.5, 0.52, 0.55)
-	env.volumetric_fog_emission_energy = 0.15
-	env.volumetric_fog_gi_inject = 0.3
-	env.volumetric_fog_ambient_inject = 0.15
-	env.volumetric_fog_length = 100.0    # was 64 — push the thick part further away
-	env.volumetric_fog_detail_spread = 2.0
+	add_child(panel)
 
-	# --- Tonemap & color grading: desaturated, filmic, slightly cool ---
-	env.tonemap_mode = Environment.TONE_MAPPER_FILMIC
-	env.tonemap_exposure = 1.0
-	env.tonemap_white = 6.0
+	panel.modulate.a = 0.0
+	visible = false
+	add_to_group("message_ui")
 
-	env.adjustment_enabled = true
-	env.adjustment_brightness = 0.95
-	env.adjustment_contrast = 1.1
-	env.adjustment_saturation = 0.75
 
-	# --- Glow: subtle, helps the overcast light feel soft ---
-	env.glow_enabled = true
-	env.glow_intensity = 0.4
-	env.glow_bloom = 0.1
-	env.glow_hdr_threshold = 1.2
+func show_message(text: String, duration: float = 3.0) -> void:
+	message_label.text = text
+	panel.modulate.a = 0.0
+	panel.offset_top = 12.0
+	panel.offset_bottom = 12.0
+	visible = true
 
-	# --- SSAO: cheap way to add grounded contact shadows ---
-	env.ssao_enabled = true
-	env.ssao_intensity = 1.5
+	if fade_tween:
+		fade_tween.kill()
 
-	environment = env
+	fade_tween = create_tween()
+	fade_tween.set_parallel(true)
+	fade_tween.set_ease(Tween.EASE_OUT)
+	fade_tween.set_trans(Tween.TRANS_QUAD)
 
-func _setup_sun() -> void:
-	# Looks for a DirectionalLight3D child of this node first;
-	# if you don't have one yet, this creates one for you.
-	var sun: DirectionalLight3D = null
-	for child in get_children():
-		if child is DirectionalLight3D:
-			sun = child
-			break
+	fade_tween.tween_property(panel, "modulate:a", 1.0, 0.35)
+	fade_tween.tween_property(panel, "offset_top", 0.0, 0.35)
+	fade_tween.tween_property(panel, "offset_bottom", 0.0, 0.35)
 
-	if sun == null:
-		sun = DirectionalLight3D.new()
-		sun.name = "Sun"
-		add_child(sun)
-		if Engine.is_editor_hint():
-			sun.owner = get_tree().edited_scene_root
+	fade_tween.chain().tween_interval(duration)
 
-	# Low angle, raking light — reads as "cold, low winter sun"
-	sun.rotation_degrees = Vector3(-35, -45, 0)
+	fade_tween.chain().tween_property(panel, "modulate:a", 0.0, 0.4)
 
-	sun.light_color = Color(0.75, 0.8, 0.88)
-	sun.light_energy = 1.2
-	sun.light_angular_distance = 1.0  # softer shadow edges, like diffused sun
-
-	sun.shadow_enabled = true
-	sun.directional_shadow_max_distance = 80.0
-	sun.directional_shadow_mode = DirectionalLight3D.SHADOW_PARALLEL_4_SPLITS
-	sun.directional_shadow_blend_splits = true
+	fade_tween.chain().tween_callback(func(): visible = false)

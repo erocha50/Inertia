@@ -1,65 +1,8 @@
 [gd_scene format=3 uid="uid://wcfi4x1idai5"]
 
 [ext_resource type="Script" uid="uid://k2nolc6du4cf" path="res://Scripts/ObjectiveMessage.gd" id="1_wgvru"]
-
-[sub_resource type="StyleBoxFlat" id="PanelStyle_6dbe8"]
-bg_color = Color(0, 0, 0, 0.6)
-border_width_left = 3
-border_width_top = 3
-border_width_right = 3
-border_width_bottom = 3
-border_color = Color(0.2, 0.6, 1, 0.8)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-expand_margin_left = 10.0
-expand_margin_top = 10.0
-expand_margin_right = 10.0
-expand_margin_bottom = 10.0
+[ext_resource type="Texture2D" uid="uid://dffqvs3cxkf4e" path="res://assets/image-Photoroom (1).png" id="2_l8dds"]
 
 [node name="ObjectMessageUI" type="CanvasLayer" unique_id=7471660]
 script = ExtResource("1_wgvru")
-
-[node name="Panel" type="Panel" parent="." unique_id=1421923452]
-custom_minimum_size = Vector2(600, 120)
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -300.0
-offset_top = -60.0
-offset_right = 300.0
-offset_bottom = 60.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_styles/panel = SubResource("PanelStyle_6dbe8")
-
-[node name="MarginContainer" type="MarginContainer" parent="Panel" unique_id=1421923454]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_constants/margin_left = 20
-theme_override_constants/margin_top = 15
-theme_override_constants/margin_right = 20
-theme_override_constants/margin_bottom = 15
-
-[node name="VBoxContainer" type="VBoxContainer" parent="Panel/MarginContainer" unique_id=1421923455]
-layout_mode = 2
-alignment = 1
-
-[node name="MessageLabel" type="Label" parent="Panel/MarginContainer/VBoxContainer" unique_id=1142132063]
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 2
-theme_override_font_sizes/font_size = 28
-text = "Tutorial Message"
-horizontal_alignment = 1
-vertical_alignment = 1
-autowrap_mode = 3
-text_overrun_behavior = 3
+guide_portrait = ExtResource("2_l8dds")
