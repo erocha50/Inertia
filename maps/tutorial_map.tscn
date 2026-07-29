@@ -147,10 +147,10 @@ script = ExtResource("6_hxcwp")
 script = ExtResource("7_hxcwp")
 
 [node name="Entrance_Door__vray" parent="." unique_id=1865108602 instance=ExtResource("8_ho2o4")]
-transform = Transform3D(0.8442217, 0, -9.766498, 0, 43.56903, 0, 46.240437, 0, 0.17830907, 203.4938, 0.8385534, 15.620027)
+transform = Transform3D(0.8442217, 0, -9.766498, 0, 43.56903, 0, 46.240437, 0, 0.17830907, 203.78477, 0.8385534, 15.620027)
 
 [node name="CSGBox3D13" type="CSGBox3D" parent="." unique_id=1453563668]
-transform = Transform3D(0.0065683112, 0.9999786, 0, -0.9999786, 0.0065683112, 0, 0, 0, 1, 203.6747, 11.672181, 15.550881)
+transform = Transform3D(0.0065683112, 0.9999786, 0, -0.9999786, 0.0065683112, 0, 0, 0, 1, 203.7692, 11.723462, 15.595915)
 use_collision = true
-size = Vector3(3.3052964, 0.608, 7.8979053)
+size = Vector3(3.1627498, 0.608, 7.8078394)
 material = SubResource("StandardMaterial3D_d0u6y")

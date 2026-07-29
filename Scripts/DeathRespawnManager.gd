@@ -34,6 +34,16 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+	# If the player (or respawn screen) we're holding onto has been
+	# freed — which happens whenever a scene change swaps in a new
+	# player instance — drop the stale references and look again.
+	if not is_instance_valid(_player):
+		_player = null
+		_connected = false
+
+	if not is_instance_valid(_respawn_screen):
+		_respawn_screen = null
+
 	if not _connected:
 		_try_connect()
 		return
@@ -64,9 +74,15 @@ func _try_connect() -> void:
 			_respawn_screen = screens[0]
 
 	if _player != null:
-		# Death is now triggered by HP hitting 0
-		HealthManager.player_hp_zero.connect(_trigger_death)
+		# Death is now triggered by HP hitting 0.
+		# Guard against double-connecting: HealthManager is also an
+		# autoload and persists across scene changes, so if it was
+		# already connected from before, connecting again would
+		# error out (or fire _trigger_death twice per death).
+		if not HealthManager.player_hp_zero.is_connected(_trigger_death):
+			HealthManager.player_hp_zero.connect(_trigger_death)
 		_connected = true
+		_is_dead = false  # fresh scene, fresh life
 
 
 func _trigger_death() -> void:
