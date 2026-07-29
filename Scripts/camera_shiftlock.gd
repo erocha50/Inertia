@@ -73,6 +73,21 @@ extends Node3D
 @export_group("Follow")
 @export var character_path:NodePath = ^".."
 
+@export_group("Lock-On")
+## Max distance to acquire a target with middle-mouse
+@export var lock_on_range:float = 18.0
+## Target is dropped once it's this many times farther than lock_on_range
+@export var lock_on_break_range_multiplier:float = 2.0
+## How wide a cone in front of the camera counts when acquiring a target
+@export var lock_on_acquire_fov_deg:float = 60.0
+## Vertical offset added to the target's origin so we aim at its body/center, not its feet
+@export var lock_on_aim_height:float = 1.0
+## How quickly the camera swings to look at the locked target
+@export var lock_on_look_speed:float = 10.0
+## 0 = aim stays fully on the player, 1 = aim stays fully on the target.
+## A blend keeps BOTH roughly on screen instead of letting the player drift out of frame.
+@export_range(0.0, 1.0) var lock_on_target_weight:float = 0.55
+
 # ── State ─────────────────────────────────────────────────────────────────────
 var _target_yaw:float
 var _smooth_yaw:float
@@ -101,6 +116,10 @@ var _recentre_timer:float = 0.0
 # Speed lines
 var _line_ctrl:_SpeedLineControl
 var _space:PhysicsDirectSpaceState3D
+
+# Lock-on
+var _lock_target:Node3D = null
+var _lock_look_dir:Vector3 = Vector3.FORWARD
 
 
 func _ready() -> void:
@@ -159,6 +178,13 @@ func _on_wall_hit(_wall_normal:Vector3, impact_speed:float) -> void:
 
 
 func _input(event:InputEvent) -> void:
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_MIDDLE and event.pressed:
+		if _lock_target != null:
+			_lock_target = null
+		else:
+			_acquire_lock_target()
+		return
+
 	if event is InputEventMouseMotion:
 		# Mouse moves the character's yaw directly (shiftlock always on)
 		var speed_t: float = clampf((_current_speed - 8.0) / (40.0 - 8.0), 0.0, 1.0)
@@ -180,6 +206,9 @@ func _input(event:InputEvent) -> void:
 
 func _process(delta:float) -> void:
 	_space = get_world_3d().direct_space_state
+
+	if _lock_target != null and not _is_lock_target_valid():
+		_lock_target = null
 
 	var spd_t := clampf(_current_speed / _max_spd, 0.0, 1.0)
 
@@ -225,6 +254,52 @@ func _process(delta:float) -> void:
 	_recentre_timer += delta
 	if _recentre_timer > 2.0:
 		_target_float_offset = lerpf(_target_float_offset, 0.0, 2.0 * delta)
+
+
+func _acquire_lock_target() -> void:
+	var cam_fwd:Vector3 = -_camera.global_transform.basis.z
+	var best:Node3D = null
+	var best_score:float = -1.0
+	var fov_cos := cos(deg_to_rad(lock_on_acquire_fov_deg * 0.5))
+
+	for n in get_tree().get_nodes_in_group("enemy"):
+		if not (n is Node3D):
+			continue
+		if "current_health" in n and n.current_health <= 0.0:
+			continue
+		var to_target: Vector3 = n.global_position - global_position
+		var dist := to_target.length()
+		if dist < 0.01 or dist > lock_on_range:
+			continue
+		var dir := to_target / dist
+		var facing := dir.dot(cam_fwd)
+		if facing < fov_cos:
+			continue
+		# Prefer targets closer to the center of view; distance is a tiebreaker
+		var score := facing - dist * 0.01
+		if score > best_score:
+			best_score = score
+			best = n
+
+	_lock_target = best
+
+
+func _is_lock_target_valid() -> bool:
+	if _lock_target == null or not is_instance_valid(_lock_target):
+		return false
+	if "current_health" in _lock_target and _lock_target.current_health <= 0.0:
+		return false
+	if global_position.distance_to(_lock_target.global_position) > lock_on_range * lock_on_break_range_multiplier:
+		return false
+	return true
+
+
+func is_locked_on() -> bool:
+	return _lock_target != null
+
+
+func get_lock_target() -> Node3D:
+	return _lock_target
 
 
 func _apply_orbital_transform(shake:Vector2 = Vector2.ZERO, _spd_t:float = 0.0) -> void:
@@ -288,11 +363,26 @@ func _apply_orbital_transform(shake:Vector2 = Vector2.ZERO, _spd_t:float = 0.0) 
 		sin(pitch_rad),
 		look_dir_horiz.z * cos(pitch_rad)
 	).normalized()
-	
+
 	# Compute look target far away in the look direction
 	# Look at a point 100m in the look direction from camera position
 	var look_target := global_position + look_dir * 100.0
-	
+
+	if _lock_target != null and is_instance_valid(_lock_target):
+		# The shoulder rig still orbits around the player exactly as before
+		# (mouse/movement drive the position). The aim BLENDS between the
+		# player and the locked enemy's body — aiming purely at the target
+		# let the player drift out of frame while strafing, since the camera
+		# position tracks the player but the old aim ignored them entirely.
+		var player_aim_point: Vector3 = _character.global_position + Vector3.UP * aim_vertical_offset
+		var target_aim_point: Vector3 = _lock_target.global_position + Vector3.UP * lock_on_aim_height
+		var blended_point: Vector3 = player_aim_point.lerp(target_aim_point, lock_on_target_weight)
+		var desired_dir: Vector3 = (blended_point - global_position).normalized()
+		_lock_look_dir = _lock_look_dir.slerp(desired_dir, clampf(lock_on_look_speed * get_process_delta_time(), 0.0, 1.0))
+		look_target = global_position + _lock_look_dir * 100.0
+	else:
+		_lock_look_dir = look_dir
+
 	_camera.look_at(look_target, up_vec)
 
 

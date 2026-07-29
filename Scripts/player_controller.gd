@@ -283,7 +283,7 @@ func _run_sm(d:float)->void:
 func _idle(d:float)->State:
 	_horiz(d)
 	if Input.is_action_just_pressed("roll"):  _perform_roll()
-	if Input.is_action_just_pressed("dash"):  try_dash()
+	if Input.is_action_just_pressed("dash_attack"):  try_dash()
 	if not is_on_floor():                return State.AIR
 	if _jump():                          return State.AIR
 	if _slide_ok():                      return State.SLIDE
@@ -293,7 +293,7 @@ func _idle(d:float)->State:
 func _run(d:float)->State:
 	_horiz(d)
 	if Input.is_action_just_pressed("roll"):  _perform_roll()
-	if Input.is_action_just_pressed("dash"):  try_dash()
+	if Input.is_action_just_pressed("dash_attack"):  try_dash()
 	if not is_on_floor():                        return State.AIR
 	if _jump():                                  return State.AIR
 	if _slide_ok():                              return State.SLIDE
@@ -307,7 +307,7 @@ func _air(d:float)->State:
 	_horiz(d)
 	if Input.is_action_just_released("jump") and velocity.y>0.0: velocity.y*=0.40
 	if Input.is_action_just_pressed("roll") and air_roll_allowed: _perform_roll()
-	if Input.is_action_just_pressed("dash"): try_dash()
+	if Input.is_action_just_pressed("dash_attack"): try_dash()
 	
 	if wall_ride_enabled and is_on_wall_only() and velocity.y < 5.0 and _flat_spd() >= wall_ride_min_speed:
 		var wn := get_wall_normal()

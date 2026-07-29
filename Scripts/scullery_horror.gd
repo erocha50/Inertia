@@ -92,6 +92,7 @@ var _last_damage_time : float = -999.0
 
 func _ready() -> void:
 	current_health  = max_health
+	add_to_group("enemy")
 	_spawn_position = global_position
 	rotation.x      = 0.0
 	rotation.z      = 0.0

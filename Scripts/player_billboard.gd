@@ -24,6 +24,8 @@ enum BillboardState {
 @export var walk_max_fps: float = 12.0
 @export var min_move_speed: float = 0.5
 @export var jump_fps: float = 8.0
+@export var dash_duration: float = 2.0       ## seconds the "dash" anim plays for
+@export var dash_land_duration: float = 0.2  ## seconds the "dash_land" anim plays for
 
 var _bb_state := BillboardState.IDLE
 var _current_speed: float
@@ -38,8 +40,12 @@ func _ready() -> void:
 			_player.speed_changed.connect(_on_speed_changed)
 		if _player.has_signal(&"state_changed"):
 			_player.state_changed.connect(_on_player_state_changed)
-		if _player.has_signal(&"dash_performed"):
-			_player.dash_performed.connect(_on_dash_performed)
+		if _player.has_signal(&"dash_attack_performed"):
+			_player.dash_attack_performed.connect(_on_dash_performed)
+		# Cooldown = full dash sequence length, so the player can't dash again
+		# until dash + dash_land has finished playing.
+		if "dash_attack_cooldown" in _player:
+			_player.dash_attack_cooldown = dash_duration + dash_land_duration
 	# Start with idle
 	play(&"idle")
 	animation_finished.connect(_on_any_animation_finished)
@@ -198,13 +204,24 @@ func _change_state(new_state: BillboardState) -> void:
 
 		BillboardState.DASH:
 			play(&"dash")
-			speed_scale = 1.0 / 2.0
+			speed_scale = _speed_scale_for_duration(&"dash", dash_duration)
 			_anim_finished_cb = _on_dash_done
 
 		BillboardState.DASH_LAND:
 			play(&"dash_land")
-			speed_scale = 1.0 / 0.2
+			speed_scale = _speed_scale_for_duration(&"dash_land", dash_land_duration)
 			_anim_finished_cb = _on_dash_land_done
+
+## Base SpriteFrames FPS is 1.0 for every animation (see header note), so
+## playback speed in frames/sec == speed_scale. To make an animation with any
+## frame count last exactly `duration` seconds: speed_scale = frame_count / duration.
+func _speed_scale_for_duration(anim_name: StringName, duration: float) -> float:
+	if duration <= 0.0:
+		return 1.0
+	var frame_count := 1
+	if sprite_frames and sprite_frames.has_animation(anim_name):
+		frame_count = maxi(sprite_frames.get_frame_count(anim_name), 1)
+	return frame_count / duration
 
 func _on_prepare_jump_done() -> void:
 	# prepare_jump_from_idle finished → jump_fall_start
