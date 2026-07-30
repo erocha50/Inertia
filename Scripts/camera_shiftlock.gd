@@ -80,13 +80,20 @@ extends Node3D
 @export var lock_on_break_range_multiplier:float = 2.0
 ## How wide a cone in front of the camera counts when acquiring a target
 @export var lock_on_acquire_fov_deg:float = 60.0
+## How quickly the camera orbit turns to keep facing the locked target as
+## the player moves around it (sun/earth — the target is the anchor, the
+## camera swings to track it, not the player's own facing).
+@export var lock_on_orbit_speed:float = 7.0
 ## Vertical offset added to the target's origin so we aim at its body/center, not its feet
 @export var lock_on_aim_height:float = 1.0
-## How quickly the camera swings to look at the locked target
-@export var lock_on_look_speed:float = 10.0
-## 0 = aim stays fully on the player, 1 = aim stays fully on the target.
-## A blend keeps BOTH roughly on screen instead of letting the player drift out of frame.
-@export_range(0.0, 1.0) var lock_on_target_weight:float = 0.55
+## Floor for the horizontal distance used when computing lock-on pitch.
+## Without this, pitch angle blows up as you close in on the target
+## (same height difference / shrinking horizontal distance = steep angle).
+@export var lock_on_min_flat_dist:float = 4.0
+## How far behind the player the camera sits when locked on (overrides
+## arm_length). The camera flips to behind the player so looking at the
+## enemy keeps both in frame.
+@export var lock_on_arm_back:float = 3.0
 
 # ── State ─────────────────────────────────────────────────────────────────────
 var _target_yaw:float
@@ -119,7 +126,7 @@ var _space:PhysicsDirectSpaceState3D
 
 # Lock-on
 var _lock_target:Node3D = null
-var _lock_look_dir:Vector3 = Vector3.FORWARD
+var _lock_orbit_yaw:float = 0.0
 
 
 func _ready() -> void:
@@ -132,6 +139,7 @@ func _ready() -> void:
 	_target_yaw = rad_to_deg(_character.rotation.y)
 	_smooth_yaw = _target_yaw
 	_smooth_pitch = _pitch
+	_lock_orbit_yaw = _smooth_yaw
 
 	_apply_orbital_transform()
 	_build_speed_lines()
@@ -210,6 +218,21 @@ func _process(delta:float) -> void:
 	if _lock_target != null and not _is_lock_target_valid():
 		_lock_target = null
 
+	# The lock-on orbit yaw is the ENEMY tracking the player like a sun —
+	# it's recomputed from the character-to-target direction every frame
+	# and smoothly turned toward, independent of mouse/_target_yaw. This is
+	# what the camera actually orbits and aims around while locked, so it
+	# keeps facing the target no matter how the player moves around it.
+	if _lock_target != null and is_instance_valid(_lock_target):
+		var to_target: Vector3 = _lock_target.global_position - _character.global_position
+		to_target.y = 0.0
+		if to_target.length() > 0.01:
+			var desired_orbit_yaw := rad_to_deg(atan2(-to_target.x, -to_target.z))
+			var orbit_diff := wrapf(desired_orbit_yaw - _lock_orbit_yaw, -180.0, 180.0)
+			_lock_orbit_yaw += orbit_diff * clampf(lock_on_orbit_speed * delta, 0.0, 1.0)
+	else:
+		_lock_orbit_yaw = _smooth_yaw
+
 	var spd_t := clampf(_current_speed / _max_spd, 0.0, 1.0)
 
 	# Spring-damper for yaw — overshoots slightly on sharp turns for a
@@ -231,8 +254,12 @@ func _process(delta:float) -> void:
 		vertical_float_speed * delta)
 
 	# Rotate character to match camera yaw
+	# When locked on, the player faces the target (lock_on orbit yaw),
+	# not the mouse-driven yaw — so the player and camera both face the enemy.
+	var is_locked := _lock_target != null and is_instance_valid(_lock_target)
+	var char_yaw_deg := _lock_orbit_yaw if is_locked else _target_yaw
 	_character.global_transform.basis = _character.global_transform.basis.slerp(
-		Basis(Vector3.UP, deg_to_rad(_target_yaw)),
+		Basis(Vector3.UP, deg_to_rad(char_yaw_deg)),
 		minf(delta * 20.0, 1.0)
 	)
 
@@ -303,7 +330,14 @@ func get_lock_target() -> Node3D:
 
 
 func _apply_orbital_transform(shake:Vector2 = Vector2.ZERO, _spd_t:float = 0.0) -> void:
-	var yaw_rad := deg_to_rad(_smooth_yaw + shake.x)
+	var is_locked := _lock_target != null and is_instance_valid(_lock_target)
+
+	# While locked, the rig orbits around the TARGET-facing yaw (sun/earth —
+	# the enemy is the anchor, the camera swings to keep tracking it) instead
+	# of the mouse-driven character yaw. This is what makes the shoulder
+	# framing keep the enemy in view as the player circles around it.
+	var orbit_yaw_deg := _lock_orbit_yaw if is_locked else _smooth_yaw
+	var yaw_rad := deg_to_rad(orbit_yaw_deg + shake.x)
 
 	# ── Position ────────────────────────────────────────────────────────────
 	# Camera pivot at character center height
@@ -312,8 +346,15 @@ func _apply_orbital_transform(shake:Vector2 = Vector2.ZERO, _spd_t:float = 0.0) 
 	# Right direction (perpendicular to facing) — pushes camera to right shoulder
 	var right_vec := Vector3(cos(yaw_rad), 0.0, -sin(yaw_rad)) * shoulder_offset
 
-	# Back direction (behind the character)
-	var back_vec := Vector3(-sin(yaw_rad), 0.0, -cos(yaw_rad)) * arm_length
+	# Back direction: normally pushes the camera slightly in front of the player
+	# (so the over-the-shoulder framing looks back at the player). When locked,
+	# flip it behind the player so looking at the enemy keeps the player in frame.
+	var back_vec: Vector3
+	if is_locked:
+		# Behind the player (reverse of the normal direction)
+		back_vec = Vector3(sin(yaw_rad), 0.0, cos(yaw_rad)) * lock_on_arm_back
+	else:
+		back_vec = Vector3(-sin(yaw_rad), 0.0, -cos(yaw_rad)) * arm_length
 
 	# Target camera position: to the right of + behind the character
 	var target_pos := char_pos + right_vec + back_vec
@@ -335,55 +376,46 @@ func _apply_orbital_transform(shake:Vector2 = Vector2.ZERO, _spd_t:float = 0.0) 
 	global_position = target_pos
 
 	# ── Look / Aim ──────────────────────────────────────────────────────────
-	# Compute the camera's look direction: rotate the vector from camera
-	# to player RIGHT by the framing angle, then pitch up/down.
-	#
-	# This guarantees the player appears LEFT of center on screen.
+	# When locked on, look directly at the target so the enemy stays centered.
+	# Otherwise, use the over-the-shoulder framing (rotate camera→player
+	# direction right by the framing angle) so the player appears on the left.
 	
 	var up_vec := Vector3.UP
 	
-	# Direction from camera to player (horizontal only)
-	var to_player: Vector3 = _character.global_position - global_position
-	var to_player_horiz := Vector3(to_player.x, 0.0, to_player.z).normalized()
-	
-	# Rotate RIGHT around UP by framing angle
-	var framing_rad := deg_to_rad(aim_horizontal_deg)
-	var cos_a := cos(framing_rad)
-	var sin_a := sin(framing_rad)
-	var look_dir_horiz := Vector3(
-		to_player_horiz.x * cos_a - to_player_horiz.z * sin_a,
-		0.0,
-		to_player_horiz.x * sin_a + to_player_horiz.z * cos_a
-	)
-	
-	# Add pitch (vertical component)
-	var pitch_rad := deg_to_rad(_smooth_pitch + shake.y * 0.3)
-	var look_dir := Vector3(
-		look_dir_horiz.x * cos(pitch_rad),
-		sin(pitch_rad),
-		look_dir_horiz.z * cos(pitch_rad)
-	).normalized()
-
-	# Compute look target far away in the look direction
-	# Look at a point 100m in the look direction from camera position
-	var look_target := global_position + look_dir * 100.0
-
-	if _lock_target != null and is_instance_valid(_lock_target):
-		# The shoulder rig still orbits around the player exactly as before
-		# (mouse/movement drive the position). The aim BLENDS between the
-		# player and the locked enemy's body — aiming purely at the target
-		# let the player drift out of frame while strafing, since the camera
-		# position tracks the player but the old aim ignored them entirely.
-		var player_aim_point: Vector3 = _character.global_position + Vector3.UP * aim_vertical_offset
-		var target_aim_point: Vector3 = _lock_target.global_position + Vector3.UP * lock_on_aim_height
-		var blended_point: Vector3 = player_aim_point.lerp(target_aim_point, lock_on_target_weight)
-		var desired_dir: Vector3 = (blended_point - global_position).normalized()
-		_lock_look_dir = _lock_look_dir.slerp(desired_dir, clampf(lock_on_look_speed * get_process_delta_time(), 0.0, 1.0))
-		look_target = global_position + _lock_look_dir * 100.0
+	if is_locked:
+		# Look at a point between the player and the enemy so both stay in frame.
+		# The player is to the left/right of camera (shoulder offset), and the
+		# enemy is in front — this blend keeps the player visible while centered
+		# on the fight.
+		var player_center := _character.global_position + Vector3(0.0, aim_vertical_offset, 0.0)
+		var enemy_center := _lock_target.global_position + Vector3(0.0, lock_on_aim_height, 0.0)
+		var look_at_pos := player_center.lerp(enemy_center, 0.65)
+		_camera.look_at(look_at_pos, up_vec)
 	else:
-		_lock_look_dir = look_dir
-
-	_camera.look_at(look_target, up_vec)
+		# Normal framing: look at player offset by framing angle so the
+		# player appears on the LEFT side of the screen.
+		var to_player: Vector3 = _character.global_position - global_position
+		var to_player_horiz := Vector3(to_player.x, 0.0, to_player.z).normalized()
+		
+		var framing_rad := deg_to_rad(aim_horizontal_deg)
+		var cos_a := cos(framing_rad)
+		var sin_a := sin(framing_rad)
+		var look_dir_horiz := Vector3(
+			to_player_horiz.x * cos_a - to_player_horiz.z * sin_a,
+			0.0,
+			to_player_horiz.x * sin_a + to_player_horiz.z * cos_a
+		)
+		
+		# Mouse-driven pitch
+		var pitch_rad := deg_to_rad(_smooth_pitch + shake.y * 0.3)
+		var look_dir := Vector3(
+			look_dir_horiz.x * cos(pitch_rad),
+			sin(pitch_rad),
+			look_dir_horiz.z * cos(pitch_rad)
+		).normalized()
+		
+		var look_target := global_position + look_dir * 100.0
+		_camera.look_at(look_target, up_vec)
 
 
 func _compute_impact_shake(delta:float) -> Vector2:
