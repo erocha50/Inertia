@@ -40,6 +40,8 @@ const GRAVITY = -9.8
 
 func _ready() -> void:
 	current_health = max_health
+	add_to_group("enemy")
+
 
 	_spawn_position = global_position
 	_health_bar = preload("res://Scripts/EnemyHealthBar.gd").new()

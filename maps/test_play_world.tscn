@@ -12,6 +12,7 @@
 [ext_resource type="PackedScene" uid="uid://dcm2wffcxim02" path="res://Scenes/FoodItem.tscn" id="10_2u3jn"]
 [ext_resource type="PackedScene" uid="uid://duaemlg4b788f" path="res://Scenes/hearth.tscn" id="11_slu43"]
 [ext_resource type="PackedScene" uid="uid://u2c8cmscyaoh" path="res://characters/scullery_horror.tscn" id="12_3jwxd"]
+
 [ext_resource type="PackedScene" uid="uid://c87qnrg3hihha" path="res://characters/frozen_waiter.tscn" id="13_8jx5h"]
 [ext_resource type="PackedScene" uid="uid://b3yu1v3s3m84f" path="res://characters/bloated_diner.tscn" id="14_g5rfj"]
 [ext_resource type="Script" uid="uid://c1pdw26wtj4ce" path="res://Scripts/stage_light.gd" id="15_stage"]
@@ -146,8 +147,9 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.143082, 2.0499992, -16.093
 [node name="SculleryHorror2" parent="." unique_id=1982500721 instance=ExtResource("12_3jwxd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.262619, 1.5499992, 41.313725)
 
-[node name="BloatedDiner2" parent="." unique_id=1581264417 instance=ExtResource("14_g5rfj")]
+[node name="BloatedDiner2" parent="." unique_id=1581264417 groups=["enemy"] instance=ExtResource("14_g5rfj")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -17.075882, 2.0499992, 56.806156)
 
-[node name="FrozenWaiter2" parent="." unique_id=98664775 instance=ExtResource("13_8jx5h")]
+[node name="FrozenWaiter2" parent="." unique_id=98664775 groups=["enemy"] instance=ExtResource("13_8jx5h")]
+
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -19.551758, 5.2342415, -29.001888)
