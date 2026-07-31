@@ -1,95 +1,5 @@
 extends Node3D
 
-@export_group("Mouse")
-@export var sensitivity_x:float=0.20; @export var sensitivity_y:float=0.18
-@export var max_yaw_delta_deg:float=6.0
-
-@export_group("Vertical")
-@export var pitch_min:float=-70.0; @export var pitch_max:float=60.0
-
-@export_group("Orbital Arm")
-@export var arm_length:float=6.0;    @export var pivot_height_offset:float=1.6
-@export var arm_min:float=1.5;       @export var arm_max:float=14.0
-@export var arm_zoom_smooth:float=10.0; @export var arm_speed_pullback:float=2.5
-@export var arm_lookahead:float=1.8
-@export var pitch_ground_factor:float=0.55
-
-@export_group("Shoulder")
-@export var shoulder_base:float=2.2
-@export var shoulder_lean_sweep:float=2.80
-@export var shoulder_turn_shift:float=1.2
-@export var shoulder_smooth:float=6.0
-@export var shoulder_y_drop_max:float=0.80
-
-@export_group("Spring Damper")
-@export var spring_h:float=14.0; @export var spring_v:float=8.0
-@export var lag_yaw_factor:float=0.08
-
-@export_group("Speed Resistance")
-@export var resistance_start:float=8.0; @export var resistance_max:float=40.0
-@export var min_turn_ratio:float=0.15
-
-@export_group("Auto Recentre")
-@export var recentre_delay:float=2.0; @export var recentre_speed:float=2.5
-
-@export_group("FOV")
-@export var fov_base:float=75.0; @export var fov_max:float=100.0; @export var fov_smooth:float=6.0
-
-@export_group("Lean")
-@export var roll_max_deg:float=22.0;   @export var roll_smooth:float=5.5
-@export var roll_buildup_rate:float=3.0; @export var roll_drain_rate:float=4.5
-@export var moto_pitch_max:float=35.0; @export var moto_pitch_rate:float=5.0
-@export var lean_arm_pull:float=1.8
-
-@export_group("Vertical Feel")
-@export var fall_pitch_bias:float=6.0; @export var fall_pitch_speed:float=10.0
-@export var land_pitch_kick:float=4.0
-
-@export_group("Running Shake")
-@export var run_shake_max:float=0.55;  @export var run_shake_speed:float=40.0
-@export var run_shake_freq:float=9.0;  @export var topspeed_shake_bonus:float=0.40
-
-@export_group("Impact Shake")
-@export var shake_max_deg:float=3.5;   @export var shake_idle_floor:float=0.08
-@export var shake_frequency:float=26.0; @export var shake_attack:float=18.0
-@export var shake_decay:float=10.0;    @export var shake_full_yaw_rate:float=3.5
-@export var impact_shake_deg:float=3.8; @export var impact_decay:float=16.0
-
-@export_group("Wall Hit")
-@export var wall_hit_trauma:float=5.0; @export var wall_pitch_kick:float=3.5
-
-@export_group("Collision")
-@export var collision_enabled:bool=true; @export var collision_radius:float=0.2
-
-@export_group("Speed Lines")
-@export var lines_start_speed:float=8.0; @export var lines_max_speed:float=28.0
-@export var line_count:int=52; @export var line_color:Color=Color(1,1,1,0.85)
-
-@export_group("Follow")
-@export var character_path:NodePath=^".."
-
-@export_group("Wall Ride Camera")
-@export var wall_tilt_enabled:bool=true
-@export var wall_tilt_angle:float=20.0
-@export var wall_tilt_smooth:float=8.0
-
-@export_group("Wallhop Assist Camera")
-@export var wallhop_fov_assist:float=5.0
-@export var wallhop_arm_closer:float=1.5; @export var wallhop_arm_smooth:float=6.0
-
-@export_group("Lock-On")
-@export var lock_on_range:float = 18.0
-@export var lock_on_break_range_multiplier:float = 2.0
-@export var lock_on_acquire_fov_deg:float = 60.0
-@export var lock_on_orbit_speed:float = 7.0
-@export var lock_on_aim_height:float = 1.0
-@export var lock_on_min_flat_dist:float = 4.0
-@export var lock_on_arm_back:float = 3.0
-
-
-
-# ── Speed Lines ───────────────────────────────────────────────────────────────
-class _SpeedLineControl extends Control:
 ## Over-the-shoulder camera — right-shoulder, locked shiftlock.
 ## Player sits on the LEFT side of screen, camera on the right looking in.
 ## Very slight vertical freelook "float" for cinematic feel.
@@ -170,19 +80,14 @@ class _SpeedLineControl extends Control:
 @export var lock_on_break_range_multiplier:float = 2.0
 ## How wide a cone in front of the camera counts when acquiring a target
 @export var lock_on_acquire_fov_deg:float = 60.0
-## How quickly the camera orbit turns to keep facing the locked target as
-## the player moves around it (sun/earth — the target is the anchor, the
-## camera swings to track it, not the player's own facing).
+## How quickly the camera orbit turns to keep facing the locked target
 @export var lock_on_orbit_speed:float = 7.0
-## Vertical offset added to the target's origin so we aim at its body/center, not its feet
+## Vertical offset added to the target's origin so we aim at its body/center
 @export var lock_on_aim_height:float = 1.0
 ## Floor for the horizontal distance used when computing lock-on pitch.
-## Without this, pitch angle blows up as you close in on the target
-## (same height difference / shrinking horizontal distance = steep angle).
 @export var lock_on_min_flat_dist:float = 4.0
-## How far behind the player the camera sits when locked on (overrides
-## arm_length). The camera flips to behind the player so looking at the
-## enemy keeps both in frame.
+## How far behind the player the camera sits when locked on (overrides arm_length).
+## The camera flips to behind the player so looking at the enemy keeps both in frame.
 @export var lock_on_arm_back:float = 3.0
 
 # ── State ─────────────────────────────────────────────────────────────────────
@@ -466,17 +371,14 @@ func _apply_orbital_transform(shake:Vector2 = Vector2.ZERO, _spd_t:float = 0.0) 
 	global_position = target_pos
 
 	# ── Look / Aim ──────────────────────────────────────────────────────────
-	# When locked on, look directly at the target so the enemy stays centered.
+	# When locked on, look at a point between player and enemy so both stay in frame.
 	# Otherwise, use the over-the-shoulder framing (rotate camera→player
 	# direction right by the framing angle) so the player appears on the left.
-	
+
 	var up_vec := Vector3.UP
-	
+
 	if is_locked:
 		# Look at a point between the player and the enemy so both stay in frame.
-		# The player is to the left/right of camera (shoulder offset), and the
-		# enemy is in front — this blend keeps the player visible while centered
-		# on the fight.
 		var player_center := _character.global_position + Vector3(0.0, aim_vertical_offset, 0.0)
 		var enemy_center := _lock_target.global_position + Vector3(0.0, lock_on_aim_height, 0.0)
 		var look_at_pos := player_center.lerp(enemy_center, 0.65)
@@ -486,7 +388,7 @@ func _apply_orbital_transform(shake:Vector2 = Vector2.ZERO, _spd_t:float = 0.0) 
 		# player appears on the LEFT side of the screen.
 		var to_player: Vector3 = _character.global_position - global_position
 		var to_player_horiz := Vector3(to_player.x, 0.0, to_player.z).normalized()
-		
+
 		var framing_rad := deg_to_rad(aim_horizontal_deg)
 		var cos_a := cos(framing_rad)
 		var sin_a := sin(framing_rad)
@@ -495,7 +397,7 @@ func _apply_orbital_transform(shake:Vector2 = Vector2.ZERO, _spd_t:float = 0.0) 
 			0.0,
 			to_player_horiz.x * sin_a + to_player_horiz.z * cos_a
 		)
-		
+
 		# Mouse-driven pitch
 		var pitch_rad := deg_to_rad(_smooth_pitch + shake.y * 0.3)
 		var look_dir := Vector3(
@@ -503,7 +405,7 @@ func _apply_orbital_transform(shake:Vector2 = Vector2.ZERO, _spd_t:float = 0.0) 
 			sin(pitch_rad),
 			look_dir_horiz.z * cos(pitch_rad)
 		).normalized()
-		
+
 		var look_target := global_position + look_dir * 100.0
 		_camera.look_at(look_target, up_vec)
 
@@ -552,3 +454,60 @@ func get_movement_basis() -> Array:
 		Vector3(cos(yr), 0, -sin(yr))
 	]
 
+
+# ── Speed Lines ───────────────────────────────────────────────────────────────
+class _SpeedLineControl extends Control:
+	var _intensity:float
+	var _time:float
+	var _angles:PackedFloat32Array
+	var _lengths:PackedFloat32Array
+	var _offsets:PackedFloat32Array
+	var _speeds:PackedFloat32Array
+	var _widths:PackedFloat32Array
+	var _col:Color
+	var _n:int
+
+	func setup(count:int, col:Color) -> void:
+		_n = count
+		_col = col
+		_angles.resize(count)
+		_lengths.resize(count)
+		_offsets.resize(count)
+		_speeds.resize(count)
+		_widths.resize(count)
+		var r := RandomNumberGenerator.new()
+		r.randomize()
+		for i in count:
+			_angles[i] = r.randf_range(0, TAU)
+			_lengths[i] = r.randf_range(0.18, 0.52)
+			_offsets[i] = r.randf_range(0.10, 0.90)
+			_speeds[i] = r.randf_range(1.4, 3.8)
+			_widths[i] = r.randf_range(2.0, 5.5)
+
+	func set_intensity(t:float) -> void:
+		_intensity = t
+		queue_redraw()
+
+	func _process(delta:float) -> void:
+		if _intensity > 0.001:
+			_time += delta * (1.2 + _intensity * 3.2)
+			queue_redraw()
+
+	func _draw() -> void:
+		if _intensity < 0.001:
+			return
+		var cx := size.x * 0.5
+		var cy := size.y * 0.5
+		var diag := Vector2(cx, cy).length()
+		for i in _n:
+			var off := fmod(_offsets[i] + _time * _speeds[i] * 0.28 * _intensity, 1.0)
+			var ds := diag * off
+			var de := diag * minf(off + _lengths[i] * _intensity, 1.10)
+			var dir := Vector2(cos(_angles[i]), sin(_angles[i]))
+			var alpha := _col.a * _intensity * smoothstep(0.10, 0.45, off)
+			draw_line(
+				Vector2(cx, cy) + dir * ds,
+				Vector2(cx, cy) + dir * de,
+				Color(_col.r, _col.g, _col.b, alpha),
+				_widths[i] * (0.5 + _intensity * 0.8)
+			)
