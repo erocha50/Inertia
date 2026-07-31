@@ -72,6 +72,8 @@ var _hit_this_sweep : Array[Node3D] = []
 
 func _ready() -> void:
 	current_health  = max_health
+	add_to_group("enemy")
+
 	_spawn_position = global_position
 
 	tray_mesh.position = Vector3(0.0, 0.0, -(tray_arm_length * 0.5))

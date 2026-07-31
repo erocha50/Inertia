@@ -1,0 +1,175 @@
+[gd_scene format=3 uid="uid://b355nnhi1g7tg"]
+
+[ext_resource type="Script" uid="uid://cxqw60558hmyd" path="res://Scripts/player_controller.gd" id="1_player"]
+[ext_resource type="Script" uid="uid://kpkwthn0lm76" path="res://Scripts/camera_shiftlock.gd" id="2_camera"]
+[ext_resource type="Script" uid="uid://dbx0jqdm54cwo" path="res://canvas_layer.gd" id="3_8ni3k"]
+[ext_resource type="Script" uid="uid://cphlulyb7xl12" path="res://Scripts/PlayerSpeedBridge.gd" id="4_eml8v"]
+[ext_resource type="Texture2D" uid="uid://bqk2vwipc7bpa" path="res://assets/player_animations/player idle/player_idle.png" id="5_wiblt"]
+[ext_resource type="Texture2D" uid="uid://y6odmwpk1cql" path="res://assets/player_animations/player walk/player_walk1.png" id="6_walk1"]
+[ext_resource type="Texture2D" uid="uid://bf0ofd03nosu2" path="res://assets/player_animations/player walk/player_walk2.png" id="7_walk2"]
+[ext_resource type="Texture2D" uid="uid://dlexsbncjlv7l" path="res://assets/player_animations/player walk/player_walk3.png" id="8_walk3"]
+[ext_resource type="Texture2D" uid="uid://cfbdqqixmowmi" path="res://assets/player_animations/player walk/player_walk4.png" id="9_walk4"]
+[ext_resource type="Script" uid="uid://dlnr5wtwqcav" path="res://Scripts/player_billboard.gd" id="10_niblt"]
+[ext_resource type="Texture2D" uid="uid://dfdro18m7egje" path="res://assets/player_animations/player jump/prepare jump from idle.png" id="11_a"]
+[ext_resource type="Texture2D" uid="uid://b1mwk8siwrvm7" path="res://assets/player_animations/player jump/player jump fall to run.png" id="15_e"]
+[ext_resource type="Texture2D" uid="uid://dw3kku5go5ix2" path="res://assets/player_animations/player jump/player jump fall to normal state.png" id="16_f"]
+[ext_resource type="Texture2D" uid="uid://dbogn2ljyp8wd" path="res://assets/player_animations/player wall run/player wall run3.png" id="19_wr3"]
+[ext_resource type="Texture2D" uid="uid://bqx4wh7anrytw" path="res://assets/player_animations/player wall run/player wall run4.png" id="20_wr4"]
+[ext_resource type="Texture2D" uid="uid://c4dlw7fu5aeiv" path="res://assets/player_animations/player wall run/player wall run3 (wall on left side).png" id="21_wr3l"]
+[ext_resource type="Texture2D" uid="uid://dlit0gbmv6xi8" path="res://assets/player_animations/player wall run/player wall run4 (wall on left side).png" id="22_wr4l"]
+
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_cqy3o"]
+
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_5tn5b"]
+load_path = "res://.godot/imported/player jump fall mid2.png-fc55302addcc06f4881e1553561e49ed.ctex"
+
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_usglh"]
+load_path = "res://.godot/imported/jump to fall start.png-a5c3f3fdd3cb382c6656a0e430e0c311.ctex"
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_abcde"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("5_wiblt")
+}],
+"loop": 1,
+"name": &"idle",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("CompressedTexture2D_cqy3o")
+}, {
+"duration": 1.0,
+"texture": SubResource("CompressedTexture2D_5tn5b")
+}],
+"loop": 1,
+"name": &"jump_fall_mid",
+"speed": 0.5
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("CompressedTexture2D_usglh")
+}],
+"loop": 0,
+"name": &"jump_fall_start",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("16_f")
+}],
+"loop": 0,
+"name": &"jump_fall_to_idle",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("15_e")
+}],
+"loop": 0,
+"name": &"jump_fall_to_run",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("11_a")
+}],
+"loop": 0,
+"name": &"prepare_jump_from_idle",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("6_walk1")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_walk2")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_walk3")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_walk4")
+}],
+"loop": 1,
+"name": &"walk",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("19_wr3")
+}, {
+"duration": 1.0,
+"texture": ExtResource("20_wr4")
+}],
+"loop": 1,
+"name": &"wall_run",
+"speed": 0.25
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("21_wr3l")
+}, {
+"duration": 1.0,
+"texture": ExtResource("22_wr4l")
+}],
+"loop": 1,
+"name": &"wall_run_left",
+"speed": 0.25
+}]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_fghij"]
+albedo_color = Color(0.4, 0.6, 0.8, 1)
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_j8adm"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_qwxyz"]
+
+[node name="CharacterBody3D" type="CharacterBody3D" unique_id=1229242080 groups=["player"]]
+script = ExtResource("1_player")
+dash_attack_speed = 70.0
+
+[node name="CameraController" type="Node3D" parent="." unique_id=1765414761]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0)
+script = ExtResource("2_camera")
+camera_height = 0.8
+sensitivity_y = -0.16
+pitch_max = 15.0
+yaw_smooth_speed = 10.0
+pitch_smooth_speed = 12.0
+fov_base = 80.0
+fov_max = 100.0
+
+[node name="Camera3D" type="Camera3D" parent="CameraController" unique_id=1657557889]
+
+[node name="PlayerBillboard" type="AnimatedSprite3D" parent="." unique_id=980855327]
+transform = Transform3D(6, 0, 0, 0, 6, 0, 0, 0, 6, 0, 0.6091789, 0)
+pixel_size = 0.0005
+billboard = 1
+sprite_frames = SubResource("SpriteFrames_abcde")
+animation = &"wall_run"
+script = ExtResource("10_niblt")
+idle_fps = null
+walk_min_fps = null
+walk_max_fps = null
+min_move_speed = null
+jump_fps = null
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=636966049]
+visible = false
+material_override = SubResource("StandardMaterial3D_fghij")
+mesh = SubResource("CapsuleMesh_j8adm")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1058063896]
+shape = SubResource("CapsuleShape3D_qwxyz")
+
+[node name="GroundDetector" type="RayCast3D" parent="." unique_id=1765414762]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.9, 0)
+hit_from_inside = true
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1388634978]
+script = ExtResource("3_8ni3k")
+
+[node name="PlayerSpeedBridge" type="Node3D" parent="." unique_id=533498703]
+script = ExtResource("4_eml8v")
