@@ -251,7 +251,6 @@ func take_damage(amount: float) -> void:
 func _die() -> void:
 	velocity = Vector3.ZERO
 	if _health_bar: _health_bar.show_dead()
-	_change_state(State.DEAD)
 	get_tree().create_timer(respawn_delay).timeout.connect(_respawn)
 
 func _respawn() -> void:

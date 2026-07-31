@@ -14,35 +14,51 @@ const WARP_SHADER_CODE := """
 shader_type canvas_item;
 
 uniform float progress : hint_range(0.0, 1.0) = 0.0;
-uniform float warp_speed : hint_range(0.5, 10.0) = 4.0;
-uniform int streak_count : hint_range(20, 300) = 140;
+uniform float warp_speed : hint_range(0.1, 5.0) = 1.4;
 
-float rand(float seed) {
-	return fract(sin(seed * 12.9898) * 43758.5453);
+const int STAR_COUNT = 70;
+
+float hash(float n) {
+	return fract(sin(n) * 43758.5453123);
 }
 
 void fragment() {
-	vec2 uv = (UV - vec2(0.5)) * vec2(1.0, SCREEN_PIXEL_SIZE.x > 0.0 ? 1.0 : 1.0);
-	float angle = atan(uv.y, uv.x);
-	float radius = length(uv) * 2.0;
+	vec2 uv = UV - vec2(0.5);
+	uv.x *= 1.0;
 
-	float streak_id = floor((angle / (2.0 * 3.14159265)) * float(streak_count));
-	float rnd = rand(streak_id);
-	float speed_mult = 0.4 + rnd * 1.6;
+	vec3 col = vec3(0.0);
+	float t = TIME * warp_speed;
 
-	float pos = fract(radius - TIME * warp_speed * speed_mult * progress - rnd);
-	float streak = smoothstep(0.0, 0.015, pos) - smoothstep(0.015, 0.06, pos);
+	for (int i = 0; i < STAR_COUNT; i++) {
+		float fi = float(i);
+		float angle = hash(fi) * 6.2831853;
+		float speed_mult = 0.5 + hash(fi + 13.7) * 1.5;
+		vec2 dir = vec2(cos(angle), sin(angle));
 
-	float brightness = streak * radius * progress * 2.0;
-	vec3 streak_color = mix(vec3(0.5, 0.7, 1.0), vec3(0.9, 0.95, 1.0), rnd);
+		// Outward travel distance, looping and easing so stars
+		// accelerate as they head toward the edge of the screen.
+		float dist = fract(t * speed_mult * 0.35 + hash(fi + 3.1));
+		dist = dist * dist;
+		float star_radius = dist * 0.9;
 
-	vec3 col = streak_color * brightness;
-	float bg_fade = progress * 0.85;
+		vec2 star_pos = dir * star_radius;
+		float tail_length = 0.03 + progress * 0.22 * speed_mult;
+		vec2 tail_start = star_pos - dir * tail_length;
 
-	float vignette = smoothstep(1.5, 0.1, radius);
-	float alpha = clamp(bg_fade + brightness, 0.0, 1.0) * vignette + bg_fade;
+		// Distance from this pixel to the star's line segment
+		vec2 pa = uv - tail_start;
+		vec2 ba = star_pos - tail_start;
+		float h = clamp(dot(pa, ba) / max(dot(ba, ba), 0.0001), 0.0, 1.0);
+		float d = length(pa - ba * h);
 
-	COLOR = vec4(col, clamp(alpha, 0.0, 1.0));
+		float brightness = smoothstep(0.005, 0.0, d) * progress;
+		col += vec3(0.7, 0.85, 1.0) * brightness;
+	}
+
+	float glow = max(col.r, max(col.g, col.b));
+	float bg_fade = progress * 0.9;
+
+	COLOR = vec4(col, clamp(bg_fade + glow, 0.0, 1.0));
 }
 """
 

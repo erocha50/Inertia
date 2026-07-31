@@ -49,7 +49,7 @@ libraries/local = SubResource("AnimationLibrary_v6xrn")
 
 [node name="DoorTrigger" type="Area3D" parent="." index="2" unique_id=835809491]
 script = ExtResource("2_v6xrn")
-target_scene = "uid://b8ceky1qkaaq2"
+target_scene = "uid://bo3ki2rub5knh"
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="DoorTrigger" index="0" unique_id=1051766428]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.010921514, 0.09921265, 0.043344498)

@@ -32,7 +32,7 @@ size = Vector3(10, 11.455322, 19.42871)
 
 [sub_resource type="Environment" id="Environment_xgesu"]
 
-[node name="Node3D" type="Node3D" unique_id=1561387120]
+[node name="tutorialmap" type="Node3D" unique_id=1561387120]
 
 [node name="CharacterBody3D" parent="." unique_id=1229242080 instance=ExtResource("2_ae6tg")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -66.66193, 1.8663079, 16.30467)
