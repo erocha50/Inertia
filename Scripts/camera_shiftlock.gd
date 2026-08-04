@@ -73,6 +73,26 @@ extends Node3D
 @export_group("Follow")
 @export var character_path:NodePath = ^".."
 
+@export_group("Dodge Juke")
+## Slight yaw kick during a player roll (degrees) — the camera's small
+## version of the mesh's more dramatic bank in player_controller.gd
+@export var dodge_cam_lateral_deg:float = 5.0
+## Slight vertical rise during a roll, matching the reference sine-arch
+@export var dodge_cam_vertical_amp:float = 0.12
+## Slight camera screen-tilt during a roll, for a cinematic "kick"
+@export var dodge_cam_tilt_deg:float = 2.0
+
+@export_group("Dodge Success Feedback")
+## Fires when the player's roll actually evades an attack (see
+## player_controller.gd's register_dodge_success()) — a bigger, punchier
+## payoff than the plain roll juke above, since this means it WORKED.
+@export var dodge_hitstop_scale:float = 0.12
+@export var dodge_hitstop_duration:float = 0.07
+@export var dodge_fov_punch:float = 10.0
+@export var dodge_fov_punch_decay:float = 9.0
+@export var dodge_flash_color:Color = Color(1.0, 0.92, 0.55, 1.0)
+@export var dodge_flash_duration:float = 0.35
+
 @export_group("Lock-On")
 ## Max distance to acquire a target with middle-mouse
 @export var lock_on_range:float = 18.0
@@ -80,14 +100,19 @@ extends Node3D
 @export var lock_on_break_range_multiplier:float = 2.0
 ## How wide a cone in front of the camera counts when acquiring a target
 @export var lock_on_acquire_fov_deg:float = 60.0
-## How quickly the camera orbit turns to keep facing the locked target
+## How quickly the camera orbit turns to keep facing the locked target as
+## the player moves around it (sun/earth — the target is the anchor, the
+## camera swings to track it, not the player's own facing).
 @export var lock_on_orbit_speed:float = 7.0
-## Vertical offset added to the target's origin so we aim at its body/center
+## Vertical offset added to the target's origin so we aim at its body/center, not its feet
 @export var lock_on_aim_height:float = 1.0
 ## Floor for the horizontal distance used when computing lock-on pitch.
+## Without this, pitch angle blows up as you close in on the target
+## (same height difference / shrinking horizontal distance = steep angle).
 @export var lock_on_min_flat_dist:float = 4.0
-## How far behind the player the camera sits when locked on (overrides arm_length).
-## The camera flips to behind the player so looking at the enemy keeps both in frame.
+## How far behind the player the camera sits when locked on (overrides
+## arm_length). The camera flips to behind the player so looking at the
+## enemy keeps both in frame.
 @export var lock_on_arm_back:float = 3.0
 
 # ── State ─────────────────────────────────────────────────────────────────────
@@ -123,6 +148,22 @@ var _space:PhysicsDirectSpaceState3D
 var _lock_target:Node3D = null
 var _lock_orbit_yaw:float = 0.0
 
+# Dodge juke — slight camera version of the player's roll juke, driven by
+# the character's roll_performed(direction, duration) signal
+var _dodge_juke_active:bool = false
+var _dodge_juke_t:float = 0.0
+var _dodge_juke_duration:float = 0.45
+var _dodge_juke_side:float = 1.0
+var _dodge_yaw_kick:float = 0.0
+var _dodge_vert_offset:float = 0.0
+var _dodge_tilt_deg:float = 0.0
+
+# Dodge SUCCESS feedback — separate from the juke above, triggered only when
+# a roll actually evades a hit (register_dodge_success on the player)
+var _dodge_fov_pop:float = 0.0
+var _hitstop_token:int = 0
+var _dodge_feedback_ctrl:_DodgeFeedbackControl
+
 
 func _ready() -> void:
 	_character = get_node(character_path)
@@ -147,6 +188,8 @@ func _ready() -> void:
 		["dash_performed", _on_dash],
 		["dash_attack_performed", _on_dash_attack],
 		["wall_hit", _on_wall_hit],
+		["roll_performed", _on_roll],
+		["perfect_dodge_performed", _on_perfect_dodge],
 	]:
 		if _character.has_signal(sig[0]):
 			_character.connect(sig[0], sig[1])
@@ -180,6 +223,51 @@ func _on_wall_hit(_wall_normal:Vector3, impact_speed:float) -> void:
 	_impact_trauma = maxf(_impact_trauma, 4.0 * t)
 
 
+func _on_roll(direction:Vector3, duration:float) -> void:
+	_dodge_juke_active = true
+	_dodge_juke_t = 0.0
+	_dodge_juke_duration = maxf(duration, 0.05)
+	var cam_right:Vector3 = _camera.global_transform.basis.x
+	var side_dot := direction.dot(cam_right)
+	_dodge_juke_side = signf(side_dot) if absf(side_dot) > 0.05 else 1.0
+
+
+func _update_dodge_juke(delta:float) -> void:
+	if not _dodge_juke_active:
+		_dodge_yaw_kick = 0.0; _dodge_vert_offset = 0.0; _dodge_tilt_deg = 0.0
+		return
+	_dodge_juke_t += delta
+	var t:float = clampf(_dodge_juke_t / _dodge_juke_duration, 0.0, 1.0)
+	var arch:float = sin(PI * t)  # rises then settles — matches the reference art's arc
+	_dodge_yaw_kick = dodge_cam_lateral_deg * _dodge_juke_side * arch
+	_dodge_vert_offset = dodge_cam_vertical_amp * arch
+	_dodge_tilt_deg = dodge_cam_tilt_deg * _dodge_juke_side * arch
+	if t >= 1.0:
+		_dodge_juke_active = false
+
+
+func _on_perfect_dodge(streak:int) -> void:
+	_dodge_fov_pop = dodge_fov_punch
+	_trigger_dodge_hitstop()
+	if _dodge_feedback_ctrl:
+		_dodge_feedback_ctrl.trigger(streak)
+
+
+## Brief real-time hit-stop — a snap of near-freeze that sells the "you just
+## avoided that" moment far better than any shake can. Token-guarded so a
+## second dodge landing mid-hitstop extends it cleanly instead of the first
+## timer's timeout snapping time_scale back early.
+func _trigger_dodge_hitstop() -> void:
+	_hitstop_token += 1
+	var token := _hitstop_token
+	Engine.time_scale = dodge_hitstop_scale
+	var timer := get_tree().create_timer(dodge_hitstop_duration, true, false, true)
+	timer.timeout.connect(func() -> void:
+		if token == _hitstop_token:
+			Engine.time_scale = 1.0
+	)
+
+
 func _input(event:InputEvent) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_MIDDLE and event.pressed:
 		if _lock_target != null:
@@ -209,6 +297,7 @@ func _input(event:InputEvent) -> void:
 
 func _process(delta:float) -> void:
 	_space = get_world_3d().direct_space_state
+	_update_dodge_juke(delta)
 
 	if _lock_target != null and not _is_lock_target_valid():
 		_lock_target = null
@@ -267,7 +356,8 @@ func _process(delta:float) -> void:
 	_yaw_delta = 0.0
 
 	# FOV
-	_camera.fov = lerpf(_camera.fov, lerpf(fov_base, fov_max, spd_t * spd_t), fov_smooth * delta)
+	_dodge_fov_pop = lerpf(_dodge_fov_pop, 0.0, dodge_fov_punch_decay * delta)
+	_camera.fov = lerpf(_camera.fov, lerpf(fov_base, fov_max, spd_t * spd_t) - _dodge_fov_pop, fov_smooth * delta)
 
 	# Speed lines
 	_line_ctrl.set_intensity(clampf((_current_speed - lines_start_speed) / (lines_max_speed - lines_start_speed), 0.0, 1.0) ** 3)
@@ -332,7 +422,7 @@ func _apply_orbital_transform(shake:Vector2 = Vector2.ZERO, _spd_t:float = 0.0) 
 	# of the mouse-driven character yaw. This is what makes the shoulder
 	# framing keep the enemy in view as the player circles around it.
 	var orbit_yaw_deg := _lock_orbit_yaw if is_locked else _smooth_yaw
-	var yaw_rad := deg_to_rad(orbit_yaw_deg + shake.x)
+	var yaw_rad := deg_to_rad(orbit_yaw_deg + shake.x + _dodge_yaw_kick)
 
 	# ── Position ────────────────────────────────────────────────────────────
 	# Camera pivot at character center height
@@ -353,8 +443,8 @@ func _apply_orbital_transform(shake:Vector2 = Vector2.ZERO, _spd_t:float = 0.0) 
 
 	# Target camera position: to the right of + behind the character
 	var target_pos := char_pos + right_vec + back_vec
-	# Add height above shoulder + the subtle freelook float offset
-	target_pos.y += height_above_shoulder + _current_float_offset
+	# Add height above shoulder + the subtle freelook float offset + dodge juke
+	target_pos.y += height_above_shoulder + _current_float_offset + _dodge_vert_offset
 
 	# Collision check
 	if collision_enabled and _space != null:
@@ -371,14 +461,17 @@ func _apply_orbital_transform(shake:Vector2 = Vector2.ZERO, _spd_t:float = 0.0) 
 	global_position = target_pos
 
 	# ── Look / Aim ──────────────────────────────────────────────────────────
-	# When locked on, look at a point between player and enemy so both stay in frame.
+	# When locked on, look directly at the target so the enemy stays centered.
 	# Otherwise, use the over-the-shoulder framing (rotate camera→player
 	# direction right by the framing angle) so the player appears on the left.
-
+	
 	var up_vec := Vector3.UP
-
+	
 	if is_locked:
 		# Look at a point between the player and the enemy so both stay in frame.
+		# The player is to the left/right of camera (shoulder offset), and the
+		# enemy is in front — this blend keeps the player visible while centered
+		# on the fight.
 		var player_center := _character.global_position + Vector3(0.0, aim_vertical_offset, 0.0)
 		var enemy_center := _lock_target.global_position + Vector3(0.0, lock_on_aim_height, 0.0)
 		var look_at_pos := player_center.lerp(enemy_center, 0.65)
@@ -388,7 +481,7 @@ func _apply_orbital_transform(shake:Vector2 = Vector2.ZERO, _spd_t:float = 0.0) 
 		# player appears on the LEFT side of the screen.
 		var to_player: Vector3 = _character.global_position - global_position
 		var to_player_horiz := Vector3(to_player.x, 0.0, to_player.z).normalized()
-
+		
 		var framing_rad := deg_to_rad(aim_horizontal_deg)
 		var cos_a := cos(framing_rad)
 		var sin_a := sin(framing_rad)
@@ -397,7 +490,7 @@ func _apply_orbital_transform(shake:Vector2 = Vector2.ZERO, _spd_t:float = 0.0) 
 			0.0,
 			to_player_horiz.x * sin_a + to_player_horiz.z * cos_a
 		)
-
+		
 		# Mouse-driven pitch
 		var pitch_rad := deg_to_rad(_smooth_pitch + shake.y * 0.3)
 		var look_dir := Vector3(
@@ -405,9 +498,14 @@ func _apply_orbital_transform(shake:Vector2 = Vector2.ZERO, _spd_t:float = 0.0) 
 			sin(pitch_rad),
 			look_dir_horiz.z * cos(pitch_rad)
 		).normalized()
-
+		
 		var look_target := global_position + look_dir * 100.0
 		_camera.look_at(look_target, up_vec)
+
+	# Slight screen-roll kick for the dodge — applied after look_at so it
+	# doesn't fight the aim, just adds a cinematic lean on top of it.
+	if not is_zero_approx(_dodge_tilt_deg):
+		_camera.rotate_object_local(Vector3(0.0, 0.0, 1.0), deg_to_rad(_dodge_tilt_deg))
 
 
 func _compute_impact_shake(delta:float) -> Vector2:
@@ -445,6 +543,12 @@ func _build_speed_lines() -> void:
 	_line_ctrl.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	c.add_child(_line_ctrl)
 	_line_ctrl.setup(line_count, line_color)
+
+	_dodge_feedback_ctrl = _DodgeFeedbackControl.new()
+	_dodge_feedback_ctrl.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_dodge_feedback_ctrl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	c.add_child(_dodge_feedback_ctrl)
+	_dodge_feedback_ctrl.setup(dodge_flash_color, dodge_flash_duration)
 
 
 func get_movement_basis() -> Array:
@@ -511,3 +615,62 @@ class _SpeedLineControl extends Control:
 				Color(_col.r, _col.g, _col.b, alpha),
 				_widths[i] * (0.5 + _intensity * 0.8)
 			)
+
+
+# ── Dodge Success Overlay ────────────────────────────────────────────────────
+## Fires once per evaded hit (see player_controller.gd's register_dodge_success).
+## A soft radial flash + expanding ring for the instant hit, plus a small
+## streak label that pops and settles — the "yes, that worked" payoff.
+class _DodgeFeedbackControl extends Control:
+	var _flash_alpha:float = 0.0
+	var _flash_duration:float = 0.35
+	var _flash_color:Color = Color(1, 1, 1, 1)
+	var _ring_t:float = 1.0
+	var _streak:int = 0
+	var _text_alpha:float = 0.0
+	var _text_scale:float = 1.0
+
+	func setup(color:Color, duration:float) -> void:
+		_flash_color = color
+		_flash_duration = maxf(duration, 0.05)
+
+	func trigger(streak:int) -> void:
+		_flash_alpha = 1.0
+		_ring_t = 0.0
+		_streak = streak
+		_text_alpha = 1.0
+		_text_scale = 1.35
+		queue_redraw()
+
+	func _process(delta:float) -> void:
+		if _flash_alpha < 0.001 and _text_alpha < 0.001:
+			return
+		_flash_alpha = maxf(_flash_alpha - delta / _flash_duration, 0.0)
+		_ring_t = minf(_ring_t + delta / _flash_duration, 1.0)
+		_text_alpha = maxf(_text_alpha - delta / (_flash_duration * 1.6), 0.0)
+		_text_scale = lerpf(_text_scale, 1.0, 10.0 * delta)
+		queue_redraw()
+
+	func _draw() -> void:
+		var cx := size.x * 0.5
+		var cy := size.y * 0.5
+
+		if _flash_alpha > 0.001:
+			# Soft full-screen tint — the "pop" of the flash
+			draw_rect(Rect2(Vector2.ZERO, size),
+				Color(_flash_color.r, _flash_color.g, _flash_color.b, _flash_color.a * _flash_alpha * 0.30))
+			# Expanding ring outline radiating from center for extra punch
+			var max_r := Vector2(cx, cy).length()
+			var r := lerpf(max_r * 0.12, max_r * 0.75, _ring_t)
+			var ring_alpha := (1.0 - _ring_t) * _flash_alpha
+			draw_arc(Vector2(cx, cy), r, 0.0, TAU, 48,
+				Color(_flash_color.r, _flash_color.g, _flash_color.b, ring_alpha * 0.85), 4.0, true)
+
+		if _text_alpha > 0.001 and _streak > 0:
+			var label := "DODGE" if _streak <= 1 else "DODGE x%d" % _streak
+			var font := get_theme_default_font()
+			var fsize := int(30 * _text_scale)
+			var text_size := font.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1, fsize)
+			var pos := Vector2(cx - text_size.x * 0.5, size.y * 0.60)
+			draw_string(font, pos, label, HORIZONTAL_ALIGNMENT_LEFT, -1, fsize,
+				Color(_flash_color.r, _flash_color.g, _flash_color.b, _text_alpha))

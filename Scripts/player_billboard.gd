@@ -17,6 +17,7 @@ enum BillboardState {
 	WALL_RUN,    ## wall run loop: cycles wr1/wr2/wr3/wr4
 	DASH,        ## dash burst, single frame
 	DASH_LAND,   ## landing from dash
+	DODGE,       ## dodge animation with three frames
 }
 
 @export var idle_fps: float = 4.0
@@ -45,6 +46,8 @@ func _ready() -> void:
 		# Cooldown = full dash sequence length, so the player can't dash again
 		# until dash + dash_land has finished playing.
 		if "dash_attack_cooldown" in _player:
+t	if _player.has_signal(&"perfect_dodge_performed"):
+			_player.perfect_dodge_performed.connect(_on_dodge_performed)
 			_player.dash_attack_cooldown = dash_duration + dash_land_duration
 	# Start with idle
 	play(&"idle")
@@ -212,6 +215,11 @@ func _change_state(new_state: BillboardState) -> void:
 			speed_scale = _speed_scale_for_duration(&"dash_land", dash_land_duration)
 			_anim_finished_cb = _on_dash_land_done
 
+t	BillboardState.DODGE:
+			play(&"dodge")
+			speed_scale = 8.0
+			_anim_finished_cb = _on_dodge_done
+
 ## Base SpriteFrames FPS is 1.0 for every animation (see header note), so
 ## playback speed in frames/sec == speed_scale. To make an animation with any
 ## frame count last exactly `duration` seconds: speed_scale = frame_count / duration.
@@ -241,6 +249,15 @@ func _on_dash_done() -> void:
 	_change_state(BillboardState.DASH_LAND)
 
 func _on_dash_land_done() -> void:
+	if _current_speed > min_move_speed:
+		_change_state(BillboardState.WALK)
+	else:
+		_change_state(BillboardState.IDLE)
+
+func _on_dodge_performed(_streak: int) -> void:
+	_change_state(BillboardState.DODGE)
+
+func _on_dodge_done() -> void:
 	if _current_speed > min_move_speed:
 		_change_state(BillboardState.WALK)
 	else:

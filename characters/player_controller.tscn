@@ -19,6 +19,9 @@
 [ext_resource type="Texture2D" uid="uid://dlit0gbmv6xi8" path="res://assets/player_animations/player wall run/player wall run4 (wall on left side).png" id="22_wr4l"]
 [ext_resource type="Texture2D" uid="uid://bl54raigacq4v" path="res://assets/player_animations/player dash/player_dash.png" id="23_dash"]
 [ext_resource type="Texture2D" uid="uid://bpsltq3wr7ud8" path="res://assets/player_animations/player dash/player_dash_land.png" id="24_dash_land"]
+[ext_resource type="Texture2D" path="res://assets/player_animations/player dodges/still/player dodge1.png" id="25_dodge1"]
+[ext_resource type="Texture2D" path="res://assets/player_animations/player dodges/still/player dodge2.png" id="26_dodge2"]
+[ext_resource type="Texture2D" path="res://assets/player_animations/player dodges/still/player dodge3.png" id="27_dodge3"]
 
 [sub_resource type="CompressedTexture2D" id="CompressedTexture2D_cqy3o"]
 
@@ -45,6 +48,20 @@ animations = [{
 "loop": 0,
 "name": &"dash_land",
 "speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("25_dodge1")
+}, {
+"duration": 1.0,
+"texture": ExtResource("26_dodge2")
+}, {
+"duration": 1.0,
+"texture": ExtResource("27_dodge3")
+}],
+"loop": 0,
+"name": &"dodge",
+"speed": 8.0
 }, {
 "frames": [{
 "duration": 1.0,
@@ -137,7 +154,6 @@ animations = [{
 "speed": 0.25
 }]
 
-
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_fghij"]
 albedo_color = Color(0.4, 0.6, 0.8, 1)
 
@@ -173,7 +189,6 @@ script = ExtResource("10_niblt")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=636966049]
 visible = false
-
 material_override = SubResource("StandardMaterial3D_fghij")
 mesh = SubResource("CapsuleMesh_j8adm")
 

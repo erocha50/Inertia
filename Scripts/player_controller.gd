@@ -76,7 +76,23 @@ enum State { IDLE, RUN, AIR, SLIDE, ARC, WALL_RIDE }
 @export var roll_distance:float=12.0
 @export var roll_speed_bonus_scale:float=0.06
 @export var roll_speed_bonus_max:float=2.5
-@export var roll_decel_curve:float=3.5
+## How much of your entry speed carries straight into the roll (1.0 = full momentum kept)
+@export var roll_momentum_preserve:float=0.85
+## How much of your entry speed you're left with once the roll ends and control returns
+@export var roll_exit_momentum:float=0.75
+
+@export_group("Roll Visual Juke")
+## Dramatic side-bank on the mesh during a roll (the "billboard" tilt), degrees
+@export var mesh_roll_bank_deg:float=55.0
+## Forward pitch-dive on the mesh during a roll, degrees
+@export var mesh_roll_pitch_deg:float=25.0
+## Height of the visual-only sine arch bob (never touches the collision shape)
+@export var mesh_roll_bob_height:float=0.35
+@export var mesh_roll_return_speed:float=10.0
+
+@export_group("Dodge Feedback")
+## How long a gap between successful dodges before the streak resets
+@export var dodge_streak_reset_time:float=3.0
 
 @export_group("Environment")
 @export var drag_coefficient:float=0.008; @export var wind:=Vector3.ZERO
@@ -124,7 +140,8 @@ signal height_changed(world_y:float)
 signal landed(impact_speed:float)
 signal dash_performed()
 signal dash_attack_performed()
-signal roll_performed()
+signal roll_performed(direction:Vector3,duration:float)
+signal perfect_dodge_performed(streak:int)
 signal wall_hit(wall_normal:Vector3,impact_speed:float)
 signal food_consumed(food_name:String)
 
@@ -140,6 +157,11 @@ var _roll_cd:float=0.0
 var _roll_active:bool=false
 var _roll_end_time:float=0.0
 var _roll_dir:=Vector3.ZERO
+var _roll_start_spd:float=0.0
+var _roll_exit_spd:float=0.0
+var _mesh_base_pos:=Vector3.ZERO
+var _dodge_streak:int=0
+var _dodge_streak_timer:float=0.0
 var _impulse:=Vector3.ZERO; var _air_vel_y:float
 var _damaged:bool; var _drifting:bool; var _prev_spd:float
 var _surf_friction:=1.0; var _surf_accel:=1.0; var _surf_drag:=1.0; var _surf_gravity:=1.0
@@ -167,6 +189,7 @@ var total_food_consumed: int = 0
 func _ready()->void:
 	_max_spd=speed_min; _camera=get_node(camera_path)
 	if has_node(mesh_path): _mesh=get_node(mesh_path)
+	if _mesh: _mesh_base_pos=_mesh.position
 	for c in get_children():
 		if c is CollisionShape3D:
 			_col=c
@@ -180,6 +203,10 @@ func _ready()->void:
 	
 func _physics_process(d:float)->void:
 	_bounce_cd=maxf(_bounce_cd-d,0.0); _dash_cd=maxf(_dash_cd-d,0.0); _dash_attack_cd=maxf(_dash_attack_cd-d,0.0); _roll_cd=maxf(_roll_cd-d,0.0); _buf=maxf(_buf-d,0.0)
+
+	if _dodge_streak>0:
+		_dodge_streak_timer-=d
+		if _dodge_streak_timer<=0.0: _dodge_streak=0
 
 	if Input.is_action_just_pressed("dash_attack"): _perform_dash_attack()
 
@@ -228,17 +255,24 @@ func _physics_process(d:float)->void:
 	_air_vel_y=velocity.y if not is_on_floor() else 0.0
 
 	if _mesh:
-		var fv:=Vector3(velocity.x,0,velocity.z)
-		var lat:=fv.dot(_mesh.global_transform.basis.x)
-		var rat:=clampf(fv.length()/tilt_ref_speed,0.0,1.0)
-		var vel_tz:=clampf(-sign(lat)*absf(lat)/maxf(fv.length(),0.01)*deg_to_rad(tilt_max)*rat,
-			-deg_to_rad(tilt_max),deg_to_rad(tilt_max))
+		if _roll_active:
+			_apply_roll_mesh_juke(d)
+		else:
+			var fv:=Vector3(velocity.x,0,velocity.z)
+			var lat:=fv.dot(_mesh.global_transform.basis.x)
+			var rat:=clampf(fv.length()/tilt_ref_speed,0.0,1.0)
+			var vel_tz:=clampf(-sign(lat)*absf(lat)/maxf(fv.length(),0.01)*deg_to_rad(tilt_max)*rat,
+				-deg_to_rad(tilt_max),deg_to_rad(tilt_max))
 
-		var raw:=Input.get_vector("move_left","move_right","move_forward","move_back")
-		var target_input_tilt:=deg_to_rad(input_tilt_max)*raw.x
-		_input_tilt=lerpf(_input_tilt,target_input_tilt,input_tilt_smooth*d)
+			var raw:=Input.get_vector("move_left","move_right","move_forward","move_back")
+			var target_input_tilt:=deg_to_rad(input_tilt_max)*raw.x
+			_input_tilt=lerpf(_input_tilt,target_input_tilt,input_tilt_smooth*d)
 
-		_mesh.rotation.z=lerpf(_mesh.rotation.z,vel_tz+_input_tilt,tilt_smooth*d)
+			_mesh.rotation.z=lerpf(_mesh.rotation.z,vel_tz+_input_tilt,tilt_smooth*d)
+			# Settle any leftover roll-juke displacement back to rest — this is
+			# purely cosmetic on the mesh child, the collision shape was never touched.
+			_mesh.rotation.x=lerpf(_mesh.rotation.x,0.0,mesh_roll_return_speed*d)
+			_mesh.position.y=lerpf(_mesh.position.y,_mesh_base_pos.y,mesh_roll_return_speed*d)
 
 	var fs:=_flat_spd()
 	speed_changed.emit(fs,_max_spd)
@@ -283,8 +317,7 @@ func _run_sm(d:float)->void:
 func _idle(d:float)->State:
 	_horiz(d)
 	if Input.is_action_just_pressed("roll"):  _perform_roll()
-	if Input.is_action_just_pressed("dash_attack"):  try_dash()
-
+	if Input.is_action_just_pressed("dash_attack"):  _perform_dash_attack()
 	if not is_on_floor():                return State.AIR
 	if _jump():                          return State.AIR
 	if _slide_ok():                      return State.SLIDE
@@ -294,8 +327,7 @@ func _idle(d:float)->State:
 func _run(d:float)->State:
 	_horiz(d)
 	if Input.is_action_just_pressed("roll"):  _perform_roll()
-	if Input.is_action_just_pressed("dash_attack"):  try_dash()
-
+	if Input.is_action_just_pressed("dash_attack"):  _perform_dash_attack()
 	if not is_on_floor():                        return State.AIR
 	if _jump():                                  return State.AIR
 	if _slide_ok():                              return State.SLIDE
@@ -309,8 +341,7 @@ func _air(d:float)->State:
 	_horiz(d)
 	if Input.is_action_just_released("jump") and velocity.y>0.0: velocity.y*=0.40
 	if Input.is_action_just_pressed("roll") and air_roll_allowed: _perform_roll()
-	if Input.is_action_just_pressed("dash_attack"): try_dash()
-
+	if Input.is_action_just_pressed("dash_attack"): _perform_dash_attack()
 	
 	if wall_ride_enabled and is_on_wall_only() and velocity.y < 5.0 and _flat_spd() >= wall_ride_min_speed:
 		var wn := get_wall_normal()
@@ -418,17 +449,13 @@ func _horiz(d:float)->float:
 		return 0.0
 
 	if _roll_active:
-		var flat:=Vector3(velocity.x,0,velocity.z)
-		var spd:=flat.length()
-		if spd>0.05:
-			var roll_remaining:=_roll_end_time
-			var roll_elapsed:=roll_duration-roll_remaining
-			var t_norm:=clampf(roll_elapsed/roll_duration,0.0,1.0)
-			var decel_rate:=pow(t_norm,1.0/roll_decel_curve)*spd/maxf(roll_duration*(1.0-t_norm),d)
-			var new_spd:=maxf(spd-decel_rate*d,0.0)
-			velocity.x=_roll_dir.x*new_spd; velocity.z=_roll_dir.z*new_spd
-		else:
-			velocity.x=0.0; velocity.z=0.0
+		# Smoothstep from the punchy launch speed down to the exit speed —
+		# never a hard stop, so momentum flows out of the roll instead of
+		# getting wiped by it.
+		var t:float=clampf((roll_duration-_roll_end_time)/roll_duration,0.0,1.0)
+		var eased:float=t*t*(3.0-2.0*t)
+		var new_spd:=lerpf(_roll_start_spd,_roll_exit_spd,eased)
+		velocity.x=_roll_dir.x*new_spd; velocity.z=_roll_dir.z*new_spd
 		turn_strain.emit(0.0); _drifting=false
 		return 0.0
 
@@ -661,6 +688,7 @@ func _perform_roll()->void:
 
 	var wish_dir:Vector3=_wish_dir()
 	var flat_vel:=Vector3(velocity.x, 0.0, velocity.z)
+	var entry_spd:=flat_vel.length()
 	var roll_dir:Vector3
 	if wish_dir.length_squared()>0.01:
 		roll_dir=wish_dir.normalized()
@@ -670,24 +698,45 @@ func _perform_roll()->void:
 		var cam_fwd:=_camera.global_transform.basis.z; cam_fwd.y=0.0
 		roll_dir=cam_fwd.normalized() if cam_fwd.length_squared()>0.01 else Vector3(0,0,-1)
 
-	velocity.x=0.0; velocity.z=0.0
-
-	var entry_spd:=flat_vel.length()
+	# Momentum is CARRIED into the roll instead of being wiped: a fast player
+	# stays fast through the dodge, a stationary player still gets a guaranteed
+	# minimum burst so the roll always covers roll_distance. Exit speed is a
+	# fraction of what you entered with, so you flow back into normal movement
+	# instead of grinding to a dead stop.
+	var min_launch_spd:=roll_distance/roll_duration
+	var carried_spd:=entry_spd*roll_momentum_preserve
 	var bonus:=minf(entry_spd*roll_speed_bonus_scale, roll_speed_bonus_max)
-	var total_dist:=roll_distance+bonus
+	_roll_start_spd=maxf(min_launch_spd,carried_spd)+bonus
+	_roll_exit_spd=maxf(entry_spd*roll_exit_momentum, speed_min*0.5)
 
-	var curve_integral:=roll_decel_curve/(roll_decel_curve+1.0)
-	var start_spd:=total_dist/(roll_duration*curve_integral)
-
-	velocity.x=roll_dir.x*start_spd
-	velocity.z=roll_dir.z*start_spd
+	velocity.x=roll_dir.x*_roll_start_spd
+	velocity.z=roll_dir.z*_roll_start_spd
 
 	_roll_dir=roll_dir
 	_roll_active=true
 	_roll_end_time=roll_duration
 
 	_roll_cd=roll_cooldown
-	roll_performed.emit()
+	roll_performed.emit(roll_dir,roll_duration)
+
+## Dramatic visual-only roll juke, applied to the mesh child every physics
+## tick while rolling. Mirrors the camera's smaller version of the same
+## sine-arch motion (see camera_shiftlock.gd), but bigger and with rotation.
+## IMPORTANT: this only ever touches `_mesh` (a child node) — the
+## CharacterBody3D root and its CollisionShape3D are driven purely by
+## `velocity` on the flat x/z plane, so the actual hitbox can never glitch
+## from this. Swap `_mesh` for the animated billboard once art lands; this
+## function keeps working unchanged.
+func _apply_roll_mesh_juke(d:float)->void:
+	var t:float=clampf((roll_duration-_roll_end_time)/roll_duration,0.0,1.0)
+	var arch:float=sin(PI*t)  # 0 -> 1 -> 0 hump, matching the reference arc
+	var mesh_right:Vector3=_mesh.global_transform.basis.x
+	var side_dot:float=_roll_dir.dot(mesh_right)
+	var side:float=signf(side_dot) if absf(side_dot)>0.05 else 1.0
+
+	_mesh.rotation.z=lerpf(_mesh.rotation.z,deg_to_rad(mesh_roll_bank_deg)*side*arch,mesh_roll_return_speed*d)
+	_mesh.rotation.x=lerpf(_mesh.rotation.x,-deg_to_rad(mesh_roll_pitch_deg)*arch,mesh_roll_return_speed*d)
+	_mesh.position.y=_mesh_base_pos.y+mesh_roll_bob_height*arch
 
 func set_damaged(v:bool)->void:        _damaged=v
 func get_state()->int:                 return _state as int
@@ -696,6 +745,20 @@ func get_flat_speed()->float:          return _flat_spd()
 func is_sliding_state()->bool:         return _state==State.SLIDE
 func is_in_momentum_arc()->bool:       return _state==State.ARC
 func is_drifting()->bool:             return _drifting
+func is_dodging()->bool:               return _roll_active
+## Combat i-frames: enemies should check this before applying damage/knockback.
+func is_invincible()->bool:            return _roll_active
+
+## Call this from an enemy's hit-check when it sees is_invincible() was true —
+## i.e. an attack would have landed but got dodged. Drives the streak counter
+## and the perfect_dodge_performed signal the camera reacts to.
+func register_dodge_success()->void:
+	_dodge_streak+=1
+	_dodge_streak_timer=dodge_streak_reset_time
+	perfect_dodge_performed.emit(_dodge_streak)
+
+func get_dodge_streak()->int:          return _dodge_streak
+func reset_dodge_streak()->void:       _dodge_streak=0; _dodge_streak_timer=0.0
 
 
 func _dash_knockback_enemies()->void:

@@ -1,0 +1,40 @@
+[gd_scene load_steps=7 format=3 uid="uid://c2ijlyk4fuws1"]
+
+[ext_resource type="Script" uid="uid://cyusxlyubyomm" path="res://characters/frozen_waiter_boss.gd" id="1_h6x3s"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_yf5fn"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_g4v7s"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_g4v7s"]
+radius = 16.972162
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_yf5fn"]
+
+[node name="FrozenWaiterBoss" type="CharacterBody3D"]
+script = ExtResource("1_h6x3s")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0)
+shape = SubResource("CapsuleShape3D_yf5fn")
+
+[node name="VisualRoot" type="Node3D" parent="."]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="VisualRoot"]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0)
+mesh = SubResource("CapsuleMesh_g4v7s")
+
+[node name="DetectionArea" type="Area3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="DetectionArea"]
+shape = SubResource("SphereShape3D_g4v7s")
+
+[node name="ComboPivot" type="Node3D" parent="."]
+
+[node name="TrayMesh" type="MeshInstance3D" parent="ComboPivot"]
+mesh = SubResource("CapsuleMesh_g4v7s")
+
+[node name="TrayHitbox" type="Area3D" parent="ComboPivot/TrayMesh"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ComboPivot/TrayMesh/TrayHitbox"]
+shape = SubResource("BoxShape3D_yf5fn")

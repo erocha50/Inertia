@@ -1,4 +1,4 @@
-class_name AnimationPlayer
+class_name PositionAnimator
 extends Node3D
 
 ## Bob animation settings
