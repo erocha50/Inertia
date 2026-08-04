@@ -1,11 +1,11 @@
 extends CanvasLayer
 
-# AUTOLOAD SINGLETON — register this in Project Settings > Autoload
-# so it exists globally and persists across scene changes.
-# Any script can then just call:
+# AUTOLOAD SINGLETON — register this in Project Settings > Autoload.
+# Any script can call:
 #     SceneTransition.transition_to_scene("res://scenes/next_level.tscn")
 
-var overlay: ColorRect
+var fade_rect: ColorRect      # plain black fade — always works, no shader
+var warp_rect: ColorRect      # star-streak shader layered on top
 var loading_label: Label
 var warp_material: ShaderMaterial
 var is_transitioning: bool = false
@@ -24,7 +24,6 @@ float hash(float n) {
 
 void fragment() {
 	vec2 uv = UV - vec2(0.5);
-	uv.x *= 1.0;
 
 	vec3 col = vec3(0.0);
 	float t = TIME * warp_speed;
@@ -35,8 +34,6 @@ void fragment() {
 		float speed_mult = 0.5 + hash(fi + 13.7) * 1.5;
 		vec2 dir = vec2(cos(angle), sin(angle));
 
-		// Outward travel distance, looping and easing so stars
-		// accelerate as they head toward the edge of the screen.
 		float dist = fract(t * speed_mult * 0.35 + hash(fi + 3.1));
 		dist = dist * dist;
 		float star_radius = dist * 0.9;
@@ -45,7 +42,6 @@ void fragment() {
 		float tail_length = 0.03 + progress * 0.22 * speed_mult;
 		vec2 tail_start = star_pos - dir * tail_length;
 
-		// Distance from this pixel to the star's line segment
 		vec2 pa = uv - tail_start;
 		vec2 ba = star_pos - tail_start;
 		float h = clamp(dot(pa, ba) / max(dot(ba, ba), 0.0001), 0.0, 1.0);
@@ -56,29 +52,38 @@ void fragment() {
 	}
 
 	float glow = max(col.r, max(col.g, col.b));
-	float bg_fade = progress * 0.9;
-
-	COLOR = vec4(col, clamp(bg_fade + glow, 0.0, 1.0));
+	COLOR = vec4(col, clamp(glow, 0.0, 1.0));
 }
 """
 
 func _ready() -> void:
-	layer = 100  # draw on top of everything, including other UI
+	layer = 100
+	print("[SceneTransition] _ready() running")
 
-	overlay = ColorRect.new()
-	overlay.name = "WarpOverlay"
-	overlay.color = Color(0, 0, 0, 1)
-	overlay.anchors_preset = Control.PRESET_FULL_RECT
-	overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	# --- Base fade: plain black, no shader. This alone guarantees
+	# a working transition even if anything else goes wrong. ---
+	fade_rect = ColorRect.new()
+	fade_rect.name = "FadeRect"
+	fade_rect.color = Color(0, 0, 0, 1)
+	fade_rect.anchors_preset = Control.PRESET_FULL_RECT
+	fade_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	fade_rect.modulate.a = 0.0
+	add_child(fade_rect)
+
+	# --- Star streaks layered on top, additive-feeling decoration ---
+	warp_rect = ColorRect.new()
+	warp_rect.name = "WarpRect"
+	warp_rect.color = Color(1, 1, 1, 1)
+	warp_rect.anchors_preset = Control.PRESET_FULL_RECT
+	warp_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 	var shader := Shader.new()
 	shader.code = WARP_SHADER_CODE
 	warp_material = ShaderMaterial.new()
 	warp_material.shader = shader
 	warp_material.set_shader_parameter("progress", 0.0)
-	overlay.material = warp_material
-
-	add_child(overlay)
+	warp_rect.material = warp_material
+	add_child(warp_rect)
 
 	loading_label = Label.new()
 	loading_label.text = "LOADING..."
@@ -96,46 +101,55 @@ func _ready() -> void:
 	loading_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.6))
 	add_child(loading_label)
 
-	overlay.visible = false
+	fade_rect.visible = false
+	warp_rect.visible = false
 	loading_label.visible = false
+
+	print("[SceneTransition] setup complete. fade_rect size=", fade_rect.size, " layer=", layer)
 
 
 func transition_to_scene(scene_path: String, warp_in_time: float = 1.1, hold_time: float = 0.6, warp_out_time: float = 0.9) -> void:
+	print("[SceneTransition] transition_to_scene called with: ", scene_path)
 	if is_transitioning:
+		print("[SceneTransition] already transitioning, ignoring")
 		return
 	is_transitioning = true
 
-	overlay.visible = true
+	fade_rect.visible = true
+	warp_rect.visible = true
 	loading_label.visible = true
-	overlay.color.a = 0.0
+	fade_rect.modulate.a = 0.0
+	warp_material.set_shader_parameter("progress", 0.0)
+
+	print("[SceneTransition] fade_rect.visible=", fade_rect.visible, " size=", fade_rect.size, " global_pos=", fade_rect.global_position)
 
 	var tween := create_tween()
 	tween.set_ease(Tween.EASE_IN)
 	tween.set_trans(Tween.TRANS_QUAD)
 
-	# Accelerate into warp: streaks build up, label fades in
 	tween.set_parallel(true)
+	tween.tween_property(fade_rect, "modulate:a", 1.0, warp_in_time)
 	tween.tween_property(warp_material, "shader_parameter/progress", 1.0, warp_in_time)
 	tween.tween_property(loading_label, "theme_override_colors/font_color:a", 1.0, warp_in_time * 0.6)
 	tween.chain()
 
 	tween.tween_interval(hold_time)
 
-	# Load the new scene while the screen is fully covered
 	tween.tween_callback(func():
 		get_tree().change_scene_to_file(scene_path)
 	)
 
-	tween.tween_interval(0.1)  # let the new scene finish entering the tree
+	tween.tween_interval(0.1)
 
-	# Decelerate out of warp, fade label, reveal new scene
 	tween.set_parallel(true)
+	tween.tween_property(fade_rect, "modulate:a", 0.0, warp_out_time)
 	tween.tween_property(warp_material, "shader_parameter/progress", 0.0, warp_out_time)
 	tween.tween_property(loading_label, "theme_override_colors/font_color:a", 0.0, warp_out_time * 0.5)
 	tween.chain()
 
 	tween.tween_callback(func():
-		overlay.visible = false
+		fade_rect.visible = false
+		warp_rect.visible = false
 		loading_label.visible = false
 		is_transitioning = false
 	)
