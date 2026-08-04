@@ -290,7 +290,7 @@ data = PackedVector3Array(0.0139999995, -0.0128, 0.161, -0.0139999995, -0.0128, 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_yf5fn"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_yf5fn"]
-size = Vector3(2.4458618, 2.5151367, 28.856781)
+size = Vector3(2.4458618, 2.5151367, 28.062668)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_5bql1"]
 resource_name = "fer"
@@ -3209,11 +3209,11 @@ shape = SubResource("ConcavePolygonShape3D_y0ld0")
 physics_material_override = SubResource("PhysicsMaterial_yf5fn")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Ramp1/StaticBody3D" unique_id=1196400401]
-transform = Transform3D(0.6108936, 3.0123446, 0, -0.7917127, 2.324356, 0, 0, 0, 1, 350.11444, 3.0068932, 1.1328278)
+transform = Transform3D(0.61087924, 3.0122871, 0, -0.7917127, 2.324356, 0, 0, 0, 1, 346.0818, 3.0068932, -1.906741)
 shape = SubResource("BoxShape3D_yf5fn")
 
 [node name="CollisionShape3D2" type="CollisionShape3D" parent="Ramp1/StaticBody3D" unique_id=865286411]
-transform = Transform3D(0.61089367, 3.0123448, 0, -0.7917127, 2.3243563, 0, 0, 0, 1, 350.11447, 2.513804, 34.146706)
+transform = Transform3D(0.6108934, 3.012344, 0, -0.7917127, 2.324356, 0, 0, 0, 1, 346.08188, 2.5138035, 31.504189)
 shape = SubResource("BoxShape3D_yf5fn")
 
 [node name="Node3D" type="Node3D" parent="Ramp1" unique_id=1319367083]
