@@ -150,5 +150,7 @@ func get_last_checkpoint() -> Vector3:
 func _get_level_start() -> Vector3:
 	var sp := get_tree().current_scene.find_child("SpawnPoint", true, false)
 	if sp and sp is Node3D:
+		print("SpawnPoint found at ", (sp as Node3D).global_position)
 		return (sp as Node3D).global_position
+	print("SpawnPoint NOT found, falling back to (0, 2, 0)")
 	return Vector3(0, 2, 0)

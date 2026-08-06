@@ -1,5 +1,7 @@
 [gd_scene format=4 uid="uid://c2uagfiinhue1"]
 
+[ext_resource type="Script" uid="uid://puhsti0eq2qe" path="res://Scripts/light.gd" id="1_veqsg"]
+
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_8ujaw"]
 resource_name = "jaune"
 vertex_color_use_as_albedo = true
@@ -100,7 +102,10 @@ _surfaces = [{
 blend_shape_mode = 0
 shadow_mesh = SubResource("ArrayMesh_exswm")
 
-[node name="Node3D" type="Node3D" unique_id=1107310041]
+[node name="light" type="Node3D" unique_id=1107310041]
+script = ExtResource("1_veqsg")
+lamp_mesh_path = NodePath("lamp_003")
+directional_light_path = NodePath("DirectionalLight3D")
 
 [node name="lamp_003" type="MeshInstance3D" parent="." unique_id=1261160097]
 transform = Transform3D(7.5519485, 0, 0, 0, -9.002624e-07, 7.551948, 0, -7.551948, -9.002624e-07, 0.55504966, 2.7442956, 0.014861107)
