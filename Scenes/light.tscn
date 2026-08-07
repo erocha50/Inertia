@@ -112,3 +112,4 @@ transform = Transform3D(7.5519485, 0, 0, 0, -9.002624e-07, 7.551948, 0, -7.55194
 mesh = SubResource("ArrayMesh_ebnh5")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1812047697]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.6397462, 0, 0)
