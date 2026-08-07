@@ -1,0 +1,40 @@
+[gd_scene format=3 uid="uid://dejd3uskm0mfd"]
+
+[ext_resource type="Script" path="res://characters/frozen_waiter_boss.gd" id="1_h6x3s"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_yf5fn"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_g4v7s"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_g4v7s"]
+radius = 16.972162
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_yf5fn"]
+
+[node name="FrozenWaiterBoss" type="CharacterBody3D" unique_id=391143270]
+script = ExtResource("1_h6x3s")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=2125891846]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0)
+shape = SubResource("CapsuleShape3D_yf5fn")
+
+[node name="VisualRoot" type="Node3D" parent="." unique_id=1139020046]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="VisualRoot" unique_id=905801326]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0)
+mesh = SubResource("CapsuleMesh_g4v7s")
+
+[node name="DetectionArea" type="Area3D" parent="." unique_id=1574608547]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="DetectionArea" unique_id=808550862]
+shape = SubResource("SphereShape3D_g4v7s")
+
+[node name="ComboPivot" type="Node3D" parent="." unique_id=877220908]
+
+[node name="TrayMesh" type="MeshInstance3D" parent="ComboPivot" unique_id=163081787]
+mesh = SubResource("CapsuleMesh_g4v7s")
+
+[node name="TrayHitbox" type="Area3D" parent="ComboPivot/TrayMesh" unique_id=701844636]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ComboPivot/TrayMesh/TrayHitbox" unique_id=429114352]
+shape = SubResource("BoxShape3D_yf5fn")

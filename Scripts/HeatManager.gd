@@ -75,7 +75,7 @@ func _process(delta: float) -> void:
 	if current_flat_speed >= movement_speed_threshold:
 		_decay_curve_t = 0.0
 		# FoodBuffManager.heat_per_hit_bonus adds a flat bonus to the gain rate
-		var gain_rate := heat_gain_per_second + FoodBuffManager.heat_per_hit_bonus
+		var gain_rate: float = heat_gain_per_second + FoodBuffManager.heat_per_hit_bonus
 		add_heat(gain_rate * lerpf(1.0, gain_speed_scale_min, pow(raw_t, gain_curve_power)) * delta)
 	else:
 		_decay_curve_t = minf(_decay_curve_t + delta / maxf(decay_curve_duration, 0.001), 1.0)
@@ -103,7 +103,7 @@ func update_speed(flat_speed: float) -> void:
 ## this calculation, letting buffs like Raw Beef push the multiplier higher
 ## than the player's actual heat value would normally allow.
 func get_heat_speed_multiplier() -> float:
-	var effective_heat := heat_value + FoodBuffManager.momentum_ceiling_bonus
+	var effective_heat: float = heat_value + FoodBuffManager.momentum_ceiling_bonus
 	var t := clampf(effective_heat / maxf(max_heat, 1.0), 0.0, 1.0)
 	return lerpf(speed_mult_min, speed_mult_max, t)
 

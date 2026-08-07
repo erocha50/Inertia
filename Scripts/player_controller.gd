@@ -149,7 +149,6 @@ var _camera:Camera3D; var _mesh:Node3D; var _col:CollisionShape3D
 var _input_tilt:float=0.0
 
 var _brake_timer:float=0.0
-var _brake_target_dir:=Vector3.ZERO
 
 var _slam_curve_timer:float=0.0
 var _slam_curve_axis:=Vector3.ZERO
@@ -507,16 +506,16 @@ func _arc_move(d:float)->bool:
 	if ang<=arc_threshold:
 		flat=flat.move_toward(wish*_max_spd,acceleration*d)
 		velocity.x=flat.x; velocity.z=flat.z; turn_strain.emit(0.0); return false
-	var str:=clampf((ang-arc_threshold)/(180.0-arc_threshold),0.0,1.0)
+	var strain:=clampf((ang-arc_threshold)/(180.0-arc_threshold),0.0,1.0)
 	var brake_t:=clampf((ang-arc_threshold)/maxf(corner_brake_ramp,1.0),0.0,1.0)
 	var new_spd:=maxf(spd*pow(corner_speed_bleed,brake_t*d),corner_min_speed)
 	var steer_cap:=lerpf(1.0,0.25,brake_t*clampf(spd/speed_max,0.0,1.0))
 	var rot:=clampf(cur.signed_angle_to(wish,Vector3.UP),
 		-deg_to_rad(arc_turn_rate)*d*steer_cap, deg_to_rad(arc_turn_rate)*d*steer_cap)
-	var drag:=lerpf(1.0,arc_speed_drag,str*d*5.0)
+	var drag:=lerpf(1.0,arc_speed_drag,strain*d*5.0)
 	var new_dir:=cur.rotated(Vector3.UP,rot)
 	velocity.x=new_dir.x*new_spd*drag; velocity.z=new_dir.z*new_spd*drag
-	turn_strain.emit(str); return true
+	turn_strain.emit(strain); return true
 
 
 func _slide_phys(d:float)->bool:
