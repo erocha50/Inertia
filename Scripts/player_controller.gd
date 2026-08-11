@@ -37,7 +37,7 @@ enum State { IDLE, RUN, AIR, SLIDE, ARC, WALL_RIDE }
 
 @export_group("Air Movement")
 @export var air_dash_force_scale:float=0.55
-@export var air_roll_allowed:bool=true
+@export var air_dodge_allowed:bool=true
 @export var air_strafe_accel:float=40.0
 @export var air_strafe_wishcap:float=50.0
 @export var air_strafe_speed_cap:float=1.3
@@ -70,13 +70,13 @@ enum State { IDLE, RUN, AIR, SLIDE, ARC, WALL_RIDE }
 @export var dash_attack_curve_strength:float=0.18
 @export var dash_attack_damage:float=15.0
 
-@export_group("Roll")
-@export var roll_duration:float=0.45
-@export var roll_cooldown:float=1.2
-@export var roll_distance:float=12.0
-@export var roll_speed_bonus_scale:float=0.06
-@export var roll_speed_bonus_max:float=2.5
-@export var roll_decel_curve:float=3.5
+@export_group("Dodge")
+@export var dodge_duration:float=0.45
+@export var dodge_cooldown:float=1.2
+@export var dodge_distance:float=12.0
+@export var dodge_speed_bonus_scale:float=0.06
+@export var dodge_speed_bonus_max:float=2.5
+@export var dodge_decel_curve:float=3.5
 
 @export_group("Environment")
 @export var drag_coefficient:float=0.008; @export var wind:=Vector3.ZERO
@@ -124,7 +124,7 @@ signal height_changed(world_y:float)
 signal landed(impact_speed:float)
 signal dash_performed()
 signal dash_attack_performed()
-signal roll_performed()
+signal dodge_performed()
 signal wall_hit(wall_normal:Vector3,impact_speed:float)
 signal food_consumed(food_name:String)
 
@@ -136,10 +136,10 @@ var _dash_attack_dir:=Vector3.ZERO
 var _dash_attack_end_time:float=0.0
 var _dash_attack_hit_enemies: Array = []  # Track enemies hit during this dash to prevent multi-hit
 
-var _roll_cd:float=0.0
-var _roll_active:bool=false
-var _roll_end_time:float=0.0
-var _roll_dir:=Vector3.ZERO
+var _dodge_cd:float=0.0
+var _dodge_active:bool=false
+var _dodge_end_time:float=0.0
+var _dodge_dir:=Vector3.ZERO
 var _impulse:=Vector3.ZERO; var _air_vel_y:float
 var _damaged:bool; var _drifting:bool; var _prev_spd:float
 var _surf_friction:=1.0; var _surf_accel:=1.0; var _surf_drag:=1.0; var _surf_gravity:=1.0
@@ -178,7 +178,7 @@ func _ready()->void:
 	GameEvents.player_consumed_food.connect(_on_food_consumed)
 	
 func _physics_process(d:float)->void:
-	_bounce_cd=maxf(_bounce_cd-d,0.0); _dash_cd=maxf(_dash_cd-d,0.0); _dash_attack_cd=maxf(_dash_attack_cd-d,0.0); _roll_cd=maxf(_roll_cd-d,0.0); _buf=maxf(_buf-d,0.0)
+	_bounce_cd=maxf(_bounce_cd-d,0.0); _dash_cd=maxf(_dash_cd-d,0.0); _dash_attack_cd=maxf(_dash_attack_cd-d,0.0); _dodge_cd=maxf(_dodge_cd-d,0.0); _buf=maxf(_buf-d,0.0)
 
 	if Input.is_action_just_pressed("dash_attack"): _perform_dash_attack()
 
@@ -187,10 +187,10 @@ func _physics_process(d:float)->void:
 		if _dash_attack_end_time<=0.0:
 			_dash_attack_active=false
 
-	if _roll_active:
-		_roll_end_time=maxf(_roll_end_time-d,0.0)
-		if _roll_end_time<=0.0:
-			_roll_active=false
+	if _dodge_active:
+		_dodge_end_time=maxf(_dodge_end_time-d,0.0)
+		if _dodge_end_time<=0.0:
+			_dodge_active=false
 	if Input.is_action_just_pressed("jump"): _buf=jump_buffer_t
 	if is_on_floor(): _coyote=coyote_time
 	else:             _coyote=maxf(_coyote-d,0.0)
@@ -281,7 +281,7 @@ func _run_sm(d:float)->void:
 
 func _idle(d:float)->State:
 	_horiz(d)
-	if Input.is_action_just_pressed("roll"):  _perform_roll()
+	if Input.is_action_just_pressed("dodge"):  _perform_dodge()
 	if Input.is_action_just_pressed("dash_attack"):  try_dash()
 
 	if not is_on_floor():                return State.AIR
@@ -292,7 +292,7 @@ func _idle(d:float)->State:
 
 func _run(d:float)->State:
 	_horiz(d)
-	if Input.is_action_just_pressed("roll"):  _perform_roll()
+	if Input.is_action_just_pressed("dodge"):  _perform_dodge()
 	if Input.is_action_just_pressed("dash_attack"):  try_dash()
 
 	if not is_on_floor():                        return State.AIR
@@ -300,14 +300,14 @@ func _run(d:float)->State:
 	if _slide_ok():                              return State.SLIDE
 	var ang:=_ang_to_wish()
 	if ang>arc_threshold and ang<reversal_threshold and _flat_spd()>speed_min \
-			and not _dash_attack_active and not _roll_active: return State.ARC
+			and not _dash_attack_active and not _dodge_active: return State.ARC
 	if _flat_spd()<0.5:                          return State.IDLE
 	return State.RUN
 
 func _air(d:float)->State:
 	_horiz(d)
 	if Input.is_action_just_released("jump") and velocity.y>0.0: velocity.y*=0.40
-	if Input.is_action_just_pressed("roll") and air_roll_allowed: _perform_roll()
+	if Input.is_action_just_pressed("dodge") and air_dodge_allowed: _perform_dodge()
 	if Input.is_action_just_pressed("dash_attack"): try_dash()
 
 	
@@ -397,7 +397,7 @@ func _apply_gravity(d:float)->void:
 
 
 func _horiz(d:float)->float:
-	var _action_active:=_dash_attack_active or _roll_active
+	var _action_active:=_dash_attack_active or _dodge_active
 
 	if _dash_attack_active:
 		var flat:=Vector3(velocity.x,0,velocity.z)
@@ -416,16 +416,16 @@ func _horiz(d:float)->float:
 		turn_strain.emit(0.0); _drifting=false
 		return 0.0
 
-	if _roll_active:
+	if _dodge_active:
 		var flat:=Vector3(velocity.x,0,velocity.z)
 		var spd:=flat.length()
 		if spd>0.05:
-			var roll_remaining:=_roll_end_time
-			var roll_elapsed:=roll_duration-roll_remaining
-			var t_norm:=clampf(roll_elapsed/roll_duration,0.0,1.0)
-			var decel_rate:=pow(t_norm,1.0/roll_decel_curve)*spd/maxf(roll_duration*(1.0-t_norm),d)
+			var dodge_remaining:=_dodge_end_time
+			var dodge_elapsed:=dodge_duration-dodge_remaining
+			var t_norm:=clampf(dodge_elapsed/dodge_duration,0.0,1.0)
+			var decel_rate:=pow(t_norm,1.0/dodge_decel_curve)*spd/maxf(dodge_duration*(1.0-t_norm),d)
 			var new_spd:=maxf(spd-decel_rate*d,0.0)
-			velocity.x=_roll_dir.x*new_spd; velocity.z=_roll_dir.z*new_spd
+			velocity.x=_dodge_dir.x*new_spd; velocity.z=_dodge_dir.z*new_spd
 		else:
 			velocity.x=0.0; velocity.z=0.0
 		turn_strain.emit(0.0); _drifting=false
@@ -451,7 +451,7 @@ func _horiz(d:float)->float:
 		if not _action_active: _brake_timer=0.0
 		return 0.0
 
-	if not is_on_floor() and not _roll_active and not _dash_attack_active:
+	if not is_on_floor() and not _dodge_active and not _dash_attack_active:
 		var wish_proj:=flat.dot(wish)
 		var add_spd:=minf(air_strafe_wishcap-wish_proj, air_strafe_accel*d)
 		if add_spd>0.0:
@@ -655,38 +655,38 @@ func _perform_dash_attack()->void:
 	_dash_attack_cd=dash_attack_cooldown
 	dash_attack_performed.emit()
 
-func _perform_roll()->void:
-	if _roll_cd>0.0: return
+func _perform_dodge()->void:
+	if _dodge_cd>0.0: return
 
 	var wish_dir:Vector3=_wish_dir()
 	var flat_vel:=Vector3(velocity.x, 0.0, velocity.z)
-	var roll_dir:Vector3
+	var dodge_dir:Vector3
 	if wish_dir.length_squared()>0.01:
-		roll_dir=wish_dir.normalized()
+		dodge_dir=wish_dir.normalized()
 	elif flat_vel.length()>0.1:
-		roll_dir=flat_vel.normalized()
+		dodge_dir=flat_vel.normalized()
 	else:
 		var cam_fwd:=_camera.global_transform.basis.z; cam_fwd.y=0.0
-		roll_dir=cam_fwd.normalized() if cam_fwd.length_squared()>0.01 else Vector3(0,0,-1)
+		dodge_dir=cam_fwd.normalized() if cam_fwd.length_squared()>0.01 else Vector3(0,0,-1)
 
 	velocity.x=0.0; velocity.z=0.0
 
 	var entry_spd:=flat_vel.length()
-	var bonus:=minf(entry_spd*roll_speed_bonus_scale, roll_speed_bonus_max)
-	var total_dist:=roll_distance+bonus
+	var bonus:=minf(entry_spd*dodge_speed_bonus_scale, dodge_speed_bonus_max)
+	var total_dist:=dodge_distance+bonus
 
-	var curve_integral:=roll_decel_curve/(roll_decel_curve+1.0)
-	var start_spd:=total_dist/(roll_duration*curve_integral)
+	var curve_integral:=dodge_decel_curve/(dodge_decel_curve+1.0)
+	var start_spd:=total_dist/(dodge_duration*curve_integral)
 
-	velocity.x=roll_dir.x*start_spd
-	velocity.z=roll_dir.z*start_spd
+	velocity.x=dodge_dir.x*start_spd
+	velocity.z=dodge_dir.z*start_spd
 
-	_roll_dir=roll_dir
-	_roll_active=true
-	_roll_end_time=roll_duration
+	_dodge_dir=dodge_dir
+	_dodge_active=true
+	_dodge_end_time=dodge_duration
 
-	_roll_cd=roll_cooldown
-	roll_performed.emit()
+	_dodge_cd=dodge_cooldown
+	dodge_performed.emit()
 
 func set_damaged(v:bool)->void:        _damaged=v
 func get_state()->int:                 return _state as int

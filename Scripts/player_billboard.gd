@@ -17,6 +17,7 @@ enum BillboardState {
 	WALL_RUN,    ## wall run loop: cycles wr1/wr2/wr3/wr4
 	DASH,        ## dash burst, single frame
 	DASH_LAND,   ## landing from dash
+	DODGE,       ## dodge burst, single frame
 }
 
 @export var idle_fps: float = 4.0
@@ -42,6 +43,8 @@ func _ready() -> void:
 			_player.state_changed.connect(_on_player_state_changed)
 		if _player.has_signal(&"dash_attack_performed"):
 			_player.dash_attack_performed.connect(_on_dash_performed)
+		if _player.has_signal(&"dodge_performed"):
+			_player.dodge_performed.connect(_on_dodge_performed)
 		# Cooldown = full dash sequence length, so the player can't dash again
 		# until dash + dash_land has finished playing.
 		if "dash_attack_cooldown" in _player:
@@ -64,8 +67,8 @@ func _on_speed_changed(flat: float, max_speed: float) -> void:
 			_update_wall_run_side()
 
 func _on_player_state_changed(new_state: int) -> void:
-	# Don't interrupt a dash sequence
-	if _bb_state in [BillboardState.DASH, BillboardState.DASH_LAND]:
+	# Don't interrupt a dash or dodge sequence
+	if _bb_state in [BillboardState.DASH, BillboardState.DASH_LAND, BillboardState.DODGE]:
 		return
 	match new_state:
 		## State.AIR
@@ -143,6 +146,11 @@ func _on_dash_performed() -> void:
 		return
 	_change_state(BillboardState.DASH)
 
+func _on_dodge_performed() -> void:
+	if _bb_state in [BillboardState.DASH, BillboardState.DASH_LAND, BillboardState.DODGE]:
+		return
+	_change_state(BillboardState.DODGE)
+
 func _was_in_jump() -> bool:
 	return _bb_state in [BillboardState.PREPARE_JUMP, BillboardState.JUMP_START, BillboardState.JUMP_FALL]
 
@@ -212,6 +220,16 @@ func _change_state(new_state: BillboardState) -> void:
 			speed_scale = _speed_scale_for_duration(&"dash_land", dash_land_duration)
 			_anim_finished_cb = _on_dash_land_done
 
+		BillboardState.DODGE:
+			play(&"dodge")
+			# Match the visual length to the player's actual dodge movement duration.
+			var duration: float = _player.dodge_duration if _player and "dodge_duration" in _player else 0.45
+			speed_scale = _speed_scale_for_duration(&"dodge", duration)
+			_anim_finished_cb = _on_dodge_done
+			# Backstop: if "dodge" is set to loop in SpriteFrames, animation_finished
+			# never fires, so force the exit after the same duration.
+			get_tree().create_timer(duration).timeout.connect(_on_dodge_timeout)
+
 ## Base SpriteFrames FPS is 1.0 for every animation (see header note), so
 ## playback speed in frames/sec == speed_scale. To make an animation with any
 ## frame count last exactly `duration` seconds: speed_scale = frame_count / duration.
@@ -245,3 +263,13 @@ func _on_dash_land_done() -> void:
 		_change_state(BillboardState.WALK)
 	else:
 		_change_state(BillboardState.IDLE)
+
+func _on_dodge_done() -> void:
+	if _current_speed > min_move_speed:
+		_change_state(BillboardState.WALK)
+	else:
+		_change_state(BillboardState.IDLE)
+
+func _on_dodge_timeout() -> void:
+	if _bb_state == BillboardState.DODGE:
+		_on_dodge_done()

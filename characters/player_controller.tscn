@@ -4,8 +4,11 @@
 [ext_resource type="Script" uid="uid://kpkwthn0lm76" path="res://Scripts/camera_shiftlock.gd" id="2_camera"]
 [ext_resource type="Script" uid="uid://dbx0jqdm54cwo" path="res://canvas_layer.gd" id="3_8ni3k"]
 [ext_resource type="Script" uid="uid://cphlulyb7xl12" path="res://Scripts/PlayerSpeedBridge.gd" id="4_eml8v"]
+[ext_resource type="Texture2D" uid="uid://byb3g2skib4b5" path="res://assets/player_animations/player dodge/player dodge1.png" id="5_ovu4n"]
 [ext_resource type="Texture2D" uid="uid://bqk2vwipc7bpa" path="res://assets/player_animations/player idle/player_idle.png" id="5_wiblt"]
+[ext_resource type="Texture2D" uid="uid://w7g7evksdx7r" path="res://assets/player_animations/player dodge/player dodge2.png" id="6_puhlt"]
 [ext_resource type="Texture2D" uid="uid://y6odmwpk1cql" path="res://assets/player_animations/player walk/player_walk1.png" id="6_walk1"]
+[ext_resource type="Texture2D" uid="uid://bdrmg2sfyousg" path="res://assets/player_animations/player dodge/player dodge3.png" id="7_vg1ww"]
 [ext_resource type="Texture2D" uid="uid://bf0ofd03nosu2" path="res://assets/player_animations/player walk/player_walk2.png" id="7_walk2"]
 [ext_resource type="Texture2D" uid="uid://dlexsbncjlv7l" path="res://assets/player_animations/player walk/player_walk3.png" id="8_walk3"]
 [ext_resource type="Texture2D" uid="uid://cfbdqqixmowmi" path="res://assets/player_animations/player walk/player_walk4.png" id="9_walk4"]
@@ -45,6 +48,20 @@ animations = [{
 "loop": 0,
 "name": &"dash_land",
 "speed": 1.0
+}, {
+"frames": [{
+"duration": 3.0,
+"texture": ExtResource("5_ovu4n")
+}, {
+"duration": 8.0,
+"texture": ExtResource("6_puhlt")
+}, {
+"duration": 6.0,
+"texture": ExtResource("7_vg1ww")
+}],
+"loop": 1,
+"name": &"dodge",
+"speed": 5.0
 }, {
 "frames": [{
 "duration": 1.0,
@@ -137,7 +154,6 @@ animations = [{
 "speed": 0.25
 }]
 
-
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_fghij"]
 albedo_color = Color(0.4, 0.6, 0.8, 1)
 
@@ -152,13 +168,9 @@ dash_attack_speed = 70.0
 [node name="CameraController" type="Node3D" parent="." unique_id=1765414761]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0)
 script = ExtResource("2_camera")
-camera_height = 0.8
 sensitivity_y = -0.16
 pitch_max = 15.0
-yaw_smooth_speed = 10.0
-pitch_smooth_speed = 12.0
 fov_base = 80.0
-fov_max = 100.0
 lock_on_break_range_multiplier = 4.0
 
 [node name="Camera3D" type="Camera3D" parent="CameraController" unique_id=1657557889]
@@ -168,12 +180,12 @@ transform = Transform3D(6, 0, 0, 0, 6, 0, 0, 0, 6, 0, 0.6091789, 0)
 pixel_size = 0.0005
 billboard = 1
 sprite_frames = SubResource("SpriteFrames_abcde")
-animation = &"dash"
+animation = &"dodge"
+frame_progress = 0.40400746
 script = ExtResource("10_niblt")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=636966049]
 visible = false
-
 material_override = SubResource("StandardMaterial3D_fghij")
 mesh = SubResource("CapsuleMesh_j8adm")
 
