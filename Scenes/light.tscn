@@ -105,6 +105,8 @@ shadow_mesh = SubResource("ArrayMesh_exswm")
 [node name="light" type="Node3D" unique_id=1107310041]
 script = ExtResource("1_veqsg")
 lamp_mesh_path = NodePath("lamp_003")
+light_energy = 45.0
+light_offset = Vector3(0, -1, 0)
 
 [node name="lamp_003" type="MeshInstance3D" parent="." unique_id=1261160097]
 transform = Transform3D(7.5519485, 0, 0, 0, -9.002624e-07, 7.551948, 0, -7.551948, -9.002624e-07, 0.55504966, 2.7442956, 0.014861107)

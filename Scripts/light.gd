@@ -12,6 +12,8 @@ extends Node3D
 @export var light_range: float   = 40.0
 @export var cone_angle_deg: float = 65.0   # how wide the cone spreads
 @export var cone_softness: float  = 2.0    # lower = harder edge, higher = softer edge
+@export var light_offset: Vector3 = Vector3(0, -0.3, 0)  # nudges the light below the shade mesh so it doesn't shadow itself
+@export var enable_shadows: bool  = false  # OFF by default — the shade mesh was self-shadowing and punching a dark hole in the middle of the lit floor
 
 @export_category("Flicker")
 @export var enable_flicker: bool     = true
@@ -35,11 +37,11 @@ func _ready() -> void:
 	_light.spot_range       = light_range
 	_light.spot_angle       = cone_angle_deg
 	_light.spot_attenuation = cone_softness
-	_light.shadow_enabled   = true
+	_light.shadow_enabled   = enable_shadows
 
 	add_child(_light)
 	_light.top_level = true  # ignore any rotation on parent nodes — always points where we tell it to
-	_light.global_position = _lamp_mesh.global_position
+	_light.global_position = _lamp_mesh.global_position + light_offset
 	_light.look_at(_light.global_position + Vector3.DOWN, Vector3.FORWARD)
 
 	print("LampLighting: light created at ", _light.global_position, " energy=", _light.light_energy, " range=", _light.spot_range, " angle=", _light.spot_angle)

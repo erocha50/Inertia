@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://ctq3omrv3hi0h"
+path="res://.godot/imported/Polyester Spiderman Edit (Original by foryouamv) - BlackRob183 (youtube).mp3-7ab3d33a7cba471254ba8ec087d35a26.mp3str"
+
+[deps]
+
+source_file="res://music/Polyester Spiderman Edit (Original by foryouamv) - BlackRob183 (youtube).mp3"
+dest_files=["res://.godot/imported/Polyester Spiderman Edit (Original by foryouamv) - BlackRob183 (youtube).mp3-7ab3d33a7cba471254ba8ec087d35a26.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4
