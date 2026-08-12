@@ -25,6 +25,7 @@ HealthManager="*uid://blnag3jxcdfmk"
 FoodBuffManager="*uid://okhh6ro81132"
 ObjectMessageUI="*uid://wcfi4x1idai5"
 SceneTransition="*uid://bqt85ybjnux47"
+PostProcess="*uid://c1m8sfpovh1m0"
 
 [display]
 

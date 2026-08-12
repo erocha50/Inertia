@@ -31,7 +31,7 @@ size = Vector3(10.699585, 5.765747, 62.514465)
 size = Vector3(10, 11.455322, 19.42871)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_eared"]
-size = Vector3(0.3017807, 0.21343994, 0.13621902)
+size = Vector3(0.15405846, 0.21343994, 0.054437637)
 
 [sub_resource type="Environment" id="Environment_g4v7s"]
 
@@ -77,7 +77,7 @@ size = Vector3(12.483386, 0.608, 254.26874)
 material = SubResource("StandardMaterial3D_d0u6y")
 
 [node name="roof" type="CSGBox3D" parent="." unique_id=1304816631]
-transform = Transform3D(4.371139e-08, -3.8213714e-15, -0.99999994, -8.742278e-08, -1.0000001, 0, -1, 8.7422784e-08, -4.3711385e-08, 76.72043, 12.680941, 16.34882)
+transform = Transform3D(4.371139e-08, -3.8213714e-15, -0.99999994, -8.742278e-08, -1.0000001, 0, -1, 8.7422784e-08, -4.3711385e-08, 76.72043, 12.9300995, 16.34882)
 use_collision = true
 size = Vector3(20.508783, 0.608, 254.26874)
 material = SubResource("StandardMaterial3D_d0u6y")
@@ -156,11 +156,12 @@ shape = SubResource("BoxShape3D_2")
 transform = Transform3D(0.8442217, 0, -9.766498, 0, 43.56903, 0, 46.240437, 0, 0.17830907, 203.78477, 0.8385534, 15.620027)
 
 [node name="DoorTrigger2" type="Area3D" parent="Entrance_Door__vray" unique_id=1421683499]
+transform = Transform3D(1, 0, 2.3283064e-10, 0, 1, 0, 0, 0, 0.99999994, 0.012734324, 0, 0.0011005402)
 script = ExtResource("9_opwyq")
 target_scene = "uid://bo3ki2rub5knh"
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Entrance_Door__vray/DoorTrigger2" unique_id=733326411]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.010921514, 0.09921265, 0.043344498)
+transform = Transform3D(0.9999886, 0, 2.3283064e-10, 0, 0.9999999, 0, 7.450581e-09, 0, 0.99999976, -0.016661763, 0.0992126, 0.0024585724)
 shape = SubResource("BoxShape3D_eared")
 
 [node name="CSGBox3D13" type="CSGBox3D" parent="." unique_id=1453563668]
@@ -212,10 +213,10 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 58.549057, 9.585951, 14.48866
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 72.715, 9.585951, 14.488665)
 
 [node name="light8" parent="." unique_id=861850397 instance=ExtResource("8_opwyq")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 97.563126, 9.585951, 14.488665)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 90.240776, 9.585951, 14.488665)
 
 [node name="light9" parent="." unique_id=2140024858 instance=ExtResource("8_opwyq")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 98.60459, 9.585951, 14.488665)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 104.946686, 9.585951, 14.488665)
 
 [node name="light10" parent="." unique_id=147059911 instance=ExtResource("8_opwyq")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 123.45272, 9.585951, 14.488665)
