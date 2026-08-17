@@ -1,19 +1,22 @@
 extends CanvasLayer
 
 # AUTOLOAD SINGLETON — register in Project Settings > Autoload.
-# Full-screen post-process: god rays (radial light shafts), split-
-# tone color grading, vignette, and film grain. Pure post-process —
-# doesn't touch your WorldEnvironment/GI settings at all.
+# Full-screen post-process: speed-reactive zoom/motion blur +
+# chromatic aberration (ramps up with player velocity, peaks during
+# a dash), split-tone color grading, vignette, film grain, dust
+# motes. Reads the player's built-in `velocity` off whatever
+# CharacterBody3D is in the "player" group — no changes needed to
+# the player controller script itself.
 
-@export_category("God Rays")
-@export var godray_screen_pos: Vector2 = Vector2(0.5, 0.12)  # roughly where your ceiling lamps converge toward in the frame
-@export var godray_density: float = 0.5
-@export var godray_decay: float = 0.94
-@export var godray_exposure: float = 0.25
-@export var godray_weight: float = 0.4
-@export var godray_tint: Color = Color(1.0, 0.85, 0.6)   # golden bias applied to rays regardless of source color
-@export var godray_tint_strength: float = 0.5
-@export var godray_shimmer_strength: float = 0.04         # subtle flicker so rays aren't perfectly static
+@export_category("Speed Blur")
+@export var max_reference_speed: float = 18.0   # velocity (units/sec) at which blur reaches full strength — IMPORTANT: set this close to your actual dash top speed, or the effect will be maxed out during normal movement
+@export var speed_curve_power: float = 3.0       # higher = stays subtle longer, only kicks in near true max speed
+@export var effect_intensity: float = 0.35       # master dial, 0-1 — turn this down first if it's still too much
+@export var blur_samples: int = 10
+@export var blur_strength: float = 0.16          # reduced — was way too strong
+@export var zoom_strength: float = 0.015         # reduced
+@export var chromatic_strength: float = 0.0025   # reduced
+@export var speed_smoothing: float = 6.0          # higher = snappier response to speed changes
 
 @export_category("Dust Motes")
 @export var dust_strength: float = 0.15
@@ -34,20 +37,19 @@ extends CanvasLayer
 
 var rect: ColorRect
 var mat: ShaderMaterial
+var player: CharacterBody3D = null
+var _current_speed_factor: float = 0.0
 
 const SHADER_CODE := """
 shader_type canvas_item;
 
 uniform sampler2D screen_tex : hint_screen_texture, repeat_disable, filter_linear;
 
-uniform vec2 godray_screen_pos = vec2(0.5, 0.12);
-uniform float godray_density = 0.5;
-uniform float godray_decay = 0.94;
-uniform float godray_exposure = 0.25;
-uniform float godray_weight = 0.4;
-uniform vec4 godray_tint : source_color = vec4(1.0, 0.85, 0.6, 1.0);
-uniform float godray_tint_strength = 0.5;
-uniform float godray_shimmer_strength = 0.04;
+uniform float speed_factor = 0.0;
+uniform int blur_samples = 10;
+uniform float blur_strength = 0.35;
+uniform float zoom_strength = 0.04;
+uniform float chromatic_strength = 0.006;
 
 uniform float dust_strength = 0.15;
 uniform float dust_density = 40.0;
@@ -63,8 +65,6 @@ uniform float grain_strength = 0.02;
 uniform float contrast = 1.06;
 uniform float saturation = 0.95;
 
-const int GODRAY_SAMPLES = 24;
-
 float rand(vec2 co) {
 	return fract(sin(dot(co, vec2(12.9898, 78.233))) * 43758.5453);
 }
@@ -77,7 +77,7 @@ float dust_motes(vec2 uv, float t) {
 
 	float h = rand(cell);
 	if (h < 0.85) {
-		return 0.0; // most cells have no mote — keeps it sparse
+		return 0.0;
 	}
 
 	vec2 center = vec2(rand(cell + 1.1), rand(cell + 3.7));
@@ -87,43 +87,37 @@ float dust_motes(vec2 uv, float t) {
 }
 
 void fragment() {
-	vec3 base = textureLod(screen_tex, SCREEN_UV, 0.0).rgb;
+	vec2 screen_center = vec2(0.5, 0.5);
 
-	// --- God rays: radial blur pulling bright pixels toward the
-	// screen, streaking away from godray_screen_pos ---
-	vec2 uv = SCREEN_UV;
-	vec2 delta = (uv - godray_screen_pos) * (godray_density / float(GODRAY_SAMPLES));
-	vec2 sample_uv = uv;
-	float decay = 1.0;
-	vec3 rays = vec3(0.0);
+	// Subtle zoom-in toward center, scaling with speed — tunnel-
+	// vision feel, mimics an FOV kick without touching the camera
+	vec2 zoomed_uv = screen_center + (SCREEN_UV - screen_center) * (1.0 - zoom_strength * speed_factor);
+	vec2 dir = zoomed_uv - screen_center;
 
-	for (int i = 0; i < GODRAY_SAMPLES; i++) {
-		sample_uv -= delta;
-		vec3 samp = textureLod(screen_tex, sample_uv, 0.0).rgb;
-		// only bright pixels (the lamps) contribute meaningfully
-		float brightness = max(samp.r, max(samp.g, samp.b));
-		samp *= smoothstep(0.5, 1.2, brightness);
-		rays += samp * decay * godray_weight;
-		decay *= godray_decay;
+	// Radial blur: samples pull progressively toward center,
+	// strength scales with speed
+	vec3 col = vec3(0.0);
+	float samples_f = float(blur_samples);
+	for (int i = 0; i < blur_samples; i++) {
+		float t = float(i) / max(samples_f - 1.0, 1.0);
+		vec2 sample_uv = zoomed_uv - dir * blur_strength * speed_factor * t;
+		col += textureLod(screen_tex, sample_uv, 0.0).rgb;
 	}
+	col /= samples_f;
 
-	// Bias toward a consistent gold color instead of just whatever
-	// was behind them — makes them read as "light shafts" even
-	// over non-warm backgrounds (like your UI screens)
-	float ray_brightness = max(rays.r, max(rays.g, rays.b));
-	rays = mix(rays, godray_tint.rgb * ray_brightness, godray_tint_strength);
+	// Chromatic aberration along the same radial direction, only
+	// kicks in noticeably at higher speed
+	float ca = chromatic_strength * speed_factor;
+	float r = textureLod(screen_tex, zoomed_uv - dir * ca, 0.0).r;
+	float b = textureLod(screen_tex, zoomed_uv + dir * ca, 0.0).b;
+	col.r = mix(col.r, r, speed_factor);
+	col.b = mix(col.b, b, speed_factor);
 
-	// Subtle shimmer so the rays aren't perfectly static every frame
-	float shimmer = 1.0 + sin(TIME * 3.0) * godray_shimmer_strength + sin(TIME * 7.3) * godray_shimmer_strength * 0.5;
-	rays *= godray_exposure * shimmer;
-
-	vec3 col = base + rays;
-
-	// --- Dust motes drifting through the light ---
+	// --- Dust motes ---
 	float motes = dust_motes(SCREEN_UV, TIME) * dust_strength;
 	col += vec3(1.0, 0.95, 0.85) * motes;
 
-	// --- Split-tone grading: cool shadows, warm highlights ---
+	// --- Split-tone grading ---
 	float luma = dot(col, vec3(0.299, 0.587, 0.114));
 	vec3 shadows = mix(vec3(1.0), shadow_tint.rgb, split_tone_strength) * (1.0 - luma);
 	vec3 highlights = mix(vec3(1.0), highlight_tint.rgb, split_tone_strength) * luma;
@@ -160,14 +154,11 @@ func _ready() -> void:
 	shader.code = SHADER_CODE
 	mat = ShaderMaterial.new()
 	mat.shader = shader
-	mat.set_shader_parameter("godray_screen_pos", godray_screen_pos)
-	mat.set_shader_parameter("godray_density", godray_density)
-	mat.set_shader_parameter("godray_decay", godray_decay)
-	mat.set_shader_parameter("godray_exposure", godray_exposure)
-	mat.set_shader_parameter("godray_weight", godray_weight)
-	mat.set_shader_parameter("godray_tint", godray_tint)
-	mat.set_shader_parameter("godray_tint_strength", godray_tint_strength)
-	mat.set_shader_parameter("godray_shimmer_strength", godray_shimmer_strength)
+	mat.set_shader_parameter("speed_factor", 0.0)
+	mat.set_shader_parameter("blur_samples", blur_samples)
+	mat.set_shader_parameter("blur_strength", blur_strength)
+	mat.set_shader_parameter("zoom_strength", zoom_strength)
+	mat.set_shader_parameter("chromatic_strength", chromatic_strength)
 	mat.set_shader_parameter("dust_strength", dust_strength)
 	mat.set_shader_parameter("dust_density", dust_density)
 	mat.set_shader_parameter("dust_drift_speed", dust_drift_speed)
@@ -182,3 +173,19 @@ func _ready() -> void:
 
 	rect.material = mat
 	add_child(rect)
+
+
+func _process(delta: float) -> void:
+	if not is_instance_valid(player):
+		player = null
+		var players := get_tree().get_nodes_in_group("player")
+		if not players.is_empty() and players[0] is CharacterBody3D:
+			player = players[0]
+
+	var target_factor := 0.0
+	if player != null:
+		var horizontal_speed := Vector2(player.velocity.x, player.velocity.z).length()
+		target_factor = clamp(horizontal_speed / max_reference_speed, 0.0, 1.0)
+
+	_current_speed_factor = lerp(_current_speed_factor, target_factor, clamp(delta * speed_smoothing, 0.0, 1.0))
+	mat.set_shader_parameter("speed_factor", _current_speed_factor)
