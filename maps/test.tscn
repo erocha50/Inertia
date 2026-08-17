@@ -1,35 +1,46 @@
 [gd_scene format=3 uid="uid://d2scukduurl43"]
+[ext_resource type="PackedScene" uid="uid://b2i1qn0h84o7" path="res://Scenes/PauseMenu.tscn" id="1_pause"]
 
 [ext_resource type="Texture2D" uid="uid://b1u35v5laqkus" path="res://characters/block.png" id="1_cncnj"]
 [ext_resource type="PackedScene" uid="uid://dejd3uskm0mfd" path="res://characters/frozen_waiter_boss.tscn" id="2_3akd8"]
 [ext_resource type="PackedScene" uid="uid://b355nnhi1g7tg" path="res://characters/player_controller.tscn" id="3_3akd8"]
 [ext_resource type="Environment" path="res://environments/cinematic_world_environment.tres" id="4_b6wm1"]
+[ext_resource type="PackedScene" uid="uid://b2i1qn0h84o7" path="res://Scenes/PauseMenu.tscn" id="1_pause"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_b6wm1"]
 albedo_texture = ExtResource("1_cncnj")
+[ext_resource type="PackedScene" uid="uid://b2i1qn0h84o7" path="res://Scenes/PauseMenu.tscn" id="1_pause"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_g4v7s"]
+[ext_resource type="PackedScene" uid="uid://b2i1qn0h84o7" path="res://Scenes/PauseMenu.tscn" id="1_pause"]
 
 [sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_brsxd"]
 data = PackedVector3Array(-0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5, -0.5, -0.5, 0.5, -0.5, 0.5, -0.5, -0.5, -0.5, 0.5, -0.5, -0.5, -0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5, 0.5, -0.5, 0.5, 0.5, 0.5, -0.5, 0.5, -0.5, -0.5, 0.5, -0.5, 0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, -0.5, -0.5, -0.5, -0.5, 0.5, 0.5, -0.5, -0.5, 0.5, -0.5, -0.5, -0.5, 0.5, 0.5, 0.5, -0.5, 0.5, 0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, -0.5, 0.5, -0.5, 0.5, 0.5, -0.5, -0.5, -0.5, 0.5, 0.5, -0.5, 0.5, -0.5, -0.5, -0.5, 0.5, -0.5, 0.5, 0.5, -0.5, -0.5, -0.5, -0.5, -0.5)
+[ext_resource type="PackedScene" uid="uid://b2i1qn0h84o7" path="res://Scenes/PauseMenu.tscn" id="1_pause"]
 
 [node name="Node3D" type="Node3D" unique_id=604306061]
+[ext_resource type="PackedScene" uid="uid://b2i1qn0h84o7" path="res://Scenes/PauseMenu.tscn" id="1_pause"]
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1647782688]
 transform = Transform3D(1000, 0, 0, 0, 1, 0, 0, 0, 1000, 0, 0, 0)
 material_override = SubResource("StandardMaterial3D_b6wm1")
 mesh = SubResource("BoxMesh_g4v7s")
+[ext_resource type="PackedScene" uid="uid://b2i1qn0h84o7" path="res://Scenes/PauseMenu.tscn" id="1_pause"]
 
 [node name="StaticBody3D" type="StaticBody3D" parent="MeshInstance3D" unique_id=548285985]
+[ext_resource type="PackedScene" uid="uid://b2i1qn0h84o7" path="res://Scenes/PauseMenu.tscn" id="1_pause"]
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="MeshInstance3D/StaticBody3D" unique_id=1878686593]
 shape = SubResource("ConcavePolygonShape3D_brsxd")
+[ext_resource type="PackedScene" uid="uid://b2i1qn0h84o7" path="res://Scenes/PauseMenu.tscn" id="1_pause"]
 
 [node name="CharacterBody3D" parent="." unique_id=1229242080 instance=ExtResource("3_3akd8")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 27.117746, 1.6608213, 83.40778)
+[ext_resource type="PackedScene" uid="uid://b2i1qn0h84o7" path="res://Scenes/PauseMenu.tscn" id="1_pause"]
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1928847260]
 environment = ExtResource("4_b6wm1")
+[ext_resource type="PackedScene" uid="uid://b2i1qn0h84o7" path="res://Scenes/PauseMenu.tscn" id="1_pause"]
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1714726326]
 transform = Transform3D(-0.7071, 0.4082, 0.5774, 0, 0.8165, 0.5774, -0.7071, -0.4082, 0.5774, 0, 50, 0)
@@ -37,6 +48,7 @@ light_color = Color(0.9, 0.85, 0.8, 1)
 light_energy = 1.2
 shadow_enabled = true
 shadow_blur = 2.0
+[ext_resource type="PackedScene" uid="uid://b2i1qn0h84o7" path="res://Scenes/PauseMenu.tscn" id="1_pause"]
 
 [node name="FrozenWaiterBoss" parent="." unique_id=1297331590 instance=ExtResource("2_3akd8")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 38.51702, 3.5, 79.25148)

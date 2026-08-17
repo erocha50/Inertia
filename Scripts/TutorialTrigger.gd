@@ -5,7 +5,7 @@ extends Area3D
 @export var duration: float = 3.0
 
 var has_triggered: bool = false
-var message_ui: CanvasLayer
+var message_ui: Node = null
 
 
 func _ready() -> void:

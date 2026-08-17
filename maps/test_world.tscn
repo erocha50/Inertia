@@ -1,4 +1,5 @@
 [gd_scene format=3 uid="uid://t3ejc2fqyx2n"]
+[ext_resource type="PackedScene" uid="uid://b2i1qn0h84o7" path="res://Scenes/PauseMenu.tscn" id="1_pause"]
 
 [ext_resource type="PackedScene" uid="uid://baqg8tg5p4h1t" path="res://maps/test_plate.tscn" id="1_icmfn"]
 [ext_resource type="PackedScene" uid="uid://b355nnhi1g7tg" path="res://characters/player_controller.tscn" id="2_icmfn"]
@@ -9,7 +10,9 @@
 [ext_resource type="PackedScene" uid="uid://duaemlg4b788f" path="res://Scenes/hearth.tscn" id="7_ouixf"]
 [ext_resource type="PackedScene" uid="uid://dyorpcsov38vh" path="res://Scenes/Checkpoint.tscn" id="8_v2hsh"]
 [ext_resource type="PackedScene" uid="uid://ctwafpi661v1i" path="res://Scenes/RespawnScreen.tscn" id="9_j6jwi"]
+[node name="PauseMenu" parent="." instance=ExtResource("1_pause")]
 [ext_resource type="PackedScene" uid="uid://u2c8cmscyaoh" path="res://characters/scullery_horror.tscn" id="10_u2c8"]
+[ext_resource type="PackedScene" uid="uid://b2i1qn0h84o7" path="res://Scenes/PauseMenu.tscn" id="1_pause"]
 
 [sub_resource type="Environment" id="Environment_s3ba5"]
 background_energy_multiplier = 2.98
@@ -17,62 +20,80 @@ ambient_light_color = Color(1, 1, 1, 1)
 ambient_light_energy = 5.9
 reflected_light_source = 2
 tonemap_exposure = 1.29
+[ext_resource type="PackedScene" uid="uid://b2i1qn0h84o7" path="res://Scenes/PauseMenu.tscn" id="1_pause"]
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_icmfn"]
 top_radius = 3.0
 bottom_radius = 3.0
 height = 8.0
+[ext_resource type="PackedScene" uid="uid://b2i1qn0h84o7" path="res://Scenes/PauseMenu.tscn" id="1_pause"]
 
 [node name="TestWorld" type="Node3D" unique_id=696058917]
+[ext_resource type="PackedScene" uid="uid://b2i1qn0h84o7" path="res://Scenes/PauseMenu.tscn" id="1_pause"]
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1573436144]
 environment = SubResource("Environment_s3ba5")
+[ext_resource type="PackedScene" uid="uid://b2i1qn0h84o7" path="res://Scenes/PauseMenu.tscn" id="1_pause"]
 
 [node name="test_plate" parent="." unique_id=1987738037 instance=ExtResource("1_icmfn")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.09196949, -0.05122447, 0.049221516)
+[ext_resource type="PackedScene" uid="uid://b2i1qn0h84o7" path="res://Scenes/PauseMenu.tscn" id="1_pause"]
 
 [node name="MeshInstance3D2" type="MeshInstance3D" parent="test_plate" unique_id=1791813709]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -23.896296, 3.0976334, -4.930504)
 mesh = SubResource("CylinderMesh_icmfn")
+[ext_resource type="PackedScene" uid="uid://b2i1qn0h84o7" path="res://Scenes/PauseMenu.tscn" id="1_pause"]
 
 [node name="MeshInstance3D3" type="MeshInstance3D" parent="test_plate" unique_id=1329668473]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.94136, 3.0976334, -74.342705)
 mesh = SubResource("CylinderMesh_icmfn")
+[ext_resource type="PackedScene" uid="uid://b2i1qn0h84o7" path="res://Scenes/PauseMenu.tscn" id="1_pause"]
 
 [node name="MeshInstance3D4" type="MeshInstance3D" parent="test_plate" unique_id=1171239790]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 66.06322, 3.0976334, -13.728409)
 mesh = SubResource("CylinderMesh_icmfn")
+[ext_resource type="PackedScene" uid="uid://b2i1qn0h84o7" path="res://Scenes/PauseMenu.tscn" id="1_pause"]
 
 [node name="MeshInstance3D5" type="MeshInstance3D" parent="test_plate" unique_id=1011912210]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -27.451271, 3.2919846, 45.137318)
 mesh = SubResource("CylinderMesh_icmfn")
+[ext_resource type="PackedScene" uid="uid://b2i1qn0h84o7" path="res://Scenes/PauseMenu.tscn" id="1_pause"]
 
 [node name="MeshInstance3D6" type="MeshInstance3D" parent="test_plate" unique_id=831691702]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -92.29945, 3.2919846, -22.365002)
 mesh = SubResource("CylinderMesh_icmfn")
+[ext_resource type="PackedScene" uid="uid://b2i1qn0h84o7" path="res://Scenes/PauseMenu.tscn" id="1_pause"]
 
 [node name="CharacterBody3D" parent="." unique_id=300315409 instance=ExtResource("2_icmfn")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.48233223, 1.3538585, -3.5766232)
+[ext_resource type="PackedScene" uid="uid://b2i1qn0h84o7" path="res://Scenes/PauseMenu.tscn" id="1_pause"]
 
 [node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=2017854093]
 layer = 20
 script = ExtResource("3_icmfn")
+[ext_resource type="PackedScene" uid="uid://b2i1qn0h84o7" path="res://Scenes/PauseMenu.tscn" id="1_pause"]
 
 [node name="HUD" parent="." unique_id=781692691 instance=ExtResource("4_icmfn")]
+[ext_resource type="PackedScene" uid="uid://b2i1qn0h84o7" path="res://Scenes/PauseMenu.tscn" id="1_pause"]
 
 [node name="FrozenWaiter" parent="." unique_id=1007907867 instance=ExtResource("5_b4682")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 286.68164, 2.9481783, -5.7928715)
+[ext_resource type="PackedScene" uid="uid://b2i1qn0h84o7" path="res://Scenes/PauseMenu.tscn" id="1_pause"]
 
 [node name="BloatedDiner" parent="." unique_id=56293077 instance=ExtResource("6_0fvnv")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 260.6229, 1.9481773, 17.423744)
+[ext_resource type="PackedScene" uid="uid://b2i1qn0h84o7" path="res://Scenes/PauseMenu.tscn" id="1_pause"]
 
 [node name="StaticBody3D" parent="." unique_id=1297852556 instance=ExtResource("7_ouixf")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.8019352, -0.05182028, 11.983263)
+[ext_resource type="PackedScene" uid="uid://b2i1qn0h84o7" path="res://Scenes/PauseMenu.tscn" id="1_pause"]
 
 [node name="Checkpoint" parent="." unique_id=1812112370 instance=ExtResource("8_v2hsh")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.764945, 0.4481802, 8.648274)
+[ext_resource type="PackedScene" uid="uid://b2i1qn0h84o7" path="res://Scenes/PauseMenu.tscn" id="1_pause"]
 
 [node name="RespawnScreen" parent="." unique_id=1511386983 instance=ExtResource("9_j6jwi")]
+[ext_resource type="PackedScene" uid="uid://b2i1qn0h84o7" path="res://Scenes/PauseMenu.tscn" id="1_pause"]
 
 [node name="SculleryHorror" parent="." unique_id=1923869172 instance=ExtResource("10_u2c8")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.636604, 1.4481792, 1.698267)

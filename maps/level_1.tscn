@@ -5,6 +5,7 @@
 [ext_resource type="PackedScene" uid="uid://b84c1dymjri4k" path="res://Scenes/HUD.tscn" id="3_7skvm"]
 [ext_resource type="Script" uid="uid://bth0q672felfp" path="res://Scripts/RealisticEnvironmentSetup.gd" id="3_efco1"]
 [ext_resource type="PackedScene" uid="uid://ctwafpi661v1i" path="res://Scenes/RespawnScreen.tscn" id="4_yrkou"]
+[ext_resource type="PackedScene" uid="uid://b2i1qn0h84o7" path="res://Scenes/PauseMenu.tscn" id="5_pause"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_75as7"]
 albedo_texture = ExtResource("1_75as7")
@@ -2906,6 +2907,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 109.539825, 2.033409, 9.35921
 
 [node name="HUD" parent="." unique_id=2053975017 instance=ExtResource("3_7skvm")]
 
+[node name="PauseMenu" parent="." instance=ExtResource("5_pause")]
 [node name="RespawnScreen" parent="." unique_id=1511386983 instance=ExtResource("4_yrkou")]
 
 [node name="Node3D" type="Node3D" parent="." unique_id=1592363774]
