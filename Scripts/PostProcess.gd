@@ -13,9 +13,9 @@ extends CanvasLayer
 @export var speed_curve_power: float = 3.0       # higher = stays subtle longer, only kicks in near true max speed
 @export var effect_intensity: float = 0.35       # master dial, 0-1 — turn this down first if it's still too much
 @export var blur_samples: int = 10
-@export var blur_strength: float = 0.16          # reduced — was way too strong
-@export var zoom_strength: float = 0.015         # reduced
-@export var chromatic_strength: float = 0.0025   # reduced
+@export var blur_strength: float = 0          # reduced — was way too strong
+@export var zoom_strength: float = 0         # reduced
+@export var chromatic_strength: float = 0  # reduced
 @export var speed_smoothing: float = 6.0          # higher = snappier response to speed changes
 
 @export_category("Dust Motes")
