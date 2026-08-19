@@ -88,6 +88,20 @@ func _try_connect() -> void:
 func _trigger_death() -> void:
 	if _is_dead:
 		return
+
+	if _is_in_tutorial_map():
+		# No dying in the tutorial. Top the player back up instead of
+		# freezing them / showing the respawn screen. Important: we
+		# still have to call HealthManager.reset_hp() here — otherwise
+		# HealthManager's own internal "_is_dead" latch stays true and
+		# HP regen stays disabled permanently, even after leaving the
+		# tutorial map, since nothing else would ever clear it.
+		HeatManager.set_heat(respawn_heat_gift)
+		HealthManager.reset_hp()
+		_heat_timer = 0.0
+		death_timer_changed.emit(heat_zero_death_delay)
+		return
+
 	_is_dead    = true
 	_heat_timer = 0.0
 
@@ -102,6 +116,13 @@ func _trigger_death() -> void:
 
 	if _respawn_screen and _respawn_screen.has_method("show_screen"):
 		_respawn_screen.show_screen()
+
+
+func _is_in_tutorial_map() -> bool:
+	if get_tree().current_scene == null:
+		return false
+	var scene_file: String = get_tree().current_scene.scene_file_path
+	return "tutorial_map" in scene_file
 
 
 func _spawn_heat_trail(pos: Vector3) -> void:

@@ -1,18 +1,16 @@
 extends Node
 
 # AUTOLOAD SINGLETON — register in Project Settings > Autoload.
-# Periodically freezes a translucent copy of the player's CURRENT pose
-# in place and fades it out — the "leaves a frame behind" trail effect.
-# The trail is always running; frame SIZE scales continuously with
-# flat speed instead of switching on/off at a threshold, so it never
-# hard-cuts out (e.g. mid-jump when horizontal speed dips).
+# Freezes translucent copies of the player's CURRENT pose and fades
+# them out — the "leaves a frame behind" trail effect. Frames ONLY
+# spawn as a burst when the player dashes (dash_attack_performed or
+# dash_performed) — there is no continuous/always-on trail. Frame
+# SIZE still scales with flat speed at the moment each frame is
+# spawned, so a fast dash produces bigger frames than a slow one.
 #
 # Reads the player via the same "player" group convention used
 # elsewhere in this project. No changes needed to the player
 # controller script — this only duplicates and reads it.
-
-@export var min_active_speed: float = 0.05    # purely a perf guard — skips spawning perfectly-overlapping ghosts while truly stationary (0 velocity); NOT a gameplay threshold like before
-@export var trail_interval: float = 0.06      # seconds between spawned frames
 
 @export_category("Frame Size")
 @export var speed_for_min_scale: float = 4.0   # flat speed at/below which frames spawn at their smallest
@@ -35,7 +33,6 @@ extends Node
 @export var rim_strength: float = 1.1
 
 var player: Node3D = null
-var _timer: float = 0.0
 var _ghost_shader: Shader
 
 
@@ -50,26 +47,17 @@ func _ready() -> void:
 		_ghost_shader.code = _embedded_shader_code()
 
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
+	# No continuous trail anymore — this just keeps the player reference
+	# fresh and (re)connects the dash signals whenever a new player
+	# instance shows up (e.g. after a respawn/scene change). All frame
+	# spawning now happens exclusively through _on_dash_burst().
 	if not is_instance_valid(player):
 		player = null
 		var players := get_tree().get_nodes_in_group("player")
 		if not players.is_empty() and players[0] is Node3D:
 			player = players[0]
 			_connect_dash_signals()
-
-	if player == null:
-		_timer = 0.0
-		return
-
-	if _flat_speed() <= min_active_speed:
-		_timer = 0.0
-		return
-
-	_timer += delta
-	if _timer >= trail_interval:
-		_timer = 0.0
-		_spawn_ghost_frame()
 
 
 func _flat_speed() -> float:
@@ -127,8 +115,8 @@ func _spawn_ghost_frame() -> void:
 
 	# Frame size follows current speed — small at a crawl, full size at
 	# speed_for_max_scale and above. Re-read live speed here (rather than
-	# passing it in) so this works correctly for both the interval-based
-	# trail AND the dash burst timers, which fire on delayed callbacks.
+	# passing it in once) since the dash burst frames fire on delayed
+	# callbacks, and speed can shift between the first and last frame.
 	var t := clampf(inverse_lerp(speed_for_min_scale, speed_for_max_scale, _flat_speed()), 0.0, 1.0)
 	var frame_scale := lerpf(min_frame_scale, max_frame_scale, t)
 	ghost.scale *= frame_scale
