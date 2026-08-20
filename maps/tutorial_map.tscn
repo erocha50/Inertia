@@ -4,14 +4,10 @@
 [ext_resource type="PackedScene" uid="uid://b355nnhi1g7tg" path="res://characters/player_controller.tscn" id="2_ae6tg"]
 [ext_resource type="Texture2D" uid="uid://cyfhsemgoighp" path="res://materials/diagonal_parquet_4k.blend/textures/diagonal_parquet_diff_4k.jpg" id="2_xgesu"]
 [ext_resource type="PackedScene" uid="uid://wcfi4x1idai5" path="res://Scenes/ObjectMessageUI.tscn" id="3_msg"]
-[ext_resource type="Script" uid="uid://bth0q672felfp" path="res://Scripts/RealisticEnvironmentSetup.gd" id="6_hxcwp"]
-[ext_resource type="Script" uid="uid://dn8ou32b0detw" path="res://Scripts/WindBlownFog.gd" id="7_hxcwp"]
 [ext_resource type="PackedScene" uid="uid://cduoqfw084f7x" path="res://door.tscn" id="8_ho2o4"]
-[ext_resource type="PackedScene" uid="uid://b84c1dymjri4k" path="res://Scenes/HUD.tscn" id="8_opwyq"]
-[ext_resource type="PackedScene" uid="uid://b2i1qn0h84o7" path="res://Scenes/PauseMenu.tscn" id="9_pause"]
-[ext_resource type="Script" uid="uid://c13xonjjr56br" path="res://Scripts/TutorialTrigger.gd" id="4_trig"]
-[ext_resource type="PackedScene" uid="uid://c2uagfiinhue1" path="res://Scenes/light.tscn" id="10_light"]
 [ext_resource type="Script" uid="uid://h8657spmu8q0" path="res://Scripts/DoorTrigger.gd" id="9_opwyq"]
+[ext_resource type="PackedScene" uid="uid://b2i1qn0h84o7" path="res://Scenes/PauseMenu.tscn" id="9_pause"]
+[ext_resource type="PackedScene" uid="uid://c2uagfiinhue1" path="res://Scenes/light.tscn" id="10_light"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_57qmd"]
 albedo_texture = ExtResource("2_xgesu")
@@ -129,7 +125,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.7855606, 1.3828735, 0.1755
 shape = SubResource("BoxShape3D_1")
 
 [node name="TutorialTriggers#TutorialTrigger2" type="Area3D" parent="." unique_id=1000004]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -31.898605, 3.0166001, 10.896545)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -31.898605, 10.7705965, 16.657017)
 
 [node name="TutorialTriggers_TutorialTrigger2#CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1000005]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.4185314, 4.227661, 4.7143555)
@@ -160,9 +156,8 @@ use_collision = true
 size = Vector3(3.1627498, 0.608, 7.8078394)
 material = SubResource("StandardMaterial3D_d0u6y")
 
-[node name="HUD" parent="." unique_id=2053975017 instance=ExtResource("8_opwyq")]
-
 [node name="PauseMenu" parent="." unique_id=842934752 instance=ExtResource("9_pause")]
+
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=424806662]
 environment = SubResource("Environment_g4v7s")
 

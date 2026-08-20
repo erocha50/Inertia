@@ -16,5 +16,5 @@ func _on_body_entered(body: Node3D) -> void:
 	if not body.is_in_group("player"):
 		return
 
-	ObjectiveMessage.show_message(message_text, message_duration)
+	ObjectMessageUI.show_message(message_text, message_duration)
 	has_triggered = true

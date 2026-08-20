@@ -22,7 +22,7 @@ signal player_hp_zero()
 
 var hp: float            = 100.0
 var _drain_ramp_t: float = 0.0
-var _is_dead: bool       = false
+var is_dead: bool        = false
 
 
 func _ready() -> void:
@@ -31,8 +31,15 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
-	if _is_dead:
+	if is_dead:
 		return
+
+	# Clamp delta so a loading hitch (e.g. a door/scene transition) can't
+	# produce one oversized frame that both spikes the drain ramp AND scales
+	# the damage by that same huge delta — which can wipe HP from full to 0
+	# in a single tick. This is almost certainly what's causing HP to get
+	# stuck at 0 after transitioning through doors.
+	delta = minf(delta, 0.1)
 
 	var heat_ratio := HeatManager.heat_value / HeatManager.max_heat
 
@@ -56,13 +63,13 @@ func _process(delta: float) -> void:
 # ── Public API ────────────────────────────────────────────────────────────────
 
 func take_damage(amount: float) -> void:
-	if _is_dead:
+	if is_dead:
 		return
 	_take_drain(amount)
 
 
 func reset_hp() -> void:
-	_is_dead      = false
+	is_dead       = false
 	_drain_ramp_t = 0.0
 	hp            = max_hp
 	health_changed.emit(hp, max_hp)
@@ -70,7 +77,7 @@ func reset_hp() -> void:
 
 ## Public heal — call this from food items, healing stations, etc.
 func heal(amount: float) -> void:
-	if _is_dead:
+	if is_dead:
 		return
 	_heal(amount)
 
@@ -80,8 +87,8 @@ func heal(amount: float) -> void:
 func _take_drain(amount: float) -> void:
 	hp = maxf(hp - amount, 0.0)
 	health_changed.emit(hp, max_hp)
-	if hp <= 0.0 and not _is_dead:
-		_is_dead = true
+	if hp <= 0.0 and not is_dead:
+		is_dead = true
 		player_hp_zero.emit()
 
 

@@ -60,16 +60,23 @@ const HP_COLOR_MID    := Color(0.95, 0.75, 0.1)    # yellow
 const HP_COLOR_LOW    := Color(0.9,  0.18, 0.12)   # red
 const HP_COLOR_BG     := Color(0.08, 0.08, 0.08, 0.85)
 const HP_COLOR_EDGE   := Color(0.0,  0.0,  0.0,   0.6)  # dark border
-const HP_COLOR_SHINE  := Color(1.0,  1.0,  1.0,   0.1)  # highlight shine
+const HP_COLOR_SHINE  := Color(1.0,  1.0,  1.0,   0.16) # glossy top highlight
+const HP_COLOR_TRAIL  := Color(0.55, 0.1,  0.08,  0.9)  # lagging "damage taken" shadow
+const HP_TRAIL_HOLD_TIME     := 0.35   # seconds the trail holds before it starts draining
+const HP_TRAIL_CATCHUP_SPEED := 2.5    # how fast the trail drains down to match (ratio/sec)
 
 # ── HP bar nodes (built in code) ───────────────────────────────────────────────
-var _hp_bar_bg:       ColorRect = null
-var _hp_bar_fill:     ColorRect = null
-var _hp_bar_border:   Control   = null
-var _hp_bar_shine:    ColorRect = null
-var _hp_label:        Label     = null
-var _hp_flash_t:      float     = 0.0
-var _hp_flash_on:     bool      = false
+var _hp_bar_bg:         Panel        = null
+var _hp_bar_fill:       Panel        = null
+var _hp_bar_trail:      Panel        = null
+var _hp_bar_shine:      Panel        = null
+var _hp_bar_fill_style: StyleBoxFlat = null
+var _hp_label:          Label        = null
+var _hp_flash_t:        float        = 0.0
+var _hp_inner_width:    float        = 0.0
+var _hp_target_ratio:   float        = 1.0
+var _hp_trail_ratio:    float        = 1.0
+var _hp_trail_hold_t:   float        = 0.0
 
 # ── Heat bar drawer (built in code) ────────────────────────────────────────────
 var _heat_bar_drawer     : Control = null
@@ -77,11 +84,6 @@ var _heat_fill_ratio     : float   = 0.0   # target ratio, set from HeatManager
 var _heat_display_ratio  : float   = 0.0   # eased ratio used for drawing (smooth fill)
 var _heat_shine_t        : float   = 0.0
 var _heat_bar_alpha      : float   = 1.0   # driven by the existing low-heat flash
-
-class _HPBarBorderDrawer extends Control:
-	var hud : Node
-	func _draw() -> void:
-		if hud: hud._draw_hp_bar_border(self)
 
 class _CooldownDrawer extends Control:
 	var hud : Node
@@ -235,47 +237,72 @@ func _style_heat_text() -> void:
 
 
 func _build_hp_bar() -> void:
-	# Build the HP bar entirely in code, positioned just below the heat bar
-	# Adjust position offsets to fit your HUD layout
-	var hp_y: float = 68.0   # ← move this if the bar overlaps other elements
-	var bar_width: float = HP_BAR_MAX_WIDTH
-	var bar_height: float = 16
-	var border_width: float = 2
+	# Rounded, bordered HP bar with a lagging "damage trail". Built with Panel +
+	# StyleBoxFlat so corner rounding and the border come for free — no custom
+	# drawing needed.
+	var hp_y       : float = 68.0   # ← move this if the bar overlaps other elements
+	var bar_width  : float = HP_BAR_MAX_WIDTH
+	var bar_height : float = 22.0
+	var border_w   : float = 2.0
+	var corner_r   : int   = 6
 
-	# Background container (darker, has border visuals)
-	_hp_bar_bg = ColorRect.new()
-	_hp_bar_bg.color                = HP_COLOR_BG
-	_hp_bar_bg.size                 = Vector2(bar_width + border_width * 2, bar_height)
-	_hp_bar_bg.position             = Vector2(8.0, hp_y)
+	_hp_inner_width = bar_width
+
+	_hp_bar_bg = Panel.new()
+	_hp_bar_bg.position = Vector2(8.0, hp_y)
+	_hp_bar_bg.size     = Vector2(bar_width + border_w * 2.0, bar_height)
+	var bg_style := StyleBoxFlat.new()
+	bg_style.bg_color = HP_COLOR_BG
+	bg_style.set_corner_radius_all(corner_r)
+	bg_style.set_border_width_all(int(border_w))
+	bg_style.border_color = HP_COLOR_EDGE
+	_hp_bar_bg.add_theme_stylebox_override("panel", bg_style)
 	add_child(_hp_bar_bg)
 
-	# Fill bar (dynamic width)
-	_hp_bar_fill = ColorRect.new()
-	_hp_bar_fill.color              = HP_COLOR_FULL
-	_hp_bar_fill.size               = Vector2(bar_width, bar_height - border_width * 2)
-	_hp_bar_fill.position           = Vector2(border_width, border_width)
+	# Damage trail — sits behind the fill, holds briefly then drains down to
+	# match, exposing a red "shadow" the width of what you just lost.
+	_hp_bar_trail = Panel.new()
+	_hp_bar_trail.position = Vector2(border_w, border_w)
+	_hp_bar_trail.size     = Vector2(bar_width, bar_height - border_w * 2.0)
+	var trail_style := StyleBoxFlat.new()
+	trail_style.bg_color = HP_COLOR_TRAIL
+	trail_style.set_corner_radius_all(max(corner_r - 2, 0))
+	_hp_bar_trail.add_theme_stylebox_override("panel", trail_style)
+	_hp_bar_bg.add_child(_hp_bar_trail)
+
+	# Fill — drawn on top of the trail, updates instantly for responsive feedback
+	_hp_bar_fill = Panel.new()
+	_hp_bar_fill.position      = Vector2(border_w, border_w)
+	_hp_bar_fill.size          = Vector2(bar_width, bar_height - border_w * 2.0)
+	_hp_bar_fill.clip_contents = true   # clips the shine child as the bar shrinks
+	_hp_bar_fill_style = StyleBoxFlat.new()
+	_hp_bar_fill_style.bg_color = HP_COLOR_FULL
+	_hp_bar_fill_style.set_corner_radius_all(max(corner_r - 2, 0))
+	_hp_bar_fill.add_theme_stylebox_override("panel", _hp_bar_fill_style)
 	_hp_bar_bg.add_child(_hp_bar_fill)
 
-	# Shine/highlight effect on top
-	_hp_bar_shine = ColorRect.new()
-	_hp_bar_shine.color             = HP_COLOR_SHINE
-	_hp_bar_shine.size              = Vector2(bar_width, 2)
-	_hp_bar_shine.position          = Vector2(border_width, border_width)
-	_hp_bar_bg.add_child(_hp_bar_shine)
-
-	# Border drawer for crisp edges
-	var border_drawer := _HPBarBorderDrawer.new()
-	border_drawer.hud = self
-	border_drawer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	border_drawer.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_hp_bar_border = border_drawer
-	_hp_bar_bg.add_child(_hp_bar_border)
+	# Glossy top highlight — child of the fill, so it clips/shrinks along with it
+	_hp_bar_shine = Panel.new()
+	_hp_bar_shine.position     = Vector2(0.0, 0.0)
+	_hp_bar_shine.size         = Vector2(bar_width, (bar_height - border_w * 2.0) * 0.4)
+	_hp_bar_shine.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var shine_style := StyleBoxFlat.new()
+	shine_style.bg_color                = HP_COLOR_SHINE
+	shine_style.corner_radius_top_left  = max(corner_r - 2, 0)
+	shine_style.corner_radius_top_right = max(corner_r - 2, 0)
+	_hp_bar_shine.add_theme_stylebox_override("panel", shine_style)
+	_hp_bar_fill.add_child(_hp_bar_shine)
 
 	_hp_label = Label.new()
-	_hp_label.add_theme_font_size_override("font_size", 11)
-	_hp_label.add_theme_color_override("font_color", Color(1, 1, 1, 0.85))
-	_hp_label.position              = Vector2(bar_width + 15.0, hp_y + 1.0)
-	_hp_label.text                  = "100 HP"
+	_hp_label.position = Vector2(bar_width + border_w * 2.0 + 12.0, hp_y - 3.0)
+	_hp_label.text     = "100 HP"
+	_hp_label.add_theme_font_size_override("font_size", 16)
+	_hp_label.add_theme_color_override("font_color", Color(1.0, 1.0, 1.0, 0.95))
+	_hp_label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.85))
+	_hp_label.add_theme_constant_override("outline_size", 4)
+	_hp_label.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.5))
+	_hp_label.add_theme_constant_override("shadow_offset_x", 1)
+	_hp_label.add_theme_constant_override("shadow_offset_y", 2)
 	add_child(_hp_label)
 
 
@@ -329,12 +356,16 @@ func _physics_process(delta: float) -> void:
 		_hp_flash_t += delta * 4.0
 		_hp_bar_fill.modulate.a = lerpf(0.4, 1.0, sin(_hp_flash_t) * 0.5 + 0.5)
 	elif _hp_bar_fill:
-		_hp_flash_t   = 0.0
+		_hp_flash_t = 0.0
 		_hp_bar_fill.modulate.a = 1.0
 
-	# Redraw HP bar border
-	if _hp_bar_border:
-		_hp_bar_border.queue_redraw()
+	# HP damage trail — holds briefly after a hit, then drains down to match the fill
+	if _hp_bar_trail:
+		if _hp_trail_hold_t > 0.0:
+			_hp_trail_hold_t = max(0.0, _hp_trail_hold_t - delta)
+		else:
+			_hp_trail_ratio = move_toward(_hp_trail_ratio, _hp_target_ratio, HP_TRAIL_CATCHUP_SPEED * delta)
+		_hp_bar_trail.size.x = clampf(_hp_trail_ratio, 0.0, 1.0) * _hp_inner_width
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -427,18 +458,6 @@ func _draw_arc(canvas: Control, centre: Vector2, radius: float,
 									sin(from_a + span*(float(i)/float(segs)))) * radius)
 	canvas.draw_polyline(pts, color, width, true)
 
-func _draw_hp_bar_border(canvas: Control) -> void:
-	# Draw crisp border around HP bar
-	var size := canvas.get_rect().size
-	var border: float = 2.0
-	# Top edge
-	canvas.draw_line(Vector2(0, 0), Vector2(size.x, 0), HP_COLOR_EDGE, border, true)
-	# Bottom edge
-	canvas.draw_line(Vector2(0, size.y), Vector2(size.x, size.y), Color(0.0, 0.0, 0.0, 0.3), border, true)
-	# Left edge
-	canvas.draw_line(Vector2(0, 0), Vector2(0, size.y), HP_COLOR_EDGE, border, true)
-	# Right edge
-	canvas.draw_line(Vector2(size.x, 0), Vector2(size.x, size.y), HP_COLOR_EDGE, border, true)
 
 
 func _draw_heat_bar(canvas: Control) -> void:
@@ -570,7 +589,14 @@ func _refresh_hp_ui(hp: float, max_hp: float) -> void:
 		return
 
 	var ratio := clampf(hp / max_hp, 0.0, 1.0)
-	_hp_bar_fill.size.x = ratio * HP_BAR_MAX_WIDTH
+
+	if ratio < _hp_target_ratio:
+		_hp_trail_hold_t = HP_TRAIL_HOLD_TIME   # took damage — trail holds, then catches down
+	elif ratio > _hp_trail_ratio:
+		_hp_trail_ratio = ratio                 # healed past the trail — snap it up immediately
+	_hp_target_ratio = ratio
+
+	_hp_bar_fill.size.x = ratio * _hp_inner_width
 
 	# Colour shifts green → yellow → red as HP drops
 	var fill_color: Color
@@ -578,7 +604,7 @@ func _refresh_hp_ui(hp: float, max_hp: float) -> void:
 		fill_color = HP_COLOR_FULL.lerp(HP_COLOR_MID, (1.0 - ratio) * 2.0)
 	else:
 		fill_color = HP_COLOR_MID.lerp(HP_COLOR_LOW, (0.5 - ratio) * 2.0)
-	_hp_bar_fill.color = fill_color
+	if _hp_bar_fill_style: _hp_bar_fill_style.bg_color = fill_color
 
 	if _hp_label:
 		_hp_label.text = "%d HP" % int(hp)
