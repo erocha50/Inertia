@@ -162,6 +162,7 @@ albedo_color = Color(0.4, 0.6, 0.8, 1)
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_qwxyz"]
 
 [node name="CharacterBody3D" type="CharacterBody3D" unique_id=1229242080 groups=["player"]]
+transform = Transform3D(-0.99501514, 0, 0.09972364, 0, 1, 0, -0.09972364, 0, -0.99501514, 0, 0, 0)
 script = ExtResource("1_player")
 dash_attack_speed = 70.0
 

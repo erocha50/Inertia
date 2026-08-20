@@ -9,6 +9,9 @@
 [ext_resource type="PackedScene" uid="uid://cduoqfw084f7x" path="res://door.tscn" id="8_ho2o4"]
 [ext_resource type="PackedScene" uid="uid://b84c1dymjri4k" path="res://Scenes/HUD.tscn" id="8_opwyq"]
 [ext_resource type="PackedScene" uid="uid://b2i1qn0h84o7" path="res://Scenes/PauseMenu.tscn" id="9_pause"]
+[ext_resource type="Script" uid="uid://c13xonjjr56br" path="res://Scripts/TutorialTrigger.gd" id="4_trig"]
+[ext_resource type="PackedScene" uid="uid://c2uagfiinhue1" path="res://Scenes/light.tscn" id="10_light"]
+[ext_resource type="Script" uid="uid://h8657spmu8q0" path="res://Scripts/DoorTrigger.gd" id="9_opwyq"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_57qmd"]
 albedo_texture = ExtResource("2_xgesu")
@@ -31,7 +34,10 @@ size = Vector3(10.699585, 5.765747, 62.514465)
 [sub_resource type="BoxShape3D" id="BoxShape3D_2"]
 size = Vector3(10, 11.455322, 19.42871)
 
-[sub_resource type="Environment" id="Environment_xgesu"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_eared"]
+size = Vector3(0.15405846, 0.21343994, 0.054437637)
+
+[sub_resource type="Environment" id="Environment_g4v7s"]
 
 [node name="tutorialmap" type="Node3D" unique_id=1561387120]
 
@@ -73,6 +79,18 @@ transform = Transform3D(3.0515973e-10, -4.3710326e-08, -0.99999994, -0.9999756, 
 use_collision = true
 size = Vector3(12.483386, 0.608, 254.26874)
 material = SubResource("StandardMaterial3D_d0u6y")
+
+[node name="roof" type="CSGBox3D" parent="." unique_id=1304816631]
+transform = Transform3D(4.371139e-08, -3.8213714e-15, -0.99999994, -8.742278e-08, -1.0000001, 0, -1, 8.7422784e-08, -4.3711385e-08, 76.72043, 12.9300995, 16.34882)
+use_collision = true
+size = Vector3(20.508783, 0.608, 254.26874)
+material = SubResource("StandardMaterial3D_d0u6y")
+
+[node name="roof2" type="CSGBox3D" parent="." unique_id=934330709]
+transform = Transform3D(-1, 8.742278e-08, 0, -8.742278e-08, -1, 0, 0, 0, 1, -60.290985, 12.8134, 15.331646)
+use_collision = true
+size = Vector3(19.545837, 1, 65.506294)
+material = SubResource("StandardMaterial3D_3gngh")
 
 [node name="CSGBox3D8" type="CSGBox3D" parent="." unique_id=1021000323]
 transform = Transform3D(3.0515973e-10, -4.3710326e-08, -0.99999994, -0.9999756, -0.0069812415, 0, -0.0069812406, 0.99997574, -4.3711385e-08, 76.44253, 7.053654, 5.698891)
@@ -124,17 +142,17 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.580757, 3.0166001, 10.8965
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40.832474, 4.227661, 4.7143555)
 shape = SubResource("BoxShape3D_2")
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=109777037]
-environment = SubResource("Environment_xgesu")
-script = ExtResource("6_hxcwp")
-
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="WorldEnvironment" unique_id=10079617]
-
-[node name="FogVolume" type="FogVolume" parent="." unique_id=2089268070]
-script = ExtResource("7_hxcwp")
-
 [node name="Entrance_Door__vray" parent="." unique_id=1865108602 instance=ExtResource("8_ho2o4")]
 transform = Transform3D(0.8442217, 0, -9.766498, 0, 43.56903, 0, 46.240437, 0, 0.17830907, 203.78477, 0.8385534, 15.620027)
+
+[node name="DoorTrigger2" type="Area3D" parent="Entrance_Door__vray" unique_id=1421683499]
+transform = Transform3D(1, 0, 2.3283064e-10, 0, 1, 0, 0, 0, 0.99999994, 0.012734324, 0, 0.0011005402)
+script = ExtResource("9_opwyq")
+target_scene = "uid://bo3ki2rub5knh"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Entrance_Door__vray/DoorTrigger2" unique_id=733326411]
+transform = Transform3D(0.9999886, 0, 2.3283064e-10, 0, 0.9999999, 0, 7.450581e-09, 0, 0.99999976, -0.016661763, 0.0992126, 0.0024585724)
+shape = SubResource("BoxShape3D_eared")
 
 [node name="CSGBox3D13" type="CSGBox3D" parent="." unique_id=1453563668]
 transform = Transform3D(0.0065683112, 0.9999786, 0, -0.9999786, 0.0065683112, 0, 0, 0, 1, 203.7692, 11.723462, 15.595915)
@@ -145,3 +163,62 @@ material = SubResource("StandardMaterial3D_d0u6y")
 [node name="HUD" parent="." unique_id=2053975017 instance=ExtResource("8_opwyq")]
 
 [node name="PauseMenu" parent="." unique_id=842934752 instance=ExtResource("9_pause")]
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=424806662]
+environment = SubResource("Environment_g4v7s")
+
+[node name="light" parent="." unique_id=1107310041 instance=ExtResource("10_light")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -44.076538, 9.585951, 14.488665)
+
+[node name="light14" parent="." unique_id=1288690831 instance=ExtResource("10_light")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -62.678684, 9.585951, 14.488665)
+
+[node name="light15" parent="." unique_id=791879080 instance=ExtResource("10_light")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -62.678684, 9.585951, 14.488665)
+
+[node name="light19" parent="." unique_id=1620662925 instance=ExtResource("10_light")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -62.678684, 9.585951, -5.8213806)
+
+[node name="light18" parent="." unique_id=570350061 instance=ExtResource("10_light")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -62.566383, 9.585951, 29.701223)
+
+[node name="light16" parent="." unique_id=1611214937 instance=ExtResource("10_light")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -62.678684, 9.585951, 14.488665)
+
+[node name="light17" parent="." unique_id=1207080900 instance=ExtResource("10_light")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -62.678684, 9.585951, 14.488665)
+
+[node name="light2" parent="." unique_id=1443935785 instance=ExtResource("10_light")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -19.228401, 9.585951, 14.488665)
+
+[node name="light3" parent="." unique_id=45251144 instance=ExtResource("10_light")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.0624695, 9.585951, 14.488665)
+
+[node name="light4" parent="." unique_id=1067172409 instance=ExtResource("10_light")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.785667, 9.585951, 14.488665)
+
+[node name="light5" parent="." unique_id=1778404517 instance=ExtResource("10_light")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 33.700924, 9.585951, 14.488665)
+
+[node name="light6" parent="." unique_id=1445188334 instance=ExtResource("10_light")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 58.549057, 9.585951, 14.488665)
+
+[node name="light7" parent="." unique_id=741556074 instance=ExtResource("10_light")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 72.715, 9.585951, 14.488665)
+
+[node name="light8" parent="." unique_id=861850397 instance=ExtResource("10_light")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 90.240776, 9.585951, 14.488665)
+
+[node name="light9" parent="." unique_id=2140024858 instance=ExtResource("10_light")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 104.946686, 9.585951, 14.488665)
+
+[node name="light10" parent="." unique_id=147059911 instance=ExtResource("10_light")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 123.45272, 9.585951, 14.488665)
+
+[node name="light11" parent="." unique_id=2069160751 instance=ExtResource("10_light")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 137.61867, 9.585951, 14.488665)
+
+[node name="light12" parent="." unique_id=1207386445 instance=ExtResource("10_light")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 162.46678, 9.585951, 14.488665)
+
+[node name="light13" parent="." unique_id=1013742925 instance=ExtResource("10_light")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 181.7014, 9.585951, 14.488665)
