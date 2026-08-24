@@ -5,6 +5,7 @@
 [ext_resource type="Texture2D" uid="uid://cyfhsemgoighp" path="res://materials/diagonal_parquet_4k.blend/textures/diagonal_parquet_diff_4k.jpg" id="2_xgesu"]
 [ext_resource type="PackedScene" uid="uid://wcfi4x1idai5" path="res://Scenes/ObjectMessageUI.tscn" id="3_msg"]
 [ext_resource type="PackedScene" uid="uid://cduoqfw084f7x" path="res://door.tscn" id="8_ho2o4"]
+[ext_resource type="Script" uid="uid://dy5qbap3sf4xw" path="res://Scripts/ObjectiveTrigger.gd" id="9_eared"]
 [ext_resource type="Script" uid="uid://h8657spmu8q0" path="res://Scripts/DoorTrigger.gd" id="9_opwyq"]
 [ext_resource type="PackedScene" uid="uid://b2i1qn0h84o7" path="res://Scenes/PauseMenu.tscn" id="9_pause"]
 [ext_resource type="PackedScene" uid="uid://c2uagfiinhue1" path="res://Scenes/light.tscn" id="10_light"]
@@ -24,16 +25,13 @@ albedo_texture = ExtResource("1_rgr4e")
 uv1_scale = Vector3(0.1, 0.1, 0.1)
 uv1_triplanar = true
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_1"]
-size = Vector3(10.699585, 5.765747, 62.514465)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_2"]
-size = Vector3(10, 11.455322, 19.42871)
-
 [sub_resource type="BoxShape3D" id="BoxShape3D_eared"]
 size = Vector3(0.15405846, 0.21343994, 0.054437637)
 
 [sub_resource type="Environment" id="Environment_g4v7s"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_wm0uf"]
+size = Vector3(8.717773, 11.478027, 50.909454)
 
 [node name="tutorialmap" type="Node3D" unique_id=1561387120]
 
@@ -47,9 +45,9 @@ size = Vector3(19.528442, 0.58935547, 64.987434)
 material = SubResource("StandardMaterial3D_57qmd")
 
 [node name="CSGBox3D6" type="CSGBox3D" parent="." unique_id=519238470]
-transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 76.65696, 0.74495554, 15.49544)
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 91.00488, 0.74495554, 15.49544)
 use_collision = true
-size = Vector3(19.528442, 0.5769043, 253.95)
+size = Vector3(19.528442, 0.5769043, 282.64584)
 material = SubResource("StandardMaterial3D_57qmd")
 
 [node name="CSGBox3D3" type="CSGBox3D" parent="." unique_id=824537792]
@@ -71,15 +69,15 @@ size = Vector3(12.483386, 0.608, 20.406023)
 material = SubResource("StandardMaterial3D_d0u6y")
 
 [node name="CSGBox3D7" type="CSGBox3D" parent="." unique_id=237189994]
-transform = Transform3D(3.0515973e-10, -4.3710326e-08, -0.99999994, -0.9999756, -0.0069812415, 0, -0.0069812406, 0.99997574, -4.3711385e-08, 76.72043, 7.0358825, 25.629654)
+transform = Transform3D(3.0515973e-10, -4.3710326e-08, -0.99999994, -0.9999756, -0.0069812415, 0, -0.0069812406, 0.99997574, -4.3711385e-08, 90.92619, 7.0358825, 25.629654)
 use_collision = true
-size = Vector3(12.483386, 0.608, 254.26874)
+size = Vector3(12.483386, 0.608, 282.68027)
 material = SubResource("StandardMaterial3D_d0u6y")
 
 [node name="roof" type="CSGBox3D" parent="." unique_id=1304816631]
-transform = Transform3D(4.371139e-08, -3.8213714e-15, -0.99999994, -8.742278e-08, -1.0000001, 0, -1, 8.7422784e-08, -4.3711385e-08, 76.72043, 12.9300995, 16.34882)
+transform = Transform3D(4.371139e-08, -3.8213714e-15, -0.99999994, -8.742278e-08, -1.0000001, 0, -1, 8.7422784e-08, -4.3711385e-08, 91.00076, 12.9300995, 16.34882)
 use_collision = true
-size = Vector3(20.508783, 0.608, 254.26874)
+size = Vector3(20.508783, 0.608, 282.8294)
 material = SubResource("StandardMaterial3D_d0u6y")
 
 [node name="roof2" type="CSGBox3D" parent="." unique_id=934330709]
@@ -89,9 +87,9 @@ size = Vector3(19.545837, 1, 65.506294)
 material = SubResource("StandardMaterial3D_3gngh")
 
 [node name="CSGBox3D8" type="CSGBox3D" parent="." unique_id=1021000323]
-transform = Transform3D(3.0515973e-10, -4.3710326e-08, -0.99999994, -0.9999756, -0.0069812415, 0, -0.0069812406, 0.99997574, -4.3711385e-08, 76.44253, 7.053654, 5.698891)
+transform = Transform3D(3.0515973e-10, -4.3710326e-08, -0.99999994, -0.9999756, -0.0069812415, 0, -0.0069812406, 0.99997574, -4.3711385e-08, 90.87324, 7.053654, 5.6988916)
 use_collision = true
-size = Vector3(12.483386, 0.608, 254.11412)
+size = Vector3(12.483386, 0.608, 282.97556)
 material = SubResource("StandardMaterial3D_d0u6y")
 
 [node name="CSGBox3D5" type="CSGBox3D" parent="." unique_id=1084747695]
@@ -107,39 +105,21 @@ size = Vector3(12.592041, 1, 65.506294)
 material = SubResource("StandardMaterial3D_3gngh")
 
 [node name="CSGBox3D12" type="CSGBox3D" parent="." unique_id=1349280476]
-transform = Transform3D(0.0026239278, 0.99999684, 0, -0.99999684, 0.0026239278, 0, 0, 0, 1, 203.77737, 6.966005, 8.77848)
+transform = Transform3D(0.0026239278, 0.99999684, 0, -0.99999684, 0.0026239278, 0, 0, 0, 1, 232.11272, 6.966005, 8.77848)
 use_collision = true
 size = Vector3(12.690915, 0.608, 5.8401575)
 material = SubResource("StandardMaterial3D_d0u6y")
 
 [node name="CSGBox3D11" type="CSGBox3D" parent="." unique_id=2004032720]
-transform = Transform3D(0.0065683112, 0.9999786, 0, -0.9999786, 0.0065683112, 0, 0, 0, 1, 203.70471, 7.101662, 22.38641)
+transform = Transform3D(0.0065683112, 0.9999786, 0, -0.9999786, 0.0065683112, 0, 0, 0, 1, 232.04005, 7.101662, 22.38641)
 use_collision = true
 size = Vector3(12.483386, 0.608, 5.8401575)
 material = SubResource("StandardMaterial3D_d0u6y")
 
 [node name="ObjectMessageUI" parent="." unique_id=7471660 instance=ExtResource("3_msg")]
 
-[node name="TutorialTriggers_TutorialTrigger1#CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1000003]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.7855606, 1.3828735, 0.17550659)
-shape = SubResource("BoxShape3D_1")
-
-[node name="TutorialTriggers#TutorialTrigger2" type="Area3D" parent="." unique_id=1000004]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -31.898605, 10.7705965, 16.657017)
-
-[node name="TutorialTriggers_TutorialTrigger2#CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1000005]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.4185314, 4.227661, 4.7143555)
-shape = SubResource("BoxShape3D_2")
-
-[node name="TutorialTriggers#TutorialTrigger3" type="Area3D" parent="." unique_id=1647229069]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.580757, 3.0166001, 10.896545)
-
-[node name="TutorialTriggers_TutorialTrigger3#CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1301135953]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40.832474, 4.227661, 4.7143555)
-shape = SubResource("BoxShape3D_2")
-
 [node name="Entrance_Door__vray" parent="." unique_id=1865108602 instance=ExtResource("8_ho2o4")]
-transform = Transform3D(0.8442217, 0, -9.766498, 0, 43.56903, 0, 46.240437, 0, 0.17830907, 203.78477, 0.8385534, 15.620027)
+transform = Transform3D(0.8442217, 0, -9.766498, 0, 43.56903, 0, 46.240437, 0, 0.17830907, 232.12012, 0.8385534, 15.620027)
 
 [node name="DoorTrigger2" type="Area3D" parent="Entrance_Door__vray" unique_id=1421683499]
 transform = Transform3D(1, 0, 2.3283064e-10, 0, 1, 0, 0, 0, 0.99999994, 0.012734324, 0, 0.0011005402)
@@ -151,7 +131,7 @@ transform = Transform3D(0.9999886, 0, 2.3283064e-10, 0, 0.9999999, 0, 7.450581e-
 shape = SubResource("BoxShape3D_eared")
 
 [node name="CSGBox3D13" type="CSGBox3D" parent="." unique_id=1453563668]
-transform = Transform3D(0.0065683112, 0.9999786, 0, -0.9999786, 0.0065683112, 0, 0, 0, 1, 203.7692, 11.723462, 15.595915)
+transform = Transform3D(0.0065683112, 0.9999786, 0, -0.9999786, 0.0065683112, 0, 0, 0, 1, 232.10454, 11.723462, 15.595915)
 use_collision = true
 size = Vector3(3.1627498, 0.608, 7.8078394)
 material = SubResource("StandardMaterial3D_d0u6y")
@@ -217,3 +197,55 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 162.46678, 9.585951, 14.48866
 
 [node name="light13" parent="." unique_id=1013742925 instance=ExtResource("10_light")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 181.7014, 9.585951, 14.488665)
+
+[node name="light20" parent="." unique_id=227401281 instance=ExtResource("10_light")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 191.99796, 9.585951, 14.488665)
+
+[node name="light21" parent="." unique_id=1449998231 instance=ExtResource("10_light")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 199.31985, 9.585951, 14.488665)
+
+[node name="light22" parent="." unique_id=357921589 instance=ExtResource("10_light")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 207.73758, 9.585951, 14.488665)
+
+[node name="light23" parent="." unique_id=1205828647 instance=ExtResource("10_light")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 217.2678, 9.585951, 14.488665)
+
+[node name="light24" parent="." unique_id=1686741502 instance=ExtResource("10_light")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 229.12828, 9.585951, 14.488665)
+
+[node name="TutorialTriggers" type="Node3D" parent="." unique_id=455461087]
+
+[node name="Area3D" type="Area3D" parent="TutorialTriggers" unique_id=158382699]
+script = ExtResource("9_eared")
+message_text = "Welcome to Inertia! Move forward Using WASD."
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="TutorialTriggers/Area3D" unique_id=602778263]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -64.5027, 5.2390137, 21.076096)
+shape = SubResource("BoxShape3D_wm0uf")
+
+[node name="Area3D2" type="Area3D" parent="TutorialTriggers" unique_id=461609564]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 61.796013, 0, 6.211216)
+script = ExtResource("9_eared")
+message_text = "Use the spacebar to jump while moving!"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="TutorialTriggers/Area3D2" unique_id=1274631210]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -64.5027, 5.2390137, 21.076096)
+shape = SubResource("BoxShape3D_wm0uf")
+
+[node name="Area3D3" type="Area3D" parent="TutorialTriggers" unique_id=281517482]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 141.91853, 0, 6.211216)
+script = ExtResource("9_eared")
+message_text = "Stick/ride the while using WASD and pressing spacebar"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="TutorialTriggers/Area3D3" unique_id=1541230377]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -64.5027, 5.2390137, 21.076096)
+shape = SubResource("BoxShape3D_wm0uf")
+
+[node name="Area3D4" type="Area3D" parent="TutorialTriggers" unique_id=1199601895]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 222.01715, 0, 6.211216)
+script = ExtResource("9_eared")
+message_text = "PRess M1/left click to dash."
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="TutorialTriggers/Area3D4" unique_id=88496621]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -64.5027, 5.2390137, 21.076096)
+shape = SubResource("BoxShape3D_wm0uf")
