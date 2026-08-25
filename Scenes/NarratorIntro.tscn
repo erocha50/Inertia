@@ -1,0 +1,18 @@
+[gd_scene format=3 uid="uid://cucxprgvop1bv"]
+
+[ext_resource type="Script" uid="uid://by36ibyy4066o" path="res://Scripts/Narratorscreen.gd" id="1_7f6j6"]
+
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_7f6j6"]
+load_path = "res://.godot/imported/image-Photoroom (1).png-13ede5472a40aee752f0a6efbc0842bd.ctex"
+
+[node name="NarratorScreen" type="Node3D" unique_id=141800584]
+script = ExtResource("1_7f6j6")
+narrator_portrait = SubResource("CompressedTexture2D_7f6j6")
+message_text = "Welcome, to Inertia.
+
+Im Naoya, here's a quick guide into the game, as well as a few quick features.
+- Run, avoid enemies
+- Health Drops if your heat level is at 0 for too long.
+- Dash into enemies to do damage. 
+- Don't worry, you have infinite lives. "
+next_scene_path = "uid://bo3ki2rub5knh"

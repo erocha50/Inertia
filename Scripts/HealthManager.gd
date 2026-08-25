@@ -34,6 +34,14 @@ func _process(delta: float) -> void:
 	if is_dead:
 		return
 
+	# Don't run drain/regen at all when there's no player in the current
+	# scene (narrator screen, menus, etc.) — matches the same guard added
+	# to HeatManager, and avoids health drifting during those scenes even
+	# indirectly through a stale heat value.
+	if get_tree().get_nodes_in_group("player").is_empty():
+		_drain_ramp_t = 0.0
+		return
+
 	# Clamp delta so a loading hitch (e.g. a door/scene transition) can't
 	# produce one oversized frame that both spikes the drain ramp AND scales
 	# the damage by that same huge delta — which can wipe HP from full to 0

@@ -124,7 +124,7 @@ transform = Transform3D(0.8442217, 0, -9.766498, 0, 43.56903, 0, 46.240437, 0, 0
 [node name="DoorTrigger2" type="Area3D" parent="Entrance_Door__vray" unique_id=1421683499]
 transform = Transform3D(1, 0, 2.3283064e-10, 0, 1, 0, 0, 0, 0.99999994, 0.012734324, 0, 0.0011005402)
 script = ExtResource("9_opwyq")
-target_scene = "uid://bo3ki2rub5knh"
+target_scene = "uid://cucxprgvop1bv"
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Entrance_Door__vray/DoorTrigger2" unique_id=733326411]
 transform = Transform3D(0.9999886, 0, 2.3283064e-10, 0, 0.9999999, 0, 7.450581e-09, 0, 0.99999976, -0.016661763, 0.0992126, 0.0024585724)

@@ -8,6 +8,9 @@
 [ext_resource type="Script" uid="uid://dsug6gk8td7w3" path="res://Scripts/LevelAtmosphere.gd" id="6_166p4"]
 [ext_resource type="PackedScene" uid="uid://c2uagfiinhue1" path="res://Scenes/light.tscn" id="6_egu6l"]
 [ext_resource type="PackedScene" uid="uid://cduoqfw084f7x" path="res://door.tscn" id="6_y0ld0"]
+[ext_resource type="PackedScene" uid="uid://u2c8cmscyaoh" path="res://characters/scullery_horror.tscn" id="9_2m22u"]
+[ext_resource type="PackedScene" uid="uid://c87qnrg3hihha" path="res://characters/frozen_waiter.tscn" id="10_xuw2a"]
+[ext_resource type="PackedScene" uid="uid://b3yu1v3s3m84f" path="res://characters/bloated_diner.tscn" id="11_svqt2"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_75as7"]
 albedo_texture = ExtResource("1_75as7")
@@ -3214,7 +3217,8 @@ transform = Transform3D(0.9999998, 0, 0, 0, 0.9999999, 0, 0, 0, 1, 109.78779, 2.
 
 [node name="HUD" parent="." unique_id=2053975017 instance=ExtResource("3_7skvm")]
 
-[node name="PauseMenu" parent="." instance=ExtResource("5_pause")]
+[node name="PauseMenu" parent="." unique_id=612917427 instance=ExtResource("5_pause")]
+
 [node name="RespawnScreen" parent="." unique_id=1511386983 instance=ExtResource("4_yrkou")]
 
 [node name="fridge2" type="MeshInstance3D" parent="." unique_id=675747546]
@@ -4799,3 +4803,27 @@ mesh = SubResource("ArrayMesh_ben72")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="gazini5/StaticBody3D" unique_id=478288964]
 shape = SubResource("ConcavePolygonShape3D_5imb8")
+
+[node name="SculleryHorror" parent="." unique_id=1923869172 instance=ExtResource("9_2m22u")]
+transform = Transform3D(0.99999994, 0, 0, 0, 0.8306684, 0, 0, 0, 1.2058123, 205.07712, 2.3289707, 19.188696)
+
+[node name="FrozenWaiter" parent="." unique_id=1007907867 instance=ExtResource("10_xuw2a")]
+transform = Transform3D(0.99999994, 0, 0, 0, 0.8306684, 0, 0, 0, 1.2058123, 240.79677, 3.5749724, -0.40641785)
+
+[node name="BloatedDiner" parent="." unique_id=56293077 instance=ExtResource("11_svqt2")]
+transform = Transform3D(0.99999994, 0, 0, 0, 0.8306684, 0, 0, 0, 1.2058123, 250.82494, 2.744305, 20.876698)
+
+[node name="FrozenWaiter2" parent="." unique_id=980528401 instance=ExtResource("10_xuw2a")]
+transform = Transform3D(0.99999994, 0, 0, 0, 0.8306684, 0, 0, 0, 1.2058123, 218.12462, 3.5749729, -6.682428)
+
+[node name="SculleryHorror2" parent="." unique_id=1688843849 instance=ExtResource("9_2m22u")]
+transform = Transform3D(0.99999994, 0, 0, 0, 0.8306684, 0, 0, 0, 1.2058123, 237.795, 2.3289702, 20.311699)
+
+[node name="SculleryHorror3" parent="." unique_id=1860432653 instance=ExtResource("9_2m22u")]
+transform = Transform3D(0.99999994, 0, 0, 0, 0.8306684, 0, 0, 0, 1.2058123, 265.92993, 2.3289707, -4.122317)
+
+[node name="SculleryHorror4" parent="." unique_id=83510754 instance=ExtResource("9_2m22u")]
+transform = Transform3D(0.99999994, 0, 0, 0, 0.8306684, 0, 0, 0, 1.2058123, 321.00522, 2.3289707, -6.0168986)
+
+[node name="FrozenWaiter3" parent="." unique_id=1795450093 instance=ExtResource("10_xuw2a")]
+transform = Transform3D(0.99999994, 0, 0, 0, 0.8306684, 0, 0, 0, 1.2058123, 324.61996, 3.5749748, 7.8264728)

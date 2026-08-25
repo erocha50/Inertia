@@ -37,6 +37,7 @@ var _prev_flat_speed: float   = 0.0
 var _decay_curve_t: float     = 0.0
 var _prev_state: int          = -1
 var _signals_connected: bool  = false
+var _connected_player: Node   = null
 
 const TIER_THRESHOLDS := {"cold":0.0,"warm":25.0,"hot":50.0,"burning":75.0}
 const TIER_DAMAGE_MULT := {"cold":1.0,"warm":1.1,"hot":1.25,"burning":1.5}
@@ -58,12 +59,22 @@ func _try_connect_signals() -> void:
 	if p.has_signal("wall_hit"):      p.wall_hit.connect(_on_wall_hit)
 	if p.has_signal("landed"):        p.landed.connect(_on_landed)
 	if p.has_signal("state_changed"): p.state_changed.connect(_on_state_changed)
+	_connected_player = p
 	_signals_connected = true
 
 
 func _process(delta: float) -> void:
-	if not _signals_connected:
+	if _connected_player == null or not is_instance_valid(_connected_player):
+		_signals_connected = false
 		_try_connect_signals()
+
+	if _connected_player == null or not is_instance_valid(_connected_player):
+		# No player in this scene (cutscenes, the narrator screen, menus, etc.) —
+		# don't simulate heat drain/gain, and don't let stale speed values
+		# carry over into whichever scene loads next.
+		current_flat_speed = 0.0
+		_prev_flat_speed = 0.0
+		return
 
 	var speed_range := maxf(player_speed_max - player_speed_min, 1.0)
 	var raw_t := clampf((current_flat_speed - player_speed_min) / speed_range, 0.0, 1.0)
