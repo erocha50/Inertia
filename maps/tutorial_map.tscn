@@ -244,7 +244,7 @@ shape = SubResource("BoxShape3D_wm0uf")
 [node name="Area3D4" type="Area3D" parent="TutorialTriggers" unique_id=1199601895]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 222.01715, 0, 6.211216)
 script = ExtResource("9_eared")
-message_text = "PRess M1/left click to dash."
+message_text = "Press M1/left click to dash."
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="TutorialTriggers/Area3D4" unique_id=88496621]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -64.5027, 5.2390137, 21.076096)

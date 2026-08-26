@@ -1,21 +1,19 @@
 [gd_scene format=3 uid="uid://dcm2wffcxim02"]
 
 [ext_resource type="Script" uid="uid://u80r12ywisd7" path="res://Scripts/FoodItem.gd" id="1_4vgar"]
-
-[sub_resource type="SphereMesh" id="SphereMesh_4vgar"]
+[ext_resource type="Texture2D" uid="uid://ch78dusqd4yly" path="res://assets/download (4).png" id="2_4vgar"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_4vgar"]
+radius = 0.89223707
 
 [node name="FoodItem" type="Area3D" unique_id=433262120]
 script = ExtResource("1_4vgar")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=664258100]
-mesh = SubResource("SphereMesh_4vgar")
+[node name="Sprite3D" type="Sprite3D" parent="." unique_id=203265526]
+transform = Transform3D(0, 0, -0.9999999, 0, 0.4193019, 0, 0.41930193, 0, 4.4703484e-08, 0, 0, 0)
+texture = ExtResource("2_4vgar")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=333038844]
 shape = SubResource("SphereShape3D_4vgar")
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=398638118]
-
-[node name="Camera3D" type="Camera3D" parent="." unique_id=1920230943]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 3)

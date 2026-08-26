@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dffqvs3cxkf4e"
-path.s3tc="res://.godot/imported/image-Photoroom (1).png-13ede5472a40aee752f0a6efbc0842bd.s3tc.ctex"
+uid="uid://ch78dusqd4yly"
+path.s3tc="res://.godot/imported/download (4).png-612a34319f27d1193cb9c869bb2d6bd6.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
@@ -11,8 +11,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/image-Photoroom (1).png"
-dest_files=["res://.godot/imported/image-Photoroom (1).png-13ede5472a40aee752f0a6efbc0842bd.s3tc.ctex"]
+source_file="res://assets/download (4).png"
+dest_files=["res://.godot/imported/download (4).png-612a34319f27d1193cb9c869bb2d6bd6.s3tc.ctex"]
 
 [params]
 

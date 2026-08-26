@@ -12,7 +12,7 @@ extends Area3D
 ## Fallback heat amount if no FoodItemData is assigned
 @export var fallback_heat_amount: float = 15.0
 
-@onready var mesh_instance: MeshInstance3D = $MeshInstance3D
+@onready var sprite: Sprite3D = $Sprite3D
 @onready var collision_shape: CollisionShape3D = $CollisionShape3D
 @onready var animation_player: AnimationPlayer = $AnimationPlayer
 
@@ -24,29 +24,12 @@ var time_elapsed: float = 0.0
 func _ready() -> void:
 	body_entered.connect(_on_body_entered)
 	animation_start_position = position
-	_initialize_food()
 
 
 func _process(delta: float) -> void:
 	time_elapsed += delta
 	var bob_offset: float = sin(time_elapsed * bob_speed * TAU) * bob_height
 	position.y = animation_start_position.y + bob_offset
-
-
-func _initialize_food() -> void:
-	var color: Color = Color.YELLOW
-	if data and data.is_rare:
-		color = Color.MAGENTA
-	elif is_rare:
-		color = Color.MAGENTA
-	_set_mesh_color(color)
-
-
-func _set_mesh_color(color: Color) -> void:
-	if mesh_instance:
-		var material: StandardMaterial3D = StandardMaterial3D.new()
-		material.albedo_color = color
-		mesh_instance.set_surface_override_material(0, material)
 
 
 func _on_body_entered(body: Node3D) -> void:
