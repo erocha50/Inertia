@@ -160,6 +160,8 @@ albedo_color = Color(0.4, 0.6, 0.8, 1)
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_j8adm"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_qwxyz"]
+radius = 0.7583008
+height = 3.0146484
 
 [node name="CharacterBody3D" type="CharacterBody3D" unique_id=1229242080 groups=["player"]]
 script = ExtResource("1_player")
@@ -190,6 +192,7 @@ material_override = SubResource("StandardMaterial3D_fghij")
 mesh = SubResource("CapsuleMesh_j8adm")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1058063896]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5073242, 0)
 shape = SubResource("CapsuleShape3D_qwxyz")
 
 [node name="GroundDetector" type="RayCast3D" parent="." unique_id=1765414762]

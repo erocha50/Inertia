@@ -6,6 +6,7 @@ enum State { IDLE, RUN, AIR, SLIDE, ARC, WALL_RIDE }
 @export var speed_min:float=10.0;  @export var speed_max:float=40.0
 @export var speed_ramp_rate:float=3.0; @export var speed_ramp_decay:float=8.0
 @export var mass:float=1.0
+@export var push_force:float=1.0  # Multiplier for how hard the player shoves RigidBody3D props
 
 @export_group("Horizontal")
 @export var acceleration:float=60.0; @export var friction:float=80.0
@@ -211,6 +212,7 @@ func _physics_process(d:float)->void:
 
 	var pre_slide_flat:=Vector3(velocity.x,0,velocity.z)
 	move_and_slide()
+	_push_rigid_bodies()
 	if _dash_attack_active: _dash_knockback_enemies()
 	_check_wall_bounce()
 
@@ -535,6 +537,18 @@ func _slide_phys(d:float)->bool:
 		fv=fv.move_toward(Vector3.ZERO,slide_friction*_surf_friction*d)
 		if fv.length()<1.5: return true
 	velocity.x=fv.x; velocity.z=fv.z; velocity.y=0.0; return false
+
+
+func _push_rigid_bodies()->void:
+	for i in get_slide_collision_count():
+		var collision:=get_slide_collision(i)
+		var collider:=collision.get_collider()
+		if collider is RigidBody3D:
+			var body:=collider as RigidBody3D
+			var direction:=-collision.get_normal()
+			var relative_pos:=collision.get_position()-body.global_position
+			var force:=direction*(mass/body.mass)*push_force
+			body.apply_impulse(force,relative_pos)
 
 
 func _check_wall_bounce()->void:

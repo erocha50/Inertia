@@ -7,9 +7,13 @@
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_2fjyf"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_7cebc"]
+radius = 2.0
 
 [node name="SculleryHorror" type="CharacterBody3D" unique_id=1923869172]
 script = ExtResource("1_2fjyf")
+speed_mirror = 2.0
+speed_min = 12.0
+vision_range = 1000.0
 max_health = 30.0
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=60504231]
