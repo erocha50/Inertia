@@ -4,13 +4,17 @@ class_name PauseMenu extends CanvasLayer
 #  PauseMenu.gd - Pause overlay with Resume/Settings/MainMenu options
 # ═══════════════════════════════════════════════════════════════════════════════
 
+const SETTINGS_SCENE: PackedScene = preload("res://Scenes/settings.tscn")
+
 @onready var resume_button: Button = $Control/PausePanel/VBoxContainer/MenuContainer/ResumeButton
 @onready var settings_button: Button = $Control/PausePanel/VBoxContainer/MenuContainer/SettingsButton
 @onready var main_menu_button: Button = $Control/PausePanel/VBoxContainer/MenuContainer/MainMenuButton
 @onready var background_control: Control = $Control
+@onready var pause_panel: Control = $Control/PausePanel
 
 var is_paused: bool = false
 var font_config: FontConfig = null
+var _settings_instance: Control = null
 
 func _ready() -> void:
 	# Keep processing even while the SceneTree is paused, so ESC toggling and
@@ -36,9 +40,11 @@ func _ready() -> void:
 	main_menu_button.pressed.connect(_on_main_menu_pressed)
 
 func _process(_delta: float) -> void:
-	# Toggle pause on ESC key, but only if not in main menu
 	if Input.is_action_just_pressed("ui_cancel"):
-		if not _is_in_main_menu():
+		if _settings_instance:
+			# Settings overlay is open — treat ESC as "close it and resume"
+			_on_settings_resume_requested()
+		elif not _is_in_main_menu():
 			toggle_pause()
 
 func toggle_pause() -> void:
@@ -94,9 +100,24 @@ func _on_resume_pressed() -> void:
 	toggle_pause()
 
 func _on_settings_pressed() -> void:
-	_hide_pause_menu()
-	get_tree().change_scene_to_file("res://Scenes/settings.tscn")
+	# Show settings as an overlay INSTEAD of swapping scenes — the game stays
+	# paused and alive underneath, so Resume can actually take you back to it.
+	pause_panel.visible = false
+
+	_settings_instance = SETTINGS_SCENE.instantiate()
+	_settings_instance.show_resume_button = true
+	_settings_instance.resume_requested.connect(_on_settings_resume_requested)
+	background_control.add_child(_settings_instance)
+
+func _on_settings_resume_requested() -> void:
+	if _settings_instance:
+		_settings_instance.queue_free()
+		_settings_instance = null
+
+	pause_panel.visible = true
+	toggle_pause()  # is_paused is still true here, so this resumes gameplay
 
 func _on_main_menu_pressed() -> void:
 	_hide_pause_menu()
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	get_tree().change_scene_to_file("res://Scenes/main_menu.tscn")
