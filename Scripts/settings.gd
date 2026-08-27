@@ -1,6 +1,11 @@
 extends Control
 
+signal resume_requested
+
 @export var font_config: FontConfig
+
+# Only true when this settings screen is shown as an overlay from the pause menu
+@export var show_resume_button: bool = false
 
 # Scroll speed in UV units per second (tweak to taste)
 @export var scroll_speed: float = 0.015
@@ -127,13 +132,29 @@ func _build_ui() -> void:
 	slider.value_changed.connect(_on_volume_slider_changed)
 	main_box.add_child(slider)
 
-	# Spacer between slider and back button
+	# Spacer between slider and the buttons below
 	var spacer_bottom := Control.new()
 	spacer_bottom.custom_minimum_size = Vector2(0, 24)
 	main_box.add_child(spacer_bottom)
 
+	# Resume only makes sense if we were opened from the pause menu mid-game
+	if show_resume_button:
+		var resume_btn := Button.new()
+		resume_btn.text = "RESUME"
+		resume_btn.custom_minimum_size = Vector2(160, 44)
+		resume_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+		if font_config.get_button_font():
+			resume_btn.add_theme_font_override("font", font_config.get_button_font())
+			resume_btn.add_theme_font_size_override("font_size", font_config.button_font_size)
+		resume_btn.pressed.connect(_on_resume_button_pressed)
+		main_box.add_child(resume_btn)
+
+		var spacer_mid := Control.new()
+		spacer_mid.custom_minimum_size = Vector2(0, 12)
+		main_box.add_child(spacer_mid)
+
 	var back_btn := Button.new()
-	back_btn.text = "BACK"
+	back_btn.text = "BACK TO MENU"
 	back_btn.custom_minimum_size = Vector2(160, 44)
 	back_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	if font_config.get_button_font():
@@ -145,5 +166,12 @@ func _build_ui() -> void:
 func _on_volume_slider_changed(value: float) -> void:
 	AudioManager.set_volume("Master", value)
 
+func _on_resume_button_pressed() -> void:
+	resume_requested.emit()
+
 func _on_back_button_pressed() -> void:
+	# Defensive — makes sure we don't leave the game stuck paused/mouse-locked
+	# if this got opened from inside a paused level
+	get_tree().paused = false
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	get_tree().change_scene_to_file("res://Scenes/main_menu.tscn")

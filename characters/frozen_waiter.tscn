@@ -41,7 +41,7 @@ animations = [{
 script = ExtResource("1_sds1l")
 max_health = 60.0
 patrol_speed = 5.0
-chase_speed = 15.0
+chase_speed = 30.0
 sweep_cooldown = 3.0
 sweep_duration = 0.9
 sweep_speed_threshold = 8.0
@@ -70,7 +70,7 @@ shape = SubResource("BoxShape3D_6m1n2")
 [node name="DetectionArea" type="Area3D" parent="." unique_id=189222826]
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="DetectionArea" unique_id=1787940344]
-transform = Transform3D(8, 0, 0, 0, 8, 0, 0, 0, 8, 0, 0, 0)
+transform = Transform3D(8, 0, 0, 0, 8.786525, 0, 0, 0, 8.786525, 0, 0, 0)
 shape = SubResource("SphereShape3D_5cxxb")
 
 [node name="NavigationAgent3D" type="NavigationAgent3D" parent="." unique_id=1187926052]
