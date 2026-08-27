@@ -2,6 +2,8 @@
 
 [ext_resource type="Script" uid="uid://dlvaoc76xpvtb" path="res://Scripts/bloated_diner.gd" id="1_c8vvd"]
 [ext_resource type="PackedScene" uid="uid://qawr3wwmowge" path="res://Resources/fork.tscn" id="2_356s3"]
+[ext_resource type="Texture2D" uid="uid://de0kreptjt3xa" path="res://assets/bloated diner/bloated diner 1st.png" id="3_yrd0h"]
+[ext_resource type="Texture2D" uid="uid://b3o8837x5ruaa" path="res://assets/bloated diner/bloated diner 2nd.png" id="4_5j7oo"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_356s3"]
 
@@ -13,6 +15,20 @@ material = SubResource("StandardMaterial3D_356s3")
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_yrd0h"]
 radius = 35.0
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_g4v7s"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("3_yrd0h")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_5j7oo")
+}],
+"loop": 1,
+"name": &"default",
+"speed": 5.0
+}]
 
 [node name="BloatedDiner" type="CharacterBody3D" unique_id=56293077]
 script = ExtResource("1_c8vvd")
@@ -27,6 +43,7 @@ shape = SubResource("CapsuleShape3D_356s3")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1754916471]
 transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0)
+visible = false
 mesh = SubResource("CapsuleMesh_ax37f")
 
 [node name="ForkLauncher" type="Node3D" parent="." unique_id=2147134896]
@@ -40,3 +57,9 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 2.5)
 shape = SubResource("SphereShape3D_yrd0h")
 
 [node name="NavigationAgent3D" type="NavigationAgent3D" parent="." unique_id=949660016]
+
+[node name="AnimatedSprite3D" type="AnimatedSprite3D" parent="." unique_id=1158449282]
+billboard = 1
+sprite_frames = SubResource("SpriteFrames_g4v7s")
+autoplay = "default"
+frame_progress = 0.9773494

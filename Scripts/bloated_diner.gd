@@ -10,6 +10,11 @@ extends CharacterBody3D
 @export var detection_range: float = 35.0
 @export var fork_scene: PackedScene
 
+@export var avoid_probe_distance : float = 3.0
+@export var avoid_collision_mask : int   = 1  # world/geometry layer
+@export var avoid_probe_height_high : float = 1.0  # chest-level ray
+@export var avoid_probe_height_low  : float = 0.3  # ankle-level ray — catches short obstacles
+
 # --- State Machine ---
 enum State { IDLE, CHASE, WINDUP, VOLLEY, SPRINT, HURT, DEAD }
 var state: State = State.IDLE
@@ -35,6 +40,12 @@ var _beam_curve_sign: float = 1.0  # +1 or -1, randomised per volley
 
 var _spawn_position: Vector3 = Vector3.ZERO
 var respawn_delay: float = 5.0
+
+# Obstacle avoidance — once we commit to skirting a wall, stick with it
+# for a bit instead of re-evaluating from scratch every frame.
+var _avoid_committed: bool = false
+var _avoid_commit_dir: Vector3 = Vector3.ZERO
+var _avoid_commit_timer: float = 0.0
 
 const GRAVITY = -9.8
 
@@ -120,7 +131,7 @@ func _state_chase(delta: float) -> void:
 	var dir = (target_pos - global_position)
 	dir.y = 0
 	if dir.length() > 0.01:
-		dir = dir.normalized()
+		dir = _get_avoidance_dir(dir.normalized(), delta)
 		velocity.x = dir.x * move_speed
 		velocity.z = dir.z * move_speed
 		_face_direction(dir)
@@ -146,13 +157,13 @@ func _state_volley(delta: float) -> void:
 		volley_shots_fired = 0
 		_begin_sprint()
 
-func _state_sprint(_delta: float) -> void:
+func _state_sprint(delta: float) -> void:
 	var dir = (sprint_target - global_position)
 	dir.y = 0
 	if dir.length() < 0.5:
 		_change_state(State.CHASE)
 		return
-	dir = dir.normalized()
+	dir = _get_avoidance_dir(dir.normalized(), delta)
 	velocity.x = dir.x * sprint_speed
 	velocity.z = dir.z * sprint_speed
 	_face_direction(dir)
@@ -263,6 +274,78 @@ func _respawn() -> void:
 	volley_shots_fired = 0
 	if _health_bar: _health_bar.reset()
 	_change_state(State.IDLE)
+
+# ─── Obstacle Avoidance ────────────────────────────────────────
+func _probe_clear(space_state: PhysicsDirectSpaceState3D, base_pos: Vector3, dir: Vector3, dist: float) -> bool:
+	if dir.length_squared() < 0.001:
+		return true
+	for h in [avoid_probe_height_high, avoid_probe_height_low]:
+		var origin : Vector3 = base_pos + Vector3.UP * h
+		var query := PhysicsRayQueryParameters3D.create(origin, origin + dir * dist)
+		query.exclude        = [self]
+		query.collision_mask = avoid_collision_mask
+		if not space_state.intersect_ray(query).is_empty():
+			return false
+	return true
+
+
+func _probe_forward_hit(space_state: PhysicsDirectSpaceState3D, base_pos: Vector3, dir: Vector3, dist: float) -> Dictionary:
+	# Checks chest height first, then ankle height, so short obstacles
+	# (crates, low walls, counters) that a chest-level ray would sail
+	# straight over still register as blocking.
+	for h in [avoid_probe_height_high, avoid_probe_height_low]:
+		var origin : Vector3 = base_pos + Vector3.UP * h
+		var query := PhysicsRayQueryParameters3D.create(origin, origin + dir * dist)
+		query.exclude        = [self]
+		query.collision_mask = avoid_collision_mask
+		var result : Dictionary = space_state.intersect_ray(query)
+		if not result.is_empty():
+			return result
+	return {}
+
+
+func _get_avoidance_dir(desired_dir: Vector3, delta: float) -> Vector3:
+	# Ray straight along desired_dir at two heights (chest + ankle). If
+	# clear, go straight there (and drop any prior commitment). If blocked,
+	# use the hit normal to slide along the obstacle's actual surface —
+	# scales to any obstacle size, unlike guessing fixed angles. Once a
+	# side is picked we COMMIT to it for a short window so we don't flip
+	# back toward the target the instant a corner peeks clear (that
+	# flip-flopping is what caused the stalling).
+	if desired_dir.length_squared() < 0.001:
+		_avoid_committed = false
+		return desired_dir
+
+	var space_state := get_world_3d().direct_space_state
+	var base_pos     : Vector3 = global_position
+
+	var result : Dictionary = _probe_forward_hit(space_state, base_pos, desired_dir, avoid_probe_distance)
+
+	if result.is_empty():
+		_avoid_committed = false
+		return desired_dir
+
+	if _avoid_committed:
+		_avoid_commit_timer -= delta
+		if _avoid_commit_timer > 0.0 and _probe_clear(space_state, base_pos, _avoid_commit_dir, avoid_probe_distance * 0.6):
+			return _avoid_commit_dir
+
+	var normal : Vector3 = result.get("normal", -desired_dir)
+	normal.y = 0.0
+	if normal.length_squared() < 0.001:
+		normal = -desired_dir
+	normal = normal.normalized()
+
+	var tangent_a : Vector3 = Vector3(-normal.z, 0.0, normal.x)
+	var tangent_b : Vector3 = -tangent_a
+	var escape_dir : Vector3 = tangent_a if tangent_a.dot(desired_dir) > tangent_b.dot(desired_dir) else tangent_b
+	escape_dir = (escape_dir + normal * 0.35).normalized()
+
+	_avoid_committed    = true
+	_avoid_commit_dir   = escape_dir
+	_avoid_commit_timer = 0.5
+	return escape_dir
+
 
 # ─── Helpers ─────────────────────────────────────────────────
 func _face_direction(dir: Vector3) -> void:

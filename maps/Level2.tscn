@@ -62,7 +62,11 @@
 [ext_resource type="PackedScene" uid="uid://ct5q8dghcydis" path="res://assets/Downtown City MegaKit[Standard]/Exports/glTF (Godot)/Street_Curve_2Lane_Curb.gltf" id="60_fmieu"]
 [ext_resource type="PackedScene" uid="uid://b84c1dymjri4k" path="res://Scenes/HUD.tscn" id="62_xrej5"]
 [ext_resource type="PackedScene" uid="uid://ctwafpi661v1i" path="res://Scenes/RespawnScreen.tscn" id="63_r7gce"]
+<<<<<<< HEAD
 [ext_resource type="Script" uid="uid://dfnhx87d4pn4i" path="res://maps/Winscreen.gd" id="64_r7gce"]
+=======
+[ext_resource type="PackedScene" uid="uid://dcm2wffcxim02" path="res://Scenes/FoodItem.tscn" id="64_r7gce"]
+>>>>>>> 3192af288b22d87b1c7107feca65593dd568e252
 [ext_resource type="Texture2D" uid="uid://ywbjtfbccsx7" path="res://assets/PSX_Vehicle_Pack/_FBX/Pickup_1/Pick_Up_1_0.png" id="69_oj640"]
 [ext_resource type="PackedScene" uid="uid://u2c8cmscyaoh" path="res://characters/scullery_horror.tscn" id="72_8ym6r"]
 
@@ -11366,6 +11370,69 @@ shape = SubResource("ConcavePolygonShape3D_rl6o1")
 transform = Transform3D(0.20705527, 3.377759e-08, 0.7727409, 0, 0.8, -3.4969123e-08, -0.7727409, 9.050682e-09, 0.20705527, 41.427822, 0.25, 17.664963)
 mesh = SubResource("ArrayMesh_45syd")
 
+[node name="FoodItem" parent="Street/ragdoll pick up2/RigidBody3D" unique_id=433262120 instance=ExtResource("64_r7gce")]
+transform = Transform3D(0.06470475, 0, 0.24148148, 0, 0.25, 0, -0.24148148, 0, 0.06470475, 38.18286, -1.25, 26.536667)
+
+[node name="FoodItem2" parent="Street/ragdoll pick up2/RigidBody3D" unique_id=633421651 instance=ExtResource("64_r7gce")]
+transform = Transform3D(0.06470475, 0, 0.24148148, 0, 0.25, 0, -0.24148148, 0, 0.06470475, 39.753117, -1.25, 19.71048)
+
+[node name="FoodItem3" parent="Street/ragdoll pick up2/RigidBody3D" unique_id=365471878 instance=ExtResource("64_r7gce")]
+transform = Transform3D(0.06470475, 0, 0.24148148, 0, 0.25, 0, -0.24148148, 0, 0.06470475, 43.471317, -1.25, 7.765808)
+
+[node name="FoodItem4" parent="Street/ragdoll pick up2/RigidBody3D" unique_id=195926463 instance=ExtResource("64_r7gce")]
+transform = Transform3D(0.06470475, 0, 0.24148148, 0, 0.25, 0, -0.24148148, 0, 0.06470475, 46.21894, -1.25, -0.55662537)
+
+[node name="FoodItem5" parent="Street/ragdoll pick up2/RigidBody3D" unique_id=1854758892 instance=ExtResource("64_r7gce")]
+transform = Transform3D(0.06470475, 0, 0.24148148, 0, 0.25, 0, -0.24148148, 0, 0.06470475, 54.589996, -1.25, -11.513382)
+
+[node name="FoodItem6" parent="Street/ragdoll pick up2/RigidBody3D" unique_id=1706718234 instance=ExtResource("64_r7gce")]
+transform = Transform3D(0.06470475, 0, 0.24148148, 0, 0.25, 0, -0.24148148, 0, 0.06470475, 65.21518, -1.25, -8.666382)
+
+[node name="FoodItem7" parent="Street/ragdoll pick up2/RigidBody3D" unique_id=951169133 instance=ExtResource("64_r7gce")]
+transform = Transform3D(0.06470475, 0, 0.24148148, 0, 0.25, 0, -0.24148148, 0, 0.06470475, 78.99696, -1.25, -6.008835)
+
+[node name="FoodItem8" parent="Street/ragdoll pick up2/RigidBody3D" unique_id=549484898 instance=ExtResource("64_r7gce")]
+transform = Transform3D(0.06470475, 0, 0.24148148, 0, 0.25, 0, -0.24148148, 0, 0.06470475, 94.19296, -1.25, -0.9018097)
+
+[node name="FoodItem9" parent="Street/ragdoll pick up2/RigidBody3D" unique_id=1517794918 instance=ExtResource("64_r7gce")]
+transform = Transform3D(0.06470475, 0, 0.24148148, 0, 0.25, 0, -0.24148148, 0, 0.06470475, 109.90659, -1.25, 2.2733765)
+
+[node name="FoodItem10" parent="Street/ragdoll pick up2/RigidBody3D" unique_id=1514604942 instance=ExtResource("64_r7gce")]
+transform = Transform3D(0.06470475, 0, 0.24148148, 0, 0.25, 0, -0.24148148, 0, 0.06470475, 129.93222, -1.25, 8.6744995)
+
+[node name="FoodItem11" parent="Street/ragdoll pick up2/RigidBody3D" unique_id=892759226 instance=ExtResource("64_r7gce")]
+transform = Transform3D(0.06470475, 0, 0.24148148, 0, 0.25, 0, -0.24148148, 0, 0.06470475, 145.09819, -1.25, 11.961746)
+
+[node name="FoodItem12" parent="Street/ragdoll pick up2/RigidBody3D" unique_id=1070303669 instance=ExtResource("64_r7gce")]
+transform = Transform3D(0.06470475, 0, 0.24148148, 0, 0.25, 0, -0.24148148, 0, 0.06470475, 166.65474, -1.25, 17.478989)
+
+[node name="FoodItem13" parent="Street/ragdoll pick up2/RigidBody3D" unique_id=1585106047 instance=ExtResource("64_r7gce")]
+transform = Transform3D(0.06470475, 0, 0.24148148, 0, 0.25, 0, -0.24148148, 0, 0.06470475, 192.0103, -1.25, 24.272987)
+
+[node name="FoodItem14" parent="Street/ragdoll pick up2/RigidBody3D" unique_id=1756979317 instance=ExtResource("64_r7gce")]
+transform = Transform3D(0.06470475, 0, 0.24148148, 0, 0.25, 0, -0.24148148, 0, 0.06470475, 196.86316, -1.25, 6.1618805)
+
+[node name="FoodItem15" parent="Street/ragdoll pick up2/RigidBody3D" unique_id=1348717416 instance=ExtResource("64_r7gce")]
+transform = Transform3D(0.06470475, 0, 0.24148148, 0, 0.25, 0, -0.24148148, 0, 0.06470475, 202.06956, -1.25, -11.336868)
+
+[node name="FoodItem16" parent="Street/ragdoll pick up2/RigidBody3D" unique_id=1431518663 instance=ExtResource("64_r7gce")]
+transform = Transform3D(0.06470475, 0, 0.24148148, 0, 0.25, 0, -0.24148148, 0, 0.06470475, 209.15242, -1.25, -35.838562)
+
+[node name="FoodItem17" parent="Street/ragdoll pick up2/RigidBody3D" unique_id=724846972 instance=ExtResource("64_r7gce")]
+transform = Transform3D(0.06470475, 0, 0.24148148, 0, 0.25, 0, -0.24148148, 0, 0.06470475, 196.38982, -1.25, -55.82271)
+
+[node name="FoodItem18" parent="Street/ragdoll pick up2/RigidBody3D" unique_id=836361020 instance=ExtResource("64_r7gce")]
+transform = Transform3D(0.06470475, 0, 0.24148148, 0, 0.25, 0, -0.24148148, 0, 0.06470475, 174.65648, -1.25, -61.646133)
+
+[node name="FoodItem19" parent="Street/ragdoll pick up2/RigidBody3D" unique_id=1822970530 instance=ExtResource("64_r7gce")]
+transform = Transform3D(0.06470475, 0, 0.24148148, 0, 0.25, 0, -0.24148148, 0, 0.06470475, 153.03522, -1.25, -66.921906)
+
+[node name="FoodItem20" parent="Street/ragdoll pick up2/RigidBody3D" unique_id=1327292993 instance=ExtResource("64_r7gce")]
+transform = Transform3D(0.06470475, 0, 0.24148148, 0, 0.25, 0, -0.24148148, 0, 0.06470475, 141.53079, -1.25, -75.18088)
+
+[node name="FoodItem21" parent="Street/ragdoll pick up2/RigidBody3D" unique_id=644002912 instance=ExtResource("64_r7gce")]
+transform = Transform3D(0.06470475, 0, 0.24148148, 0, 0.25, 0, -0.24148148, 0, 0.06470475, 145.08615, -1.25, -99.074844)
+
 [node name="ragdoll pick up3" type="Node3D" parent="Street" unique_id=641793745]
 transform = Transform3D(0.51763797, 0, -1.9318516, 0, 2, 0, 1.9318516, 0, 0.51763797, 251, 0, -242.5)
 
@@ -11399,7 +11466,11 @@ transform = Transform3D(0.20705527, 3.377759e-08, 0.7727409, 0, 0.8, -3.4969123e
 mesh = SubResource("ArrayMesh_45syd")
 
 [node name="CharacterBody3D" parent="." unique_id=1229242080 instance=ExtResource("5_enbpk")]
+<<<<<<< HEAD
 transform = Transform3D(0.7071067, 0, -0.7071068, 0, 1, 0, 0.7071068, 0, 0.7071067, 0.12637997, 1, 0.03271103)
+=======
+transform = Transform3D(0.7071067, 0, -0.7071068, 0, 1, 0, 0.7071068, 0, 0.7071067, -10, 149, -1)
+>>>>>>> 3192af288b22d87b1c7107feca65593dd568e252
 
 [node name="SidewalkStart2" type="Node3D" parent="." unique_id=745440710]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 91, 0, 9.25)
@@ -12056,6 +12127,7 @@ shape = SubResource("ConcavePolygonShape3D_f44dx")
 
 [node name="RespawnScreen" parent="." unique_id=1511386983 instance=ExtResource("63_r7gce")]
 
+<<<<<<< HEAD
 [node name="Area3D" type="Area3D" parent="." unique_id=831537791]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1187.5728, 1.6553841, -27.770975)
 script = ExtResource("64_r7gce")
@@ -12064,3 +12136,43 @@ title_text = "YOU MADE IT THANKS FOR PLAYING INERTIA"
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D" unique_id=349356621]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.351807, 5.3775024, 2.2458801)
 shape = SubResource("BoxShape3D_p1u0y")
+=======
+[node name="FoodItem" parent="." unique_id=244298400 instance=ExtResource("64_r7gce")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 2, -8)
+
+[node name="FoodItem2" parent="." unique_id=1348784556 instance=ExtResource("64_r7gce")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 36, 1, -8)
+
+[node name="FoodItem3" parent="." unique_id=1541182759 instance=ExtResource("64_r7gce")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 113, 1, -2)
+
+[node name="FoodItem4" parent="." unique_id=279950314 instance=ExtResource("64_r7gce")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 183, 1, -1)
+
+[node name="FoodItem5" parent="." unique_id=1025522003 instance=ExtResource("64_r7gce")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 256, 1, -5)
+
+[node name="FoodItem6" parent="." unique_id=1103561735 instance=ExtResource("64_r7gce")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 277, 1, -31)
+
+[node name="FoodItem7" parent="." unique_id=1016785109 instance=ExtResource("64_r7gce")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 274, 1, -102)
+
+[node name="FoodItem8" parent="." unique_id=114177120 instance=ExtResource("64_r7gce")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 276, 1, -170)
+
+[node name="FoodItem9" parent="." unique_id=2003779126 instance=ExtResource("64_r7gce")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 277, 1, -215)
+
+[node name="FoodItem10" parent="." unique_id=500060606 instance=ExtResource("64_r7gce")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 276, 1, -268)
+
+[node name="FoodItem11" parent="." unique_id=1051462930 instance=ExtResource("64_r7gce")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 290, 1, -301)
+
+[node name="FoodItem12" parent="." unique_id=210253772 instance=ExtResource("64_r7gce")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 340, 1, -309)
+
+[node name="FoodItem13" parent="." unique_id=198460100 instance=ExtResource("64_r7gce")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 400, 1, -312)
+>>>>>>> 3192af288b22d87b1c7107feca65593dd568e252
