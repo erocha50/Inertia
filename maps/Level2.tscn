@@ -11457,7 +11457,7 @@ transform = Transform3D(0.20705527, 3.377759e-08, 0.7727409, 0, 0.8, -3.4969123e
 mesh = SubResource("ArrayMesh_45syd")
 
 [node name="CharacterBody3D" parent="." unique_id=1229242080 instance=ExtResource("5_enbpk")]
-transform = Transform3D(0.7071067, 0, -0.7071068, 0, 1, 0, 0.7071068, 0, 0.7071067, -10, 1, -1)
+transform = Transform3D(0.7071067, 0, -0.7071068, 0, 1, 0, 0.7071068, 0, 0.7071067, -10, 149, -1)
 
 [node name="SidewalkStart2" type="Node3D" parent="." unique_id=745440710]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 91, 0, 9.25)
