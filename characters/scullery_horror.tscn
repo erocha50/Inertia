@@ -1,6 +1,8 @@
 [gd_scene format=3 uid="uid://u2c8cmscyaoh"]
 
 [ext_resource type="Script" uid="uid://c7klrjqiofn48" path="res://Scripts/scullery_horror.gd" id="1_2fjyf"]
+[ext_resource type="Texture2D" uid="uid://cujn4h1quuvvf" path="res://assets/skullery horror animation/skullery_horror walk 1st.png" id="2_qc8em"]
+[ext_resource type="Texture2D" uid="uid://8nqufr5yf0up" path="res://assets/skullery horror animation/skullery_horror walk 2nd.png" id="3_ff6mh"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_lw7la"]
 
@@ -9,12 +11,32 @@
 [sub_resource type="SphereShape3D" id="SphereShape3D_7cebc"]
 radius = 2.0
 
+[sub_resource type="SpriteFrames" id="SpriteFrames_g4v7s"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_qc8em")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_ff6mh")
+}],
+"loop": 1,
+"name": &"run",
+"speed": 5.0
+}]
+
 [node name="SculleryHorror" type="CharacterBody3D" unique_id=1923869172]
+wall_min_slide_angle = 3.1415927
+floor_max_angle = 3.1415927
 script = ExtResource("1_2fjyf")
-speed_mirror = 2.0
+speed_mirror = 8.0
 speed_min = 12.0
+rage_speed_boost = 2.0
 vision_range = 1000.0
-max_health = 30.0
+vision_angle_deg = 720.0
+turn_speed = 3.0
+friction = 6.0
+max_health = 15.0
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=60504231]
 transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 0, 0, 0)
@@ -22,6 +44,7 @@ shape = SubResource("CapsuleShape3D_lw7la")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=12334191]
 transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 0, 0, 0)
+visible = false
 mesh = SubResource("CapsuleMesh_2fjyf")
 
 [node name="DetectionArea" type="Area3D" parent="." unique_id=679928781]
@@ -30,3 +53,11 @@ transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 0, 0, 0)
 [node name="CollisionShape3D" type="CollisionShape3D" parent="DetectionArea" unique_id=2128630521]
 transform = Transform3D(40, 0, 0, 0, 40, 0, 0, 0, 40, 0, 0, 0)
 shape = SubResource("SphereShape3D_7cebc")
+
+[node name="AnimatedSprite3D" type="AnimatedSprite3D" parent="." unique_id=335052288]
+transform = Transform3D(1, 0, 0, 0, 0.8, 0, 0, 0, 0.8, 0, 0, 0)
+billboard = 1
+sprite_frames = SubResource("SpriteFrames_g4v7s")
+animation = &"run"
+autoplay = "run"
+frame_progress = 0.23723905
