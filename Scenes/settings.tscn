@@ -1,44 +1,24 @@
 [gd_scene format=3 uid="uid://kdu3ln3sm6o3"]
 
 [ext_resource type="Script" uid="uid://cn1pkf8ictds" path="res://Scripts/settings.gd" id="1_4geyq"]
+[ext_resource type="Texture2D" uid="uid://51kt2fsynuri" path="res://assets/space_spheremaps/hazy_nebulae_1.png" id="2_lhmql"]
+[ext_resource type="Script" uid="uid://bvhgrsyyyx8i3" path="res://Scripts/GridBackground.gd" id="3_aaqfp"]
 
 [node name="Control" type="Control" unique_id=697191733]
 layout_mode = 3
 anchors_preset = 0
+offset_left = 915.0
+offset_top = 328.0
+offset_right = 915.0
+offset_bottom = 328.0
 script = ExtResource("1_4geyq")
 
-[node name="Background" type="TextureRect" parent="." unique_id=1705652346]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
-
-[node name="TitleContainer" type="VBoxContainer" parent="." unique_id=936614364]
-layout_mode = 0
-offset_left = 231.0
-offset_top = 55.0
-offset_right = 271.0
-offset_bottom = 105.0
-
-[node name="Title" type="Label" parent="TitleContainer" unique_id=326164625]
-layout_mode = 2
-
-[node name="Subtitle" type="Label" parent="TitleContainer" unique_id=1022642606]
-layout_mode = 2
-
-[node name="SettingsContainer" type="VBoxContainer" parent="." unique_id=1245933647]
-layout_mode = 0
-offset_left = 402.0
-offset_top = 134.0
-offset_right = 442.0
-offset_bottom = 189.0
-
-[node name="VolumeLabel" type="Label" parent="SettingsContainer" unique_id=1890980153]
-layout_mode = 2
-
-[node name="VolumeSlider" type="HSlider" parent="SettingsContainer" unique_id=968799659]
-layout_mode = 2
-
-[node name="BackButton" type="Button" parent="SettingsContainer" unique_id=1337672335]
-layout_mode = 2
-text = "BACK
-"
+[node name="Background" type="TextureRect" parent="." unique_id=1486881431]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_lhmql")
+script = ExtResource("3_aaqfp")

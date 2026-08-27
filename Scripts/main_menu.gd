@@ -1,6 +1,7 @@
 extends Control
 
 @export var font_config: FontConfig
+@export var menu_music: AudioStream
 
 # Scroll speed in UV units per second (tweak to taste)
 @export var scroll_speed: float = 0.015
@@ -30,6 +31,8 @@ func _ready() -> void:
 		print("⚠ FontConfig resource not found, created new instance")
 
 	_apply_fonts()
+
+	MusicPlayer.play_track(menu_music)
 
 func _setup_background() -> void:
 	_bg = get_node_or_null("Background")
