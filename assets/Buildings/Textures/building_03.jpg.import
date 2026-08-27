@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dneus645j825r"
-path.s3tc="res://.godot/imported/building_03.jpg-98e8e39a6ff9b05d4e1b0e46ad1b250d.s3tc.ctex"
+path.s3tc="res://.godot/imported/building_03.jpg-bf1e01ae41f943b32cc0fc40a6edf6d1.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
@@ -11,8 +11,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/Buildings/textures/building_03.jpg"
-dest_files=["res://.godot/imported/building_03.jpg-98e8e39a6ff9b05d4e1b0e46ad1b250d.s3tc.ctex"]
+source_file="res://assets/Buildings/Textures/building_03.jpg"
+dest_files=["res://.godot/imported/building_03.jpg-bf1e01ae41f943b32cc0fc40a6edf6d1.s3tc.ctex"]
 
 [params]
 

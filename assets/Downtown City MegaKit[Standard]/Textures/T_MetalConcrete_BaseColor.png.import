@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://c5g8svwaf8bj6"
-path.s3tc="res://.godot/imported/T_MetalConcrete_BaseColor.png-8bdecb0dc8ac191372ad64afd2781210.s3tc.ctex"
+path.s3tc="res://.godot/imported/T_MetalConcrete_BaseColor.png-d8f1a5aa99112ab40c68b59367093644.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
@@ -11,8 +11,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/Downtown City MegaKit[Standard]/textures/T_MetalConcrete_BaseColor.png"
-dest_files=["res://.godot/imported/T_MetalConcrete_BaseColor.png-8bdecb0dc8ac191372ad64afd2781210.s3tc.ctex"]
+source_file="res://assets/Downtown City MegaKit[Standard]/Textures/T_MetalConcrete_BaseColor.png"
+dest_files=["res://.godot/imported/T_MetalConcrete_BaseColor.png-d8f1a5aa99112ab40c68b59367093644.s3tc.ctex"]
 
 [params]
 

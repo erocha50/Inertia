@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c73iq4k0y00wh"
-path.s3tc="res://.godot/imported/Shops_18.png-056a2d7eedea0ed880b6cb534eaf457b.s3tc.ctex"
+uid="uid://de0kreptjt3xa"
+path.s3tc="res://.godot/imported/bloated diner 1st.png-34b9cca147f4ed268db46e53f62fd4e2.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
@@ -11,8 +11,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/Buildings/Textures/Shops_18.png"
-dest_files=["res://.godot/imported/Shops_18.png-056a2d7eedea0ed880b6cb534eaf457b.s3tc.ctex"]
+source_file="res://assets/bloated diner/bloated diner 1st.png"
+dest_files=["res://.godot/imported/bloated diner 1st.png-34b9cca147f4ed268db46e53f62fd4e2.s3tc.ctex"]
 
 [params]
 

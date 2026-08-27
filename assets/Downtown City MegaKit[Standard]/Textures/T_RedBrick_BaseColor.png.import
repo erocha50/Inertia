@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dr6emi8imhpd3"
-path.s3tc="res://.godot/imported/T_RedBrick_BaseColor.png-b1f6b8436bebdf423130075e79ae7586.s3tc.ctex"
+path.s3tc="res://.godot/imported/T_RedBrick_BaseColor.png-5d296ce74b232f7602bc3352fdffcfee.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
@@ -11,8 +11,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/Downtown City MegaKit[Standard]/textures/T_RedBrick_BaseColor.png"
-dest_files=["res://.godot/imported/T_RedBrick_BaseColor.png-b1f6b8436bebdf423130075e79ae7586.s3tc.ctex"]
+source_file="res://assets/Downtown City MegaKit[Standard]/Textures/T_RedBrick_BaseColor.png"
+dest_files=["res://.godot/imported/T_RedBrick_BaseColor.png-5d296ce74b232f7602bc3352fdffcfee.s3tc.ctex"]
 
 [params]
 
